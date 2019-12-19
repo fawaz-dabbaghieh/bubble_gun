@@ -1,75 +1,6 @@
 import os
 from Node2 import Node
-
-def read_gfa(gfa_file_path, modified=False):
-	"""
-	:param gfa_file_path: gfa graph file.
-	:param modified: if I'm reading my modified GFA with extra information for the nodes
-	:return: Dictionary of node ids and Node objects.
-	"""
-	if not os.path.exists(gfa_file_path):
-		print("the gfa file path you gave does not exists, please try again!")
-		sys.exit()
-
-	nodes = dict()
-	edges = []
-	with open(gfa_file_path, "r") as lines:
-		for line in lines:
-			if line.startswith("S"):
-				line = line.split()
-				n_id = int(line[1])
-				n_len = len(line[2])
-				nodes[n_id] = Node(n_id)
-				nodes[n_id].seq_len = n_len
-				nodes[n_id].seq = str(line[2])
-
-			elif line.startswith("L"):
-				edges.append(line)
-
-	for e in edges:
-		line = e.split()
-
-		k = int(line[1])
-		neighbor = int(line[3])
-		if line[2] == "-":
-			from_start = True
-		else:
-			from_start = False
-
-		if line[4] == "-":
-			to_end = True
-		else:
-			to_end = False
-
-		if from_start is True and to_end is True:  # from start to end L x - y -
-			if (neighbor, 1) not in nodes[k].start:
-				nodes[k].start.append((neighbor, 1))
-			if (k, 0) not in nodes[neighbor].end:
-				nodes[neighbor].end.append((k, 0))
-
-		elif from_start is True and to_end is False:  # from start to start L x - y +
-
-			if (neighbor, 0) not in nodes[k].start:
-				nodes[k].start.append((neighbor, 0))
-
-			if (k, 0) not in nodes[neighbor].start:
-				nodes[neighbor].start.append((k, 0))
-
-		elif from_start is False and to_end is False:  # from end to start L x + y +
-			if (neighbor, 0) not in nodes[k].end:
-				nodes[k].end.append((neighbor, 0))
-
-			if (k, 1) not in nodes[neighbor].start:
-				nodes[neighbor].start.append((k, 1))
-
-		elif from_start is False and to_end is True:  # from end to end L x + y -
-			if (neighbor, 1) not in nodes[k].end:
-				nodes[k].end.append((neighbor, 1))
-
-			if (k, 1) not in nodes[neighbor].end:
-				nodes[neighbor].end.append((k, 1))
-
-	return nodes
+import functions
 
 
 class Bubble:
@@ -167,13 +98,23 @@ class Bubble:
 		return False
 
 
+	def set_as_visited(self):
+		"""
+		sets all the nodes of the bubble as visited
+		"""
+		self.source.visited = True
+		self.sink.visited = True
+		for n in self.inside:
+			n.visited = True
+
+
 class BubbleChain:
 	"""
 	BubbleChain object which is a list of bubbles object
 	"""
 
 	def __init__(self):
-		self.bubbles = []
+		self.bubbles = set()
 
 
 	def __len__(self):
@@ -183,11 +124,34 @@ class BubbleChain:
 		return len(self.bubbles)
 
 
+	def __contains__(self, item):
+		"""
+		Overloading membership operator
+		"""
+		if item in self.bubbles:
+			return True
+		return False
+
+
+	# def __getitem__(self, index):
+	# 	"""
+	# 	to make it support indexing
+	# 	"""
+	# 	return self.bubbles[index]
+
+
+	# def __setitem__(self, index, value):
+	# 	"""
+	# 	for indexing support
+	# 	"""
+	# 	self.bubbles[index] = value
+
+
 	def add_bubble(self, bubble):
 		"""
 		adds a bubble object to the chain
 		"""
-		self.bubbles.append(bubble)
+		self.bubbles.add(bubble)
 
 
 	def list_chain(self):
@@ -236,7 +200,6 @@ class BubbleChain:
 				ends.append(n)
 		return ends
 
-
 	#def sort(self):
 
 
@@ -245,9 +208,9 @@ class Graph:
 	Graph object containing the important information about the graph
 	"""
 	def __init__(self, graph_file):
-		self.nodes = read_gfa(graph_file)
+		self.nodes = functions.read_gfa(graph_file)
 		self.b_chains = []  # list of BubbleChain objects
-		self.bubbles = []
+		self.bubbles = set()
 		self.k = 0
 
 
@@ -357,3 +320,21 @@ class Graph:
 			if len(chain) == 1:
 				nsb += 1
 		return nsb
+
+
+	def reset_visited(self):
+		"""
+		resets all nodes.visited to flase
+		"""
+		for n in self.nodes:
+			n.visited = False
+
+	def n_bubbles(self):
+		"""
+		returns the number of bubbles found
+		"""
+		counter = 0
+		for c in self.b_chains:
+			counter += len(c)
+
+		return counter

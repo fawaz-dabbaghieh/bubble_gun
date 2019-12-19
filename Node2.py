@@ -32,3 +32,17 @@ class Node:
 				size += sys.getsizeof(self.end[i])
 
 		return size
+
+
+	def neighbors(self):
+		neighbors = [x[0] for x in self.start] + [x[0] for x in self.end]
+		return sorted(neighbors)
+
+
+	def children(self, direction):
+		if direction == 0:
+			return [x[0] for x in self.start]
+		elif direction == 1:
+			return [x[0] for x in self.end]
+		else:
+			raise Exception("Trying to access a wrong direction in node {}".format(self.id))
