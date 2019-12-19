@@ -1,0 +1,32 @@
+BubbleGun:
+ ✔ Split modules into a directory @done (19-12-19 20:36)
+ ☐ Turn options in main to argparser instead of optparser
+   ✔ GFA or VG file @done (19-12-19 21:19)
+   ✔ K value (if not given then consider 0) @done (19-12-19 21:19)
+   ☐ Output bubbles (maybe a tsv)
+     - bubble_chain node_len seq_len nodes_comma_separated
+   ✔ BFS neighbor extraction @done (19-12-19 22:22)
+   ☐ Output stats file.
+ ☐ Add functionality to Graph class
+   ✔ Add find bubble to graph (now graph.find_chains()) @done (19-12-19 23:13)
+   ☐ Add compact graph to graph
+   ✔ Add remove lonely nodes @done (19-12-20 00:00)
+ ☐ Maybe return all longest chains and not just the first one (in case of more than longgest chain)
+ ☐ Sort Bubble chain function
+ ✔ Separate classes into separate modules in core @done (19-12-19 22:53)
+ ☐ Fill in examples at after the print example command
+ ☐ Add BFS search in graph
+ ☐ Add components and biggest component functionality
+ ✔ Read VG files @done (19-12-19 23:51)
+ ✔ Make sure not to write edges to removes nodes @done (19-12-19 23:52)
+   ✔ function 'remove_node(node_id)' to graph that removes nodes and their edges @done (19-12-19 23:52)
+ ☐ Start main.py
+ ☐ Maybe re-write the compactness script
+ ☐ Output options
+ ☐ Hamming and edit distance for simple bubbles
+ ☐ Setup
+ ☐ Bioconda package
+ ☐ If not (setup, bioconda) then maybe integrate in WhatsHap
+
+Bugs:
+ ☐ compacting didn't work on the vg graph, need to debug
