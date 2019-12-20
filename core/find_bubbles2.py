@@ -116,12 +116,12 @@ def find_sb_alg(graph, s, direction, chain):
 
                 # adding the bubble to the node attribute
                 # to help later with finding the chains and nested bubbles
-                s.bubbles.append(bubble)
-                s.source.append(bubble)
-                t[0].bubbles.append(bubble)
-                t[0].sink.append(bubble)
-                for n in nodes_inside:
-                    n.bubbles.append(bubble)
+                # s.bubble = -1
+                # s.source.append(bubble)
+                # t[0].bubbles.append(bubble)
+                # t[0].sink.append(bubble)
+                # for n in nodes_inside:
+                #     n.bubbles.append(bubble)
 
                 chain.add_bubble(bubble)
                 

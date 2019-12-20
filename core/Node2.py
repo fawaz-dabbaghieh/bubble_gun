@@ -11,10 +11,9 @@ class Node:
         
         # add the bubbles that the node belongs to
         # helps with nested bubbles
-        self.bubbles = []
-
-        self.source = []
-        self.sink = []
+        self.bubble = 0
+        self.bubble_chain = 0
+        self.branch = -1
 
     def __sizeof__(self):
         size = self.id.__sizeof__() + self.seq_len.__sizeof__() + self.visited.__sizeof__()

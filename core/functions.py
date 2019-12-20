@@ -10,10 +10,8 @@ def reverse_complement(dna):
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
     return ''.join([complement[base] for base in dna[::-1]])
 
-
-
-def write_gfa(nodes, k, list_of_nodes=None, ignore_nodes=None, output_file="output_file.gfa",
-              append=False, modified=False):
+def write_gfa(graph, list_of_nodes=None, ignore_nodes=None,
+    output_file="output_file.gfa", append=False, modified=False):
     """
     :param nodes: Dictionary of nodes object.
     :param list_of_nodes: A list of node ids of the path or nodes we want to generate a GFA file for.
@@ -24,22 +22,13 @@ def write_gfa(nodes, k, list_of_nodes=None, ignore_nodes=None, output_file="outp
     :param modified: To write my modified GFA file format instead of the standard GFA
     :return: writes a gfa file
     """
-
+    nodes = graph.nodes
     if ignore_nodes is None:
         ignore_nodes = set()
 
     if list_of_nodes is None:
-        list_of_nodes = list(nodes.keys())
-    # if os.path.exists(output_file):
-        # print("File already exists, do you want to overwrite. y/n: ")
-        # choice = input().lower()
-        # if choice == "y":
-        #     output_file = output_file
-        # elif choice == "n":
-        #     sys.exit()
-        # else:
-        #     print("invalid choice")
-        #     sys.exit()
+        list_of_nodes = list(graph.nodes.keys())
+
     if append is False:
         f = open(output_file, "w+")
     else:
@@ -70,19 +59,18 @@ def write_gfa(nodes, k, list_of_nodes=None, ignore_nodes=None, output_file="outp
 
             f.write(line + "\n")
 
-        # getting the edges
+        # writing edges
         edges = []
-        overlap = str(int(k) - 1) + "M\n"
+        overlap = str(graph.k - 1) + "M\n"
         if n1 in ignore_nodes:
             continue
 
         for n in nodes[n1].start:
-            # I think the ignore nodes should be here
-            # because I want to ignore the end nodes of a bubble branch
-            # I only need the node, not it's edges
-            # Or maybe when I separate the branches, remove the edges to the rest of the graph
-            # checking if the node was removed from graph.nodes at some point then I don't write that edge
-            # also checking if I need to ignore the edges here
+
+            # I am checking if the neighbor still exists
+            # I think I can remove this later as I implemented the .remove_node
+            # to the Graph class that safely removes a node and all its edgse
+            # So there shouldn't be any edges to removed
             if n[0] in nodes:  # and (n[0] not in ignore_nodes):
                 if n[1] == 0:
                     edge = str("\t".join(("L", str(n1), "-", str(n[0]), "+", overlap)))
@@ -208,6 +196,8 @@ def read_vg(vg_file_path):
     with stream.open(vg_file_path, "rb") as in_stream:
         for data in in_stream:
             graph = core.vg_pb2.Graph()
+            # import pdb
+            # pdb.set_trace()
             graph.ParseFromString(data)
 
             for n in graph.node:
