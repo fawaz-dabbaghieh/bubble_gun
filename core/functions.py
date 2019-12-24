@@ -232,7 +232,6 @@ def read_vg(vg_file_path):
 
     return nodes
 
-
 def calculate_n50(graph):
     list_of_lengths = []
     for n in graph.nodes.values():
@@ -248,26 +247,38 @@ def calculate_n50(graph):
         medianpos = int(len(new_list)/2)
         return new_list[medianpos]
 
-
-def check_chains(bubble):
-    x = set(bubble.source.source + bubble.source.sink
-         + bubble.sink.sink+ bubble.sink.source)
-    return list(x)
+def bfs(graph, start_node, size=float("inf")):
+    """
+    Returns a neighborhood of size given around start node
 
 
-# def find_chains(graph):
-    
-#     for bubble in graph.bubbles:
-#         chain = Graph2.BubbleChain()
-#         queue = [bubble]
-#         while queue:
-#             current_b = queue.pop()
-#             neighbors = check_chains(current_b)
-#             current_b.visited = True
-#             for b in  neighbors:
-#                 if not b.visited:
-#                     queue.apend(b)
-                    
-#             chain.add_bubble(current_b)
-            
-#     visited_b = []
+    :param graph: A graph object from class Graph
+    :param start_node: starting node for the BFS search
+    :param size: size of the neighborhood to return
+    """
+
+    queue = []
+    neighborhood = set()
+    visited = set()
+
+    queue.append(start_node)
+    visited.add(start_node)
+    neighborhood.add(start_node)
+
+    neighbors = graph.nodes[start_node].neighbors()
+
+    if len(neighbors) == 0:
+        return list(neighborhood)
+
+    while (len(neighborhood) < size) or (len(queue) > 0):
+        start = queue.pop()
+        if start not in neighborhood:
+            neighborhood.add(start)
+
+        visited.add(start)
+        neighbors = graph.nodes[start].neighbors()
+        for n in neighbors:
+            if n not in visited:
+                queue.append(n)
+                
+    return neighborhood

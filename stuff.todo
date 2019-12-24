@@ -7,29 +7,34 @@ BubbleGun:
      - bubble_chain node_len seq_len nodes_comma_separated
    ✔ BFS neighbor extraction @done (19-12-20 16:01)
    ☐ Output stats file.
- ☐ Add functionality to Graph class
+ ✔ Add functionality to Graph class @done (19-12-24 19:17)
    ✔ Add find bubble to graph (now graph.find_chains()) @done (19-12-19 23:13)
    ✔ Add compact graph to graph @done (19-12-20 16:02)
    ✔ Add remove lonely nodes @done (19-12-20 00:00)
-   ☐ Output graph
+   ✔ Output graph @done (19-12-24 19:17)
  ☐ Maybe return all longest chains and not just the first one (in case of more than longgest chain)
  ☐ Sort Bubble chain function
  ✔ Separate classes into separate modules in core @done (19-12-19 22:53)
  ☐ Fill in examples at after the print example command
- ☐ Add BFS search in graph
- ☐ Add components and biggest component functionality
+ ✔ Add BFS search in graph @done (19-12-24 19:17)
+ ✔ Add components and biggest component functionality @done (19-12-24 19:15)
+ ☐ Maybe make a connected component a class with functions such as:
+   ☐ nodes len of comp
+   ☐ seq len of comp
  ☐ Read VG files @Bugs
  ✔ Make sure not to write edges to removes nodes @done (19-12-19 23:52)
    ✔ function 'remove_node(node_id)' to graph that removes nodes and their edges @done (19-12-19 23:52)
  ☐ Start main.py
  ☐ Maybe re-write the compactness script
- ☐ Proper docstring comments on the code
-    """one line summary
+ ☐ Proper docstring comments on the code, use reST recommended by pep287
+  """
+  This is a reST style.
 
-    line1
-    lin2
-    linN"""
-
+  :param param1: this is a first param
+  :param param2: this is a second param
+  :returns: this is a description of what is returned
+  :raises keyError: raises an exception
+  """
     #code
  ☐ Output options
  ☐ Hamming and edit distance for simple bubbles

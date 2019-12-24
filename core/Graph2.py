@@ -5,7 +5,7 @@ from .Bubble import Bubble
 from .BubbleChain import BubbleChain
 from .find_bubbles2 import find_bubbles
 from .compact_graph import compact_graph
-
+from .graph_components import all_components
 
 class Graph:
     """
@@ -217,3 +217,6 @@ class Graph:
         write_gfa(self, list_of_nodes=list_of_nodes,
             ignore_nodes=ignore_nodes, output_file=output_file,
             append=append, modified=modified)
+
+    def components(self):
+    	return all_components(self)
