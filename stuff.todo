@@ -14,6 +14,7 @@ BubbleGun:
    ✔ Output graph @done (19-12-24 19:17)
  ☐ Maybe return all longest chains and not just the first one (in case of more than longgest chain)
  ☐ Sort Bubble chain function
+ ☐ Path extractor function (takes a path, returns sequence)
  ✔ Separate classes into separate modules in core @done (19-12-19 22:53)
  ☐ Fill in examples at after the print example command
  ✔ Add BFS search in graph @done (19-12-24 19:17)
@@ -25,6 +26,7 @@ BubbleGun:
  ✔ Make sure not to write edges to removes nodes @done (19-12-19 23:52)
    ✔ function 'remove_node(node_id)' to graph that removes nodes and their edges @done (19-12-19 23:52)
  ☐ Start main.py
+ ☐ I need to compact the graph first before finding bubbles.
  ☐ Maybe re-write the compactness script
  ☐ Proper docstring comments on the code, use reST recommended by pep287
   """

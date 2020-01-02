@@ -231,6 +231,10 @@ def find_bubbles(graph):
                 find_sb_alg(graph, n, d, chain)
             if len(chain) != 0:
                 graph.add_chain(chain)
+
+    # I can add here a fuction that can
+    # fill in the information for each node
+    # if it's a sink, source, or a bubble branch
     # graph.bubbles = chains.bubbles
 
 

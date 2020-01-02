@@ -251,7 +251,6 @@ def bfs(graph, start_node, size=float("inf")):
     """
     Returns a neighborhood of size given around start node
 
-
     :param graph: A graph object from class Graph
     :param start_node: starting node for the BFS search
     :param size: size of the neighborhood to return
@@ -280,5 +279,5 @@ def bfs(graph, start_node, size=float("inf")):
         for n in neighbors:
             if n not in visited:
                 queue.append(n)
-                
+
     return neighborhood
