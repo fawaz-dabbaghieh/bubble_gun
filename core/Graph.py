@@ -234,3 +234,28 @@ class Graph:
 
     def components(self):
         return all_components(self)
+
+    def fill_bubble_order(self):
+        b_counter = 0
+        for chain_num, chain in enumerate(self.b_chains):
+            chain_num += 1  # to avoid a chain id of 0
+            
+            if len(chain.sorted) == 0:
+                chain.sort()
+            for idx, bubble in enumerate(chain.sorted):
+                b_counter += 1
+                if isinstance(bubble, BubbleChain.Bubble):
+                    # randomly assigning which branch is zero and which is 1
+                    for allel, node in enumerate(bubble.branches):
+                        node.which_allele = int(allel)
+                        node.which_chain = int(chain_num)
+                        # node.which_b = int(idx + 1)
+                        node.which_b = b_counter
+                    # assigning the ends of the bubble to which chain
+                    for node in bubble.ends:
+                        node.which_chain = int(chain_num)
+                        # node.which_b = int(idx + 1)
+                        node.which_b = b_counter
+                if isinstance(bubble, Superbubble):
+                    for node in bubble.list_superbubble():
+                        self.nodes[node].which_sb = idx

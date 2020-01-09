@@ -9,6 +9,7 @@ class BubbleChain:
         initialize the BubbleChain as a set of bubble
         """
         self.bubbles = set()
+        self.sorted = []
         self.ends = []
 
     def __len__(self):
@@ -74,3 +75,29 @@ class BubbleChain:
         # the rest are counted twice as two adjacent bubbles will share
         # the same node as sink for one and source for the other
         self.ends = [k for k, v in Counter(all_ends).items() if v == 1]
+
+
+    def sort(self):
+        # I couldn't sort the set of bubbles (overload a bigger than function
+        # in Bubble to use for the python sort function) because the sorting
+        # here is based on the chain and the ends of the chain
+        # I don't know before hand which bubble is "bigger" or "smaller" than
+        # the other bubble until I have the complete chain
+        # for example, if I start traversing from the middle of the chain
+        # looking "left" or "right" I still don't know who's is "bigger"
+        # until I finish the whole chain.
+
+        # The hacky way to do it then is to have a list of bubble pointers
+        # sorted based on which end of the chain I chose as the start 
+        # of the chain
+
+        start = self.ends[0]  # randomly choosing one end of the cahin as start
+        while len(self.sorted) < len(self):
+            for b in self.bubbles:
+                b_ends = [b.source.id, b.sink.id]
+                if b in self.sorted:
+                    continue
+                if start in b_ends:
+                    b_ends.pop(b_ends.index(start))
+                    start = b_ends[0]
+                    self.sorted.append(b)
