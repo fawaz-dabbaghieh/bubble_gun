@@ -2,7 +2,11 @@ class Bubble:
     """
     Bubble object that has the important information about a bubble
     """
+
     def __init__(self, source, sink, inside):
+        """
+        Initialize the bubble object
+        """
         self.source = source
         self.sink = sink
         self.inside = inside
@@ -12,7 +16,7 @@ class Bubble:
         """
         overloading the length function
         """
-        return (len(self.inside) + 2)
+        return len(self.inside) + 2
 
     def __key(self):
         source = int(self.source.id)
@@ -46,7 +50,7 @@ class Bubble:
         """
         returns how many nodes in the bubble including source and sink
         """
-        return (len(self.inside) + 2)  # +2 for source and sink
+        return len(self.inside) + 2  # +2 for source and sink
 
     def seq_length(self, k):
         """

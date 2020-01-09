@@ -1,11 +1,11 @@
-from core import Graph2, functions
+from core.Graph import Graph
 import pdb
 import sys
 
 
 # pdb.set_trace()
 print("Reading a Graph file...")
-graph_gfa = Graph2.Graph(sys.argv[1])
+graph_gfa = Graph.Graph(sys.argv[1])
 print("finding chains")
 graph_gfa.find_chains()
 print(graph_gfa)

@@ -1,10 +1,15 @@
+from collections import Counter
+
 class BubbleChain:
     """
-    BubbleChain object which is a set of bubbles
+    BubbleChain object which is a set of bubble objects
     """
-
     def __init__(self):
+        """
+        initialize the BubbleChain as a set of bubble
+        """
         self.bubbles = set()
+        self.ends = []
 
     def __len__(self):
         """
@@ -16,21 +21,7 @@ class BubbleChain:
         """
         Overloading membership operator
         """
-        if item in self.bubbles:
-            return True
-        return False
-
-    # def __getitem__(self, index):
-    #     """
-    #     to make it support indexing
-    #     """
-    #     return self.bubbles[index]
-
-    # def __setitem__(self, index, value):
-    #     """
-    #     for indexing support
-    #     """
-    #     self.bubbles[index] = value
+        return item in self.bubbles
 
     def add_bubble(self, bubble):
         """
@@ -38,13 +29,16 @@ class BubbleChain:
         """
         self.bubbles.add(bubble)
 
-    def list_chain(self):
+    def list_chain(self, ids=True):
         """
         return all nodes in the chain as a list of node objects
         """
         c_list = []
         for b in self.bubbles:
-            c_list += [b.source.id, b.sink.id] + [x.id for x in b.inside]
+            c_list += [b.source, b.sink] + b.inside
+        if ids:
+            return list(set([x.id for x in c_list]))
+
         return list(set(c_list))  # set to remove redundant sources and sinks
 
     def node_length(self):
@@ -57,13 +51,13 @@ class BubbleChain:
         """
         returns sequence length covered by the chain
         """
-        c_list = []
-        for b in self.bubbles:
-            c_list += [b.source, b.sink] + b.inside
-        c_list = list(set(c_list))
+        # c_list = []
+        # for b in self.bubbles:
+        #     c_list += [b.source, b.sink] + b.inside
+        # c_list = list(set(c_list))
 
         total_seq = 0
-        for n in c_list:
+        for n in self.list_chain(ids=False):
             total_seq += n.seq_len - k
         return total_seq
 
@@ -71,12 +65,12 @@ class BubbleChain:
         """
         returns the ends of the chain as node IDs
         """
-        ends = []
         all_ends = []
         for b in self.bubbles:
-            all_ends.append(b.source.id)
-            all_ends.append(b.sink.id)
-        for n in all_ends:
-            if all_ends.count(n) == 1:
-                ends.append(n)
-        return ends
+            all_ends += [b.source.id, b.sink.id]
+        
+        # looks at all the sources,sinks of the bubbles in the chain
+        # only the ends of the chain should have a count of 1
+        # the rest are counted twice as two adjacent bubbles will share
+        # the same node as sink for one and source for the other
+        self.ends = [k for k, v in Counter(all_ends).items() if v == 1]
