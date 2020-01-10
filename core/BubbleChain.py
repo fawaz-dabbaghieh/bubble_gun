@@ -9,8 +9,8 @@ class BubbleChain:
         initialize the BubbleChain as a set of bubble
         """
         self.bubbles = set()
-        self.sorted = []
-        self.ends = []
+        self.sorted = []  # sorted bubble pointers
+        self.ends = []  # node ids of the chain ends
 
     def __len__(self):
         """
@@ -42,21 +42,16 @@ class BubbleChain:
 
         return list(set(c_list))  # set to remove redundant sources and sinks
 
-    def node_length(self):
+    def length_node(self):
         """
         returns how many nodes there are in the chain
         """
         return len(self.list_chain())
 
-    def seq_length(self, k):
+    def length_seq(self, k):
         """
         returns sequence length covered by the chain
         """
-        # c_list = []
-        # for b in self.bubbles:
-        #     c_list += [b.source, b.sink] + b.inside
-        # c_list = list(set(c_list))
-
         total_seq = 0
         for n in self.list_chain(ids=False):
             total_seq += n.seq_len - k
@@ -90,7 +85,9 @@ class BubbleChain:
         # The hacky way to do it then is to have a list of bubble pointers
         # sorted based on which end of the chain I chose as the start 
         # of the chain
-
+        if len(self.ends) == 0:
+            self.find_ends()
+            
         start = self.ends[0]  # randomly choosing one end of the cahin as start
         while len(self.sorted) < len(self):
             for b in self.bubbles:

@@ -46,13 +46,13 @@ class Bubble:
             node_list.append(n.id)
         return node_list
 
-    def node_length(self):
+    def length_node(self):
         """
         returns how many nodes in the bubble including source and sink
         """
         return len(self.inside) + 2  # +2 for source and sink
 
-    def seq_length(self, k):
+    def length_seq(self, k):
         """
         returns the total sequence in the bubble
         """

@@ -46,6 +46,9 @@ class Graph:
         """
         adds a bubble chain to the graph
         """
+        if len(chain.sorted) == 0:
+            chain.find_ends()
+            chain.sort()
 
         self.b_chains.append(chain)
 
@@ -216,7 +219,9 @@ class Graph:
         graph file to append to
         modified to output a modified graph file
         """
-
+        if not output_file.endswith(".gfa"):
+            output_file += ".gfa"
+            
         write_gfa(self, set_of_nodes=set_of_nodes, output_file=output_file,
             append=append, modified=modified)
 
@@ -242,9 +247,10 @@ class Graph:
             
             if len(chain.sorted) == 0:
                 chain.sort()
+
             for idx, bubble in enumerate(chain.sorted):
                 b_counter += 1
-                if isinstance(bubble, BubbleChain.Bubble):
+                if bubble.is_simple():
                     # randomly assigning which branch is zero and which is 1
                     for allel, node in enumerate(bubble.branches):
                         node.which_allele = int(allel)
@@ -256,6 +262,7 @@ class Graph:
                         node.which_chain = int(chain_num)
                         # node.which_b = int(idx + 1)
                         node.which_b = b_counter
-                if isinstance(bubble, Superbubble):
+
+                else:  # superbubbles or insertions
                     for node in bubble.list_superbubble():
                         self.nodes[node].which_sb = idx

@@ -1,19 +1,19 @@
 import sys
 
 class Node:
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, identifier):
+        self.id = identifier  # size is between 28 and 32 bytes
         self.seq = ""
-        self.seq_len = 0
-        self.start = []
-        self.end = []
-        self.visited = False
-        
-        # add the bubbles that the node belongs to
-        # helps with nested bubbles
-        self.bubble = 0
-        self.bubble_chain = 0
-        self.branch = -1
+        self.seq_len = 0  # mostly 28 bytes
+        self.start = []  # 96 bytes for 4 neighbors
+        self.end = []  # 96 bytes
+        self.visited = False  # 28 bytes (used for bubble and superbubble detection)
+
+        self.which_chain = 0
+        self.which_sb = 0
+        self.which_b = 0
+        self.which_allele = -1
+
 
     def __sizeof__(self):
         size = self.id.__sizeof__() + self.seq_len.__sizeof__() + self.visited.__sizeof__()
