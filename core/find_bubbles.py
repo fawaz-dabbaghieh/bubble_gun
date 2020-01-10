@@ -28,7 +28,7 @@ for node s in nodes:
                     break
 """
 
-def find_sb_alg(graph, s, direction, chain):
+def find_sb_alg(graph, s, direction, chain, only_simple=False):
     """
     takes the graph and a start node s and add a bubble to the chain 
     if one is found if s was the source
@@ -106,12 +106,16 @@ def find_sb_alg(graph, s, direction, chain):
             bubble = Bubble(source=s, sink=t[0], inside=nodes_inside)
             # if we already found the same bubble from another directin
             if bubble not in chain:
-
-                chain.add_bubble(bubble)
-
+                if only_simple:
+                    if bubble.is_simple():
+                        chain.add_bubble(bubble)
+                    else:
+                        break
+                else:
+                    chain.add_bubble(bubble)
                 # calling the function again on sink
                 # and continuing the search to chain bubbles
-                find_sb_alg(graph, t[0], t[1], chain)
+                find_sb_alg(graph, t[0], t[1], chain, only_simple)
 
             else:
                 break
@@ -181,7 +185,7 @@ def find_b_alg(graph, s, direction, chain):
             find_b_alg(graph, graph.nodes[c_of_c[0]], d, chain)
 
 
-def find_bubbles(graph):
+def find_bubbles(graph, only_simple=False):
     """
     main function for finding bubbles
     Takes a graph and fills in the bubble chains
@@ -203,7 +207,7 @@ def find_bubbles(graph):
             for d in [0,1]:
 
                 #find_b_alg(graph, n, d, chain)
-                find_sb_alg(graph, n, d, chain)
+                find_sb_alg(graph, n, d, chain, only_simple)
             if len(chain) != 0:
                 graph.add_chain(chain)
 

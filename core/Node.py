@@ -8,7 +8,7 @@ class Node:
         self.start = []  # 96 bytes for 4 neighbors
         self.end = []  # 96 bytes
         self.visited = False  # 28 bytes (used for bubble and superbubble detection)
-
+        # bubble related information
         self.which_chain = 0
         self.which_sb = 0
         self.which_b = 0

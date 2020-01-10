@@ -1,7 +1,12 @@
 import os
 import sys
+from time import time
+from datetime import datetime
 # from .Graph2 import BubbleChain
 
+
+def current_time():
+    return datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
 
 def reverse_complement(dna):
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}

@@ -84,6 +84,60 @@ def write_gfa(graph, set_of_nodes=None,
     f.close()
 
 
+def write_chains(graph, output_file="output_bubble_chains.gfa"):
+    """
+    Write bubble chains as gfa file
+
+    :param graph: graph object with bubble chains already detected
+    :param output_file: otput file path
+    """
+    nodes = graph.nodes
+    f = open(output_file, "w+")
+
+    overlap = str(graph.k - 1) + "M\n"
+    for chain in graph.b_chains:
+        set_of_nodes = chain.list_chain()
+
+        for n1 in set_of_nodes:
+            # writing nodes in gfa file
+            node = nodes[n1]
+            # todo for now I don't care to which sb the node belongs
+            # I just care about simple bubbles for phasing
+            specification = str(":".join((str(node.which_chain), str(0),
+                                          str(node.which_b), str(node.which_allele))))
+            if node.seq == "":
+                line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), specification)))
+            else:
+                line = str("\t".join(("S", str(n1), nodes[n1].seq, specification)))
+
+            f.write(line + "\n")
+            # writing edges
+            edges = []
+
+            for n in node.start:
+                # I check if the neighbor belongs to the same chain
+                # otherwise I don't write that edge 
+                if n[0] in set_of_nodes:
+                    if n[1] == 0:
+                        edge = str("\t".join(("L", str(n1), "-", str(n[0]), "+", overlap)))
+                        edges.append(edge)
+                    else:
+                        edge = str("\t".join(("L", str(n1), "-", str(n[0]), "-", overlap)))
+                        edges.append(edge)
+
+            for n in nodes[n1].end:
+                if n[0] in set_of_nodes:
+                    if n[1] == 0:
+                        edge = str("\t".join(("L", str(n1), "+", str(n[0]), "+", overlap)))
+                        edges.append(edge)
+                    else:
+                        edge = str("\t".join(("L", str(n1), "+", str(n[0]), "-", overlap)))
+                        edges.append(edge)
+
+            for e in edges:
+                f.write(e)
+
+    f.close()
 
 def read_gfa(gfa_file_path, modified=False):
     """

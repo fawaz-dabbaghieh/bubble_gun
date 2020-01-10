@@ -1,4 +1,4 @@
-from .graph_io import read_gfa, read_vg, write_gfa
+from .graph_io import read_gfa, read_vg, write_gfa, write_chains
 from .find_bubbles import find_bubbles
 from .compact_graph import compact_graph
 from .connected_components import all_components
@@ -71,6 +71,7 @@ class Graph:
 
         lengths_list = [x.node_length() for x in self.b_chains]
         m = max(lengths_list)
+        # returning only one chain that is the max, there could be a tie
         return self.b_chains[[i for i, j in enumerate(lengths_list) if j == m][0]]
 
     def longest_chain_seq(self):
@@ -82,6 +83,7 @@ class Graph:
 
         lengths_list = [x.seq_length(k=self.k) for x in self.b_chains]
         m = max(lengths_list)
+        # returning only one chain that is the max, there could be a tie
         return self.b_chains[[i for i, j in enumerate(lengths_list) if j == m][0]]
 
     def nodes_in_chains(self):
@@ -120,7 +122,6 @@ class Graph:
         """
 
         s_in_c = self.seq_in_chains()
-
         return float((s_in_c*100)/self.total_seq_length())
 
     def num_single_bubbles(self):
@@ -136,7 +137,7 @@ class Graph:
 
     def reset_visited(self):
         """
-        resets all nodes.visited to flase
+        resets all nodes.visited to false
         """
 
         for n in self.nodes.values():
@@ -159,13 +160,13 @@ class Graph:
 
         return counter
 
-    def find_chains(self):
+    def find_chains(self, only_simple=False):
         """
         calls the find bubbles and chains algorithms
         then adds the objects to the graph
         """
 
-        find_bubbles(self)
+        find_bubbles(self, only_simple)
 
     def remove_node(self, n_id):
         """
@@ -233,36 +234,45 @@ class Graph:
         if not output.endswith(".gfa"):
             output += ".gfa"
 
-        set_of_nodes = self.nodes_in_chains()
-        write_gfa(self, set_of_nodes=set_of_nodes, output_file=output,
-            append=False, modified=False)
+        write_chains(self, output_file=output)
 
     def components(self):
+        """
+        returns a list of sets for each component and the node ids in that
+        component.
+        """
         return all_components(self)
 
-    def fill_bubble_order(self):
+    def fill_bubble_info(self):
+        # chains_to_remove = set()
         b_counter = 0
         for chain_num, chain in enumerate(self.b_chains):
             chain_num += 1  # to avoid a chain id of 0
-            
-            if len(chain.sorted) == 0:
-                chain.sort()
 
-            for idx, bubble in enumerate(chain.sorted):
+            for bubble in chain.sorted:
                 b_counter += 1
                 if bubble.is_simple():
                     # randomly assigning which branch is zero and which is 1
-                    for allel, node in enumerate(bubble.branches):
-                        node.which_allele = int(allel)
-                        node.which_chain = int(chain_num)
-                        # node.which_b = int(idx + 1)
-                        node.which_b = b_counter
+                    # simple bubble only has 2 nodes inside, so 0 and 1
+                    for allel, node in enumerate(bubble.inside):
+                        # check if it hasn't been processed yet
+                        # it might be a nested bubble inside an SB
+                        # so don't need to change the tags then
+                        # SB takes presedence
+                        if node.which_chain == 0:
+                            node.which_allele = allel
+                            node.which_chain = chain_num
+                            node.which_b = b_counter
+
                     # assigning the ends of the bubble to which chain
-                    for node in bubble.ends:
-                        node.which_chain = int(chain_num)
-                        # node.which_b = int(idx + 1)
-                        node.which_b = b_counter
+                    if bubble.source.which_chain == 0:
+                        bubble.source.which_chain = chain_num
+                        bubble.sink.which_chain = chain_num
 
                 else:  # superbubbles or insertions
-                    for node in bubble.list_superbubble():
-                        self.nodes[node].which_sb = idx
+                    for node in bubble.list_bubble():
+                        # inside the SB it gets reset
+                        self.nodes[node].which_b = 0
+                        self.nodes[node].which_allele = -1
+                        self.nodes[node].which_sb = b_counter
+                        self.nodes[node].which_chain = chain_num

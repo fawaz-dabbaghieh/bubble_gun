@@ -1,14 +1,11 @@
 import os
 import sys
-from time import time
-from datetime import datetime
+from core.functions import current_time
 # import copy
 from core.Graph import Graph
 import argparse
 import pdb
 
-def current_time():
-    return datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
 
 parser = argparse.ArgumentParser(description='Find Bubble Chains.')
 
@@ -22,6 +19,8 @@ parser.add_argument("-b", "--bubbles", metavar="OUTPUT_BUBBLES", dest="out_bubbl
     default=None, type=str, help="BubbleChains graph output path")
 # parser.add_argument("-v", "--in_vg", dest="in_vg", metavar="GRAPH_PATH",
 #     default=None, type=str, help="VG graph file path")
+parser.add_argument("--only_simple", action="store_true",
+	help="If used then only simple bubbles are detected")
 
 parser.add_argument("-k", "--k_mer", dest="k_mer", metavar="k",
     default=0, type=int, help="K value of as integer")
@@ -61,15 +60,19 @@ if args.k_mer == 0:
 
 if args.out_bubbles != None:
     output_file = args.out_bubbles
-    print("{} Reading Graph...".format(current_time()))
+    print("[{}] Reading Graph...".format(current_time()))
     graph = Graph(args.in_graph)
     graph.k = int(args.k_mer)
-    print("{} Compacting graph...".format(current_time()))
+    print("[{}] Compacting graph...".format(current_time()))
     graph.compact()
-    print("{} Finding chains...".format(current_time()))
-    graph.find_chains()
-    print("{} Writing bubble to file".format(current_time()))
-    graph.write_b_chains(output=args.out_bubbles)
+    print("[{}] Finding chains...".format(current_time()))
+    if args.only_simple:
+    	graph.find_chains(only_simple=True)
+    else:
+    	graph.find_chains()
+    pdb.set_trace()
+    # print("{} Writing bubble to file".format(current_time()))
+    # graph.write_b_chains(output=args.out_bubbles)
 
 
 if args.starting_nodes != None:
@@ -78,4 +81,3 @@ if args.starting_nodes != None:
             print("Please specify an output file with -o --output")
             sys.exit()
         print("extracting neighborhood")
-    
