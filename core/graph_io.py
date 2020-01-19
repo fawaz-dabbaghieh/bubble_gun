@@ -28,8 +28,9 @@ def write_gfa(graph, set_of_nodes=None,
         if os.path.exists(output_file):
             f = open(output_file, "a")
         else:
-            print("the output file {} does not exist".format(output_file))
-            return None
+            print("WARNING! Trying to append to a non-existant file\n"
+                  "creating an output file")
+            f = open(output_file, "w+")
 
     for n1 in set_of_nodes:
         # writing nodes in gfa file
@@ -139,7 +140,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
 
     f.close()
 
-def read_gfa(gfa_file_path, modified=False):
+def read_gfa(gfa_file_path, k, modified=False,):
     """
     Read a gfa file
 
@@ -153,6 +154,8 @@ def read_gfa(gfa_file_path, modified=False):
 
     nodes = dict()
     edges = []
+
+    min_node_length = k
     with open(gfa_file_path, "r") as lines:
         for line in lines:
             if line.startswith("S"):
@@ -178,6 +181,13 @@ def read_gfa(gfa_file_path, modified=False):
                     nodes[n_id] = Node(n_id)
                     nodes[n_id].seq_len = n_len
                     nodes[n_id].seq = str(line[2])
+
+                if min_node_length > nodes[n_id].seq_len:
+                    print("Node {} has a sequence of length {}"
+                          " which is smaller than the provided k\n"
+                          "Not allowed.".format(nodes[n_id].id,
+                          	nodes[n_id].seq_len))
+                    sys.exit()
 
             elif line.startswith("L"):
                 edges.append(line)
@@ -228,7 +238,7 @@ def read_gfa(gfa_file_path, modified=False):
     return nodes
 
 
-def read_vg(vg_file_path):
+def read_vg(vg_file_path, k):
     """
     Read a vg file
     
@@ -241,6 +251,7 @@ def read_vg(vg_file_path):
 
     nodes = dict()
     edges = []
+    min_node_length = k
     with stream.open(vg_file_path, "rb") as in_stream:
         for data in in_stream:
             graph = core.vg_pb2.Graph()
@@ -252,6 +263,13 @@ def read_vg(vg_file_path):
                 nodes[n.id] = Node(n.id)
                 nodes[n.id].seq = str(n.sequence)
                 nodes[n.id].seq_len = len(n.sequence)
+
+                if min_node_length > nodes[n_id].seq_len:
+                    print("Node {} has a sequence of length {}"
+                          " which is smaller than the provided k\n"
+                          "Not allowed.".format(nodes[n_id].id,
+                          	nodes[n_id].seq_len))
+                    sys.exit()
 
             for e in graph.edge:
                 edges.append(e)

@@ -9,9 +9,10 @@ def find_component(graph, start_node):
     queue = []
     cc = set()
 
-    visited = set()
+    # visited = set()
     queue.append(start_node)
-    visited.add(start_node)
+    graph.nodes[start_node].visited = True
+    # visited.add(start_node)
     neighbors = graph.nodes[start_node].neighbors()
 
     if len(neighbors) == 0:
@@ -25,10 +26,11 @@ def find_component(graph, start_node):
         else:
             continue
 
-        visited.add(start)
+        # visited.add(start)
+        graph.nodes[start].visited = True
         neighbors = graph.nodes[start].neighbors()
         for n in neighbors:
-            if n not in visited:
+            if not graph.nodes[n].visited:
                 queue.append(n)
 
     return cc
@@ -41,10 +43,9 @@ def all_components(graph):
     :return: list of list of components
     """
     connected_comp = []
-    visited = set()
+    # visited = set()
     for n in graph.nodes:
-        if n not in visited:
+        if not graph.nodes[n].visited:
             connected_comp.append(find_component(graph, n))
-            visited = visited.union(connected_comp[-1])
-
+            # visited = visited.union(connected_comp[-1])
     return connected_comp

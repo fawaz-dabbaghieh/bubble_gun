@@ -1,6 +1,6 @@
 BubbleGun:
  ✔ Split modules into a directory @done (19-12-19 20:36)
- ☐ Turn options in main to argparser instead of optparser
+ ✔ Turn options in main to argparser instead of optparser @done (20-01-15 16:18)
    ✔ GFA or VG file @done (19-12-19 21:19)
    ✔ K value (if not given then consider 0) @done (19-12-19 21:19)
    ☐ Output bubbles (maybe a tsv)
@@ -13,21 +13,23 @@ BubbleGun:
    ✔ Add remove lonely nodes @done (19-12-20 00:00)
    ✔ Output graph @done (19-12-24 19:17)
  ☐ Maybe return all longest chains and not just the first one (in case of more than longgest chain)
- ☐ Sort Bubble chain function
+ ✔ Sort Bubble chain function @done (20-01-10 16:20)
  ☐ Path extractor function (takes a path, returns sequence)
  ✔ Separate classes into separate modules in core @done (19-12-19 22:53)
  ☐ Fill in examples at after the print example command
+ ☐ Option for only detecting superbubbles
  ✔ Add BFS search in graph @done (19-12-24 19:17)
  ✔ Add components and biggest component functionality @done (19-12-24 19:15)
  ☐ Maybe make a connected component a class with functions such as:
    ☐ nodes len of comp
    ☐ seq len of comp
- ☐ Read VG files @Bugs
+ ✔ Read VG files  @done (20-01-10 16:20)
  ✔ Make sure not to write edges to removes nodes @done (19-12-19 23:52)
    ✔ function 'remove_node(node_id)' to graph that removes nodes and their edges @done (19-12-19 23:52)
- ☐ Start main.py
- ☐ I need to compact the graph first before finding bubbles.
+ ✔ Start main.py @done (20-01-10 16:21)
+ ✔ I need to compact the graph first before finding bubbles. @done (20-01-10 16:21)
  ☐ Maybe re-write the compactness script
+ ✔ Have a k check, if one of the nodes is smaller than k return an error and stop (can be done while reading the nodes) @done (20-01-15 16:18)
  ☐ Proper docstring comments on the code, use reST recommended by pep287
   """
   This is a reST style.
@@ -46,4 +48,4 @@ BubbleGun:
 
 Bugs:
  ✔ compacting didn't work on the vg graph, need to debug @done (19-12-20 17:15)
- ☐ I can't read VG files for some reason, getting google.protobuff error
+ ✔ I can't read VG files for some reason, getting google.protobuff error @done (20-01-10 16:20)

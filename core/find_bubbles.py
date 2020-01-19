@@ -2,13 +2,14 @@ import time
 import sys
 from .Bubble import Bubble
 from .BubbleChain import BubbleChain
+from .functions import current_time
 import pdb
 
 """
 Pseudo code for finding bubbles
 for node s in nodes:
     push s in S
-    for direction in s:
+    for direction in s:  # which direction to look for children
         while len(s) > 0:
             pop arbitrary v from S
             v.visited = True
@@ -120,15 +121,6 @@ def find_sb_alg(graph, s, direction, chain, only_simple=False):
             else:
                 break
 
-    # for node in nodes_inside:
-    #     s.visited = False
-    #     try:
-    #         t[0].visited = False
-    #     except:
-    #         pass
-    #     node.visited = False
-
-
 def children_of_children(graph, children):
     """
     returns the children of the children in a list
@@ -192,7 +184,7 @@ def find_bubbles(graph, only_simple=False):
     """
     counter = 0
 
-    print("Sorting nodes\n")
+    print("[{}] Sorting nodes\n".format(current_time()))
     # sorting nodes by length
     sorted_nodes = sorted(graph.nodes, key=lambda x: graph.nodes[x].seq_len, reverse=True)
     # find_b_alg(graph, graph.nodes[167], 0, chains)
@@ -200,8 +192,8 @@ def find_bubbles(graph, only_simple=False):
 
         chain = BubbleChain()
         counter += 1
-        if (counter % 100000) == 0:
-            print("{} nodes have been processed".format(counter))
+        if (counter % 1000000) == 0:
+            print("[{}] {} nodes have been processed".format(current_time(), counter))
         if not n.visited:
 
             for d in [0,1]:

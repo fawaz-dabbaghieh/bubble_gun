@@ -4,6 +4,7 @@ class BubbleChain:
     """
     BubbleChain object which is a set of bubble objects
     """
+    __slots__ = ['bubbles', 'sorted', 'ends']
     def __init__(self):
         """
         initialize the BubbleChain as a set of bubble

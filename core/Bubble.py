@@ -2,7 +2,7 @@ class Bubble:
     """
     Bubble object that has the important information about a bubble
     """
-
+    __slots__ = ['source', 'sink', 'inside']
     def __init__(self, source, sink, inside):
         """
         Initialize the bubble object
@@ -10,7 +10,7 @@ class Bubble:
         self.source = source
         self.sink = sink
         self.inside = inside
-        self.visited = False  # I need this when finding chains
+        # self.visited = False  # I need this when finding chains
 
     def __len__(self):
         """

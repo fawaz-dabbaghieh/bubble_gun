@@ -1,6 +1,8 @@
 import sys
 
 class Node:
+    __slots__ = ['id', 'seq', 'seq_len', 'start', 'end', 'visited',
+    'which_chain', 'which_sb', 'which_b', 'which_allele']
     def __init__(self, identifier):
         self.id = identifier  # size is between 28 and 32 bytes
         self.seq = ""
