@@ -3,3 +3,6 @@
 *.gfa
 *.vg
 side_notes.txt
+test/
+*.png
+*.pickle

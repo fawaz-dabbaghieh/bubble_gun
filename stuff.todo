@@ -14,10 +14,11 @@ BubbleGun:
    ✔ Output graph @done (19-12-24 19:17)
  ☐ Maybe return all longest chains and not just the first one (in case of more than longgest chain)
  ✔ Sort Bubble chain function @done (20-01-10 16:20)
- ☐ Path extractor function (takes a path, returns sequence)
+ ✔ Path extractor function (takes a path, returns sequence) @done (20-02-06 16:59)
  ✔ Separate classes into separate modules in core @done (19-12-19 22:53)
- ☐ Fill in examples at after the print example command
- ☐ Option for only detecting superbubbles
+ ✔ Fill in examples at after the print example command @done (20-01-22 14:24)
+ ✔ Option for only detecting bubbles @done (20-01-22 14:24)
+ ☐ Option to only detect superbubbles
  ✔ Add BFS search in graph @done (19-12-24 19:17)
  ✔ Add components and biggest component functionality @done (19-12-24 19:15)
  ☐ Maybe make a connected component a class with functions such as:
@@ -28,7 +29,7 @@ BubbleGun:
    ✔ function 'remove_node(node_id)' to graph that removes nodes and their edges @done (19-12-19 23:52)
  ✔ Start main.py @done (20-01-10 16:21)
  ✔ I need to compact the graph first before finding bubbles. @done (20-01-10 16:21)
- ☐ Maybe re-write the compactness script
+ ✔ Maybe re-write the compactness script. Now it's a while loop instead of a nested function @done (20-01-22 14:24)
  ✔ Have a k check, if one of the nodes is smaller than k return an error and stop (can be done while reading the nodes) @done (20-01-15 16:18)
  ☐ Proper docstring comments on the code, use reST recommended by pep287
   """
@@ -40,6 +41,16 @@ BubbleGun:
   :raises keyError: raises an exception
   """
     #code
+ ☐ Alignment file stuff:
+   ✔ Filter alignment less than 200 bp @done (20-02-12 11:34)
+   ☐ Keep only the longest alignment if two alignments were mapped to the same chain
+
+ ☐ Repeats:
+   ☐ Choose several long chains and calculate mean and standard deviation of the coverage
+   ☐ Use the mean and std according to HASLR to throw out chains that have coverage bigger than mean + 3std
+
+ ☐ Solve superbubbles, what to do with them?
+ 
  ☐ Output options
  ☐ Hamming and edit distance for simple bubbles
  ☐ Setup
@@ -47,5 +58,5 @@ BubbleGun:
  ☐ If not (setup, bioconda) then maybe integrate in WhatsHap
 
 Bugs:
- ✔ compacting didn't work on the vg graph, need to debug @done (19-12-20 17:15)
+ ✔ compacting didn't work on the graph, need to debug @done (19-12-20 17:15) 
  ✔ I can't read VG files for some reason, getting google.protobuff error @done (20-01-10 16:20)

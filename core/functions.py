@@ -2,6 +2,7 @@ import os
 import sys
 from time import time
 from datetime import datetime
+import pdb
 # from .Graph2 import BubbleChain
 
 
@@ -11,7 +12,6 @@ def current_time():
 def reverse_complement(dna):
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
     return ''.join([complement[base] for base in dna[::-1]])
-
 
 def calculate_n50(graph):
     list_of_lengths = []
@@ -28,7 +28,7 @@ def calculate_n50(graph):
         medianpos = int(len(new_list)/2)
         return new_list[medianpos]
 
-def bfs(graph, start_node, size=float("inf")):
+def bfs(graph, start_node, size):
     """
     Returns a neighborhood of size given around start node
 
@@ -47,11 +47,14 @@ def bfs(graph, start_node, size=float("inf")):
 
     neighbors = graph.nodes[start_node].neighbors()
 
-    if len(neighbors) == 0:
-        return list(neighborhood)
+    if len(neighbors) == 0:  # start node was a lonely node
+        return neighborhood
 
-    while (len(neighborhood) < size) or (len(queue) > 0):
+    # break when the subgraph is longer than the size wanted
+    # or the component the start node in was smaller than the size
+    while (len(neighborhood) <= size) and len(queue) > 0:
         start = queue.pop()
+
         if start not in neighborhood:
             neighborhood.add(start)
 

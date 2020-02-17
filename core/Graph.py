@@ -1,6 +1,6 @@
 from .graph_io import read_gfa, read_vg, write_gfa, write_chains
 from .find_bubbles import find_bubbles
-from .compact_graph import compact_graph
+from .new_compact import compact_graph
 from .connected_components import all_components
 import pdb
 
@@ -9,8 +9,10 @@ class Graph:
     """
     Graph object containing the important information about the graph
     """
+
     __slots__ = ['nodes', 'b_chains', 'k']
     def __init__(self, graph_file, k=1):
+
         # loading nodes from file
         if graph_file.endswith(".gfa"):
             self.nodes = read_gfa(gfa_file_path=graph_file, k=k)
@@ -52,8 +54,9 @@ class Graph:
             chain.sort()
             if len(chain.ends) != 2:  # circualr chains or other weird stuff
                 nodes_set = set(chain.list_chain())
-                self.write_gfa(set_of_nodes=nodes_set, modified = True,
-                    append=True, output_file="circular_and_other_chains.gfa")
+                self.write_gfa(set_of_nodes=nodes_set, modified=True,
+                               append=True,
+                               output_file="circular_and_other_chains.gfa")
             else:
                 self.b_chains.append(chain)
 
@@ -67,14 +70,14 @@ class Graph:
             total += n.seq_len - self.k
         return total
 
-    def longest_chain_node(self):
+    def longest_chain_bubble(self):
         """
         returns the longest bubble chain bubble wise
         In case there are more than one longest chain it
         returns the first one found
         """
 
-        lengths_list = [x.length_node() for x in self.b_chains]
+        lengths_list = [len(x) for x in self.b_chains]
         m = max(lengths_list)
         # returning only one chain that is the max, there could be a tie
         return self.b_chains[[i for i, j in enumerate(lengths_list) if j == m][0]]
@@ -177,14 +180,15 @@ class Graph:
         """
         remove a node and its corrisponding edges
         """
-
-        for n_start in self.nodes[n_id].start:
+        starts = [x for x in self.nodes[n_id].start]
+        for n_start in starts:
             if n_start[1] == 1:
                 self.nodes[n_start[0]].end.remove((n_id, 0))
             else:
                 self.nodes[n_start[0]].start.remove((n_id, 0))
 
-        for n_end in self.nodes[n_id].end:
+        ends = [x for x in self.nodes[n_id].end]
+        for n_end in ends:
             if n_end[1] == 1:
                 self.nodes[n_end[0]].end.remove((n_id, 1))
             else:
@@ -216,7 +220,8 @@ class Graph:
         compact_graph(self)
 
     def write_graph(self, set_of_nodes=None,
-    output_file="output_graph.gfa", append=False, modified=False):
+                    output_file="output_graph.gfa",
+                    append=False, modified=False):
         """writes a graph file as GFA
 
         list_of_nodes can be a list of node ids to write
@@ -227,9 +232,9 @@ class Graph:
         """
         if not output_file.endswith(".gfa"):
             output_file += ".gfa"
-            
+
         write_gfa(self, set_of_nodes=set_of_nodes, output_file=output_file,
-            append=append, modified=modified)
+                  append=append, modified=modified)
 
     def write_b_chains(self, output="bubble_chains.gfa"):
         """writes bubble gains to a GFA file
@@ -274,6 +279,8 @@ class Graph:
                     # assigning the ends of the bubble to which chain
                     if bubble.source.which_chain == 0:
                         bubble.source.which_chain = chain_num
+
+                    if bubble.sink.which_chain == 0:
                         bubble.sink.which_chain = chain_num
 
                 else:  # superbubbles or insertions

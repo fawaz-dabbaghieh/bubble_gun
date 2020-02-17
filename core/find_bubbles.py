@@ -192,8 +192,8 @@ def find_bubbles(graph, only_simple=False):
 
         chain = BubbleChain()
         counter += 1
-        if (counter % 1000000) == 0:
-            print("[{}] {} nodes have been processed".format(current_time(), counter))
+        # if (counter % 1000000) == 0:
+        #     print("[{}] {} nodes have been processed".format(current_time(), counter))
         if not n.visited:
 
             for d in [0,1]:

@@ -1,5 +1,6 @@
 from collections import Counter
 
+
 class BubbleChain:
     """
     BubbleChain object which is a set of bubble objects

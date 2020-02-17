@@ -5,7 +5,8 @@ import sys
 
 # pdb.set_trace()
 print("Reading a Graph file...")
-graph_gfa = Graph.Graph(sys.argv[1])
+print("compacting graph")
+graph_gfa.compact()
 print("finding chains")
 graph_gfa.find_chains()
 print(graph_gfa)

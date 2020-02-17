@@ -1,10 +1,12 @@
 import os
 import sys
-from core.functions import current_time
+from core.functions import current_time, bfs
 from core.Graph import Graph
+from core.digest_gam import build_reads_dict
 import argparse
 import pdb
 import logging
+import pickle
 
 parser = argparse.ArgumentParser(description='Find Bubble Chains.')
 
@@ -30,15 +32,18 @@ parser.add_argument("-c", "--compact", dest="compacted", metavar="COMPACTED",
 parser.add_argument("-p", "--biggest_comp", dest="biggest_comp", metavar="BIG_COMP",
     default=None, type=str, help="Output biggest component to path given")
 
-parser.add_argument("-o", "--output", dest="graph_out", metavar="OUTPUT",
-    type=str, default=None, help="Outputs to file, if used with -b --bubbles then it outputs bubble chains to given path")
-
 parser.add_argument("-s", "--start", dest="starting_nodes",
     metavar="START_NODES", type=int, nargs="+",
     default=None, help="Give the starting node(s) for neighborhood extraction")
 
-parser.add_argument("-f", "--bfs", dest="bfs_len", metavar="SIZE", default=100,
+parser.add_argument("-f", "--bfs", dest="bfs_len", metavar="SIZE", default=None,
     type=int, help="With -s --start option, size of neighborhood to extract")
+
+parser.add_argument("-o", "--output", dest="graph_out", metavar="OUTPUT",
+    type=str, default=None, help="Output neighborhood ")
+
+parser.add_argument("-a", "--alignment", dest="gam_file", metavar="GAM",
+    type=str, default=None, help="Take BAM file and output pickled dict")
 
 args = parser.parse_args()
 
@@ -46,6 +51,16 @@ if len(sys.argv) == 1:
     print("You didn't give any arguments\n"
           "Try to use -h or --help for help\n"
           "Or -e --examples for examples to use the tool")
+    sys.exit()
+
+if args.gam_file is not None:
+    print("[{}] reading gam file and building dict".format(current_time()))
+    all_reads = build_reads_dict(args.gam_file)
+    print("[{}] finished building dict, pickling it".format(current_time()))
+    out_file = open("pickled_dict", "ab")
+    pickle.dump(all_reads, out_file)
+    out_file.close()
+    print("[{}] finished successfully".format(current_time()))
     sys.exit()
 
 if args.examples:
@@ -78,6 +93,7 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
 
     if args.compacted != None:
         print("[{}] Compacting Graph...".format(current_time()))
+        # pdb.set_trace()
         graph.compact()
         print("[{}] Writing Compacted Graph...".format(current_time()))
         graph.write_graph(output_file=args.compacted)
@@ -92,8 +108,8 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
             set_of_nodes=biggest_comp)
 
     if args.bubbles:
-        print("[{}] Compacting graph...".format(current_time()))
-        graph.compact()
+        # print("[{}] Compacting graph...".format(current_time()))
+        # graph.compact()
         print("[{}] Finding chains...".format(current_time()))
         if args.only_simple:
             graph.find_chains(only_simple=True)
@@ -109,7 +125,7 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
               "The number of insertions is {}".format(b_numbers[0], b_numbers[1],
                   b_numbers[2]))
         print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
-        print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_node())))
+        print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
 
         if args.graph_out != None:
@@ -118,6 +134,17 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
 if args.starting_nodes != None:
     if args.bfs_len != None:
         if args.graph_out == None:
-            print("Please specify an output file with -o --output")
+            print("You need to give an output file name -o")
             sys.exit()
-        print("extracting neighborhood")
+        
+        print("[{}] Reading Graph...".format(current_time()))
+        if args.k_mer == 0:
+            graph = Graph(args.in_graph, 1)
+        else:
+            graph = Graph(args.in_graph, args.k_mer)
+
+        for n in args.starting_nodes:
+            print("extracting neighborhood")
+            set_of_nodes = bfs(graph, n, args.bfs_len)
+            graph.write_graph(set_of_nodes=set_of_nodes, 
+                output_file=args.graph_out, append=True, modified=False)

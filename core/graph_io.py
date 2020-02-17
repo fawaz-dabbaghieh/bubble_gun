@@ -36,7 +36,8 @@ def write_gfa(graph, set_of_nodes=None,
         # writing nodes in gfa file
         if modified:
             node = nodes[n1]
-            # todo for now I don't care to which sb the node belongs, I just care about simple bubbles for phasing
+            # todo for now I don't care to which sb the node belongs
+            # I just care about simple bubbles for phasing
             specification = str(":".join((str(node.which_chain), str(0),
                                           str(node.which_b), str(node.which_allele))))
             if nodes[n1].seq == "":
@@ -140,7 +141,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
 
     f.close()
 
-def read_gfa(gfa_file_path, k, modified=False,):
+def read_gfa(gfa_file_path, k, modified=False):
     """
     Read a gfa file
 
@@ -167,6 +168,7 @@ def read_gfa(gfa_file_path, k, modified=False,):
                     nodes[n_id].seq_len = n_len
                     nodes[n_id].seq = str(line[2])
                     specifications = str(line[3])
+                    # the extra column
                     specifications = specifications.split(":")
                     nodes[n_id].which_chain = int(specifications[0])
                     nodes[n_id].which_sb = int(specifications[1])
