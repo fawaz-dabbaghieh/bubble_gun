@@ -2,11 +2,13 @@ import os
 import sys
 from core.functions import current_time, bfs
 from core.Graph import Graph
-from core.digest_gam import build_reads_dict
+from core.digest_gam import main
 import argparse
 import pdb
+import time
 import logging
 import pickle
+import logging
 
 parser = argparse.ArgumentParser(description='Find Bubble Chains.')
 
@@ -43,9 +45,18 @@ parser.add_argument("-o", "--output", dest="graph_out", metavar="OUTPUT",
     type=str, default=None, help="Output neighborhood ")
 
 parser.add_argument("-a", "--alignment", dest="gam_file", metavar="GAM",
-    type=str, default=None, help="Take BAM file and output pickled dict")
+    type=str, default=None, help="Take GAM file and output pickled dict")
+
+parser.add_argument("--log", dest="log_level", type=str, default="INFO",
+                    help="The logging leve [DEBUG, INFO, WARNING, ERROR, CRITICAL]")
 
 args = parser.parse_args()
+
+log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
+
+logging.basicConfig(filename=log_file, filemode='w', 
+                    format='[%(asctime)s] %(message)s', 
+                    level=getattr(logging, args.log_level.upper()))
 
 if len(sys.argv) == 1:
     print("You didn't give any arguments\n"
@@ -53,14 +64,11 @@ if len(sys.argv) == 1:
           "Or -e --examples for examples to use the tool")
     sys.exit()
 
-if args.gam_file is not None:
-    print("[{}] reading gam file and building dict".format(current_time()))
-    all_reads = build_reads_dict(args.gam_file)
-    print("[{}] finished building dict, pickling it".format(current_time()))
-    out_file = open("pickled_dict", "ab")
-    pickle.dump(all_reads, out_file)
-    out_file.close()
-    print("[{}] finished successfully".format(current_time()))
+if (args.gam_file is not None) and (args.in_graph is not None):
+    logging.info("Hi Fawaz")
+    logging.info("reading gam file and building dict")
+    all_reads = main(args.in_graph, args.gam_file)
+    logging.info("finished successfully")
     sys.exit()
 
 if args.examples:
@@ -134,17 +142,19 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
 if args.starting_nodes != None:
     if args.bfs_len != None:
         if args.graph_out == None:
-            print("You need to give an output file name -o")
+            logging.error("You need to give an output file name -o")
             sys.exit()
         
-        print("[{}] Reading Graph...".format(current_time()))
+        logging.info("Reading Graph...")
         if args.k_mer == 0:
             graph = Graph(args.in_graph, 1)
         else:
             graph = Graph(args.in_graph, args.k_mer)
 
         for n in args.starting_nodes:
-            print("extracting neighborhood")
+            logging.info("extracting neighborhood around node {}".format(n))
             set_of_nodes = bfs(graph, n, args.bfs_len)
             graph.write_graph(set_of_nodes=set_of_nodes, 
-                output_file=args.graph_out, append=True, modified=False)
+                output_file=args.graph_out, append=True, modified=True)
+
+        logging.info("finished successfully...")

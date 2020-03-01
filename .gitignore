@@ -6,3 +6,4 @@ side_notes.txt
 test/
 *.png
 *.pickle
+*.log

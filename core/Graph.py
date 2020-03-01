@@ -2,6 +2,10 @@ from .graph_io import read_gfa, read_vg, write_gfa, write_chains
 from .find_bubbles import find_bubbles
 from .new_compact import compact_graph
 from .connected_components import all_components
+from .functions import bfs
+import sys
+import logging
+import os
 import pdb
 
 
@@ -11,13 +15,16 @@ class Graph:
     """
 
     __slots__ = ['nodes', 'b_chains', 'k']
-    def __init__(self, graph_file, k=1):
-
+    def __init__(self, graph_file, k=1, modified=False):
+        if not os.path.exists(graph_file):
+            print("graph file {} does not exist".format(graph_file))
+            sys.exit()
         # loading nodes from file
         if graph_file.endswith(".gfa"):
-            self.nodes = read_gfa(gfa_file_path=graph_file, k=k)
+            self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified)
+            
         elif graph_file.endswith(".vg"):
-            self.nodes = read_vg(vg_file_path=graph_file, k=k)
+            self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified)
 
         self.b_chains = []  # list of BubbleChain objects
         # self.bubbles = set()
@@ -213,7 +220,7 @@ class Graph:
         """
 
         if self.k == 0:
-            print("WARNING! WARNING! if this is De Bruijn Graph"
+            logging.warning("if this is De Bruijn Graph"
                   " and you did not specify the k value"
                   " the compacting might not be correct, as overlaps"
                   " needs to be removed")
@@ -255,6 +262,18 @@ class Graph:
         lengths = [len(i) for i in all_comp]
         return all_comp[lengths.index(max(lengths))]
 
+    def bfs(self, start, size):
+        """
+        Returns a neighborhood of size given around start node
+
+        :param graph: A graph object from class Graph
+        :param start_node: starting node for the BFS search
+        :param size: size of the neighborhood to return
+        """
+
+        neighborhood = bfs(self, start, size)
+        return neighborhood
+        
     def fill_bubble_info(self):
         # chains_to_remove = set()
         b_counter = 0

@@ -3,6 +3,7 @@ import sys
 from .Node import Node
 import core.vg_pb2
 import stream
+import logging
 
 def write_gfa(graph, set_of_nodes=None,
     output_file="output_file.gfa", append=False, modified=False):
@@ -28,7 +29,7 @@ def write_gfa(graph, set_of_nodes=None,
         if os.path.exists(output_file):
             f = open(output_file, "a")
         else:
-            print("WARNING! Trying to append to a non-existant file\n"
+            logging.warning("Trying to append to a non-existant file\n"
                   "creating an output file")
             f = open(output_file, "w+")
 
@@ -150,7 +151,7 @@ def read_gfa(gfa_file_path, k, modified=False):
     :return: Dictionary of node ids and Node objects.
     """
     if not os.path.exists(gfa_file_path):
-        print("the gfa file path you gave does not exists, please try again!")
+        logging.error("the gfa file path you gave does not exists, please try again!")
         sys.exit()
 
     nodes = dict()
@@ -185,7 +186,7 @@ def read_gfa(gfa_file_path, k, modified=False):
                     nodes[n_id].seq = str(line[2])
 
                 if min_node_length > nodes[n_id].seq_len:
-                    print("Node {} has a sequence of length {}"
+                    logging.error("Node {} has a sequence of length {}"
                           " which is smaller than the provided k\n"
                           "Not allowed.".format(nodes[n_id].id,
                           	nodes[n_id].seq_len))
@@ -248,7 +249,7 @@ def read_vg(vg_file_path, k):
     :return: Dictionary of node ids and Node objects.
     """
     if not os.path.exists(vg_file_path):
-        print("the vg file path you gave does not exist, please try again!")
+        logging.error("the vg file path you gave does not exist, please try again!")
         sys.exit()
 
     nodes = dict()
@@ -267,7 +268,7 @@ def read_vg(vg_file_path, k):
                 nodes[n.id].seq_len = len(n.sequence)
 
                 if min_node_length > nodes[n_id].seq_len:
-                    print("Node {} has a sequence of length {}"
+                    logging.error("Node {} has a sequence of length {}"
                           " which is smaller than the provided k\n"
                           "Not allowed.".format(nodes[n_id].id,
                           	nodes[n_id].seq_len))
