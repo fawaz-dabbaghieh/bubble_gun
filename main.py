@@ -102,9 +102,9 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
     # output_file = args.out_bubbles
     print("[{}] Reading Graph...".format(current_time()))
     if args.k_mer == 0:
-        graph = Graph(args.in_graph, 1)
+        graph = Graph(args.in_graph, 1, args.coverage)
     else:
-        graph = Graph(args.in_graph, args.k_mer)
+        graph = Graph(args.in_graph, args.k_mer, args.coverage)
 
     if args.compacted != None:
         print("[{}] Compacting Graph...".format(current_time()))
