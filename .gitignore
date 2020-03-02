@@ -7,3 +7,4 @@ test/
 *.png
 *.pickle
 *.log
+*.fasta

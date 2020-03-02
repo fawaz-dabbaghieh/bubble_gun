@@ -142,7 +142,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
 
     f.close()
 
-def read_gfa(gfa_file_path, k, modified=False):
+def read_gfa(gfa_file_path, k, modified=False, coverage=False):
     """
     Read a gfa file
 
@@ -161,13 +161,14 @@ def read_gfa(gfa_file_path, k, modified=False):
     with open(gfa_file_path, "r") as lines:
         for line in lines:
             if line.startswith("S"):
+                line = line.split("\t")
+                n_id = int(line[1])
+                n_len = len(line[2])
+                nodes[n_id] = Node(n_id)
+                nodes[n_id].seq_len = n_len
+                nodes[n_id].seq = str(line[2]).strip()
+
                 if modified:
-                    line = line.split("\t")
-                    n_id = int(line[1])
-                    n_len = len(line[2])
-                    nodes[n_id] = Node(n_id)
-                    nodes[n_id].seq_len = n_len
-                    nodes[n_id].seq = str(line[2])
                     specifications = str(line[3])
                     # the extra column
                     specifications = specifications.split(":")
@@ -176,14 +177,9 @@ def read_gfa(gfa_file_path, k, modified=False):
                     nodes[n_id].which_b = int(specifications[2])
                     nodes[n_id].which_allele = int(specifications[3])
 
-                else:
+                if coverage:
+                    nodes[n_id].coverage = int(line[5].split(":")[-1])
 
-                    line = line.split()
-                    n_id = int(line[1])
-                    n_len = len(line[2])
-                    nodes[n_id] = Node(n_id)
-                    nodes[n_id].seq_len = n_len
-                    nodes[n_id].seq = str(line[2])
 
                 if min_node_length > nodes[n_id].seq_len:
                     logging.error("Node {} has a sequence of length {}"

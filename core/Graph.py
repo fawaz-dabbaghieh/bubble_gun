@@ -15,16 +15,16 @@ class Graph:
     """
 
     __slots__ = ['nodes', 'b_chains', 'k']
-    def __init__(self, graph_file, k=1, modified=False):
+    def __init__(self, graph_file, k=1, modified=False, coverage=False):
         if not os.path.exists(graph_file):
             print("graph file {} does not exist".format(graph_file))
             sys.exit()
         # loading nodes from file
         if graph_file.endswith(".gfa"):
-            self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified)
+            self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified, coverage=coverage)
             
         elif graph_file.endswith(".vg"):
-            self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified)
+            self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified, coverage=coverage)
 
         self.b_chains = []  # list of BubbleChain objects
         # self.bubbles = set()

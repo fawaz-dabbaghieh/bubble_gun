@@ -3,6 +3,7 @@ import sys
 from core.functions import current_time, bfs
 from core.Graph import Graph
 from core.digest_gam import main
+from core.bubbles_fasta import write_fasta
 import argparse
 import pdb
 import time
@@ -47,12 +48,19 @@ parser.add_argument("-o", "--output", dest="graph_out", metavar="OUTPUT",
 parser.add_argument("-a", "--alignment", dest="gam_file", metavar="GAM",
     type=str, default=None, help="Take GAM file and output pickled dict")
 
+parser.add_argument("--with_coverage", dest="coverage", action="store_true",
+    help="If this option given, mean coverage is taken from the GFA file")
+
+parser.add_argument("--fasta", dest="out_fasta", metavar="FASTA",
+    type=str, default=None, help="Outputs the bubble branches as fasta file")
+
 parser.add_argument("--log", dest="log_level", type=str, default="INFO",
-                    help="The logging leve [DEBUG, INFO, WARNING, ERROR, CRITICAL]")
+    help="The logging leve [DEBUG, INFO, WARNING, ERROR, CRITICAL]")
 
 args = parser.parse_args()
 
-log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
+# log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
+log_file = "log.log"
 
 logging.basicConfig(filename=log_file, filemode='w', 
                     format='[%(asctime)s] %(message)s', 
@@ -65,7 +73,6 @@ if len(sys.argv) == 1:
     sys.exit()
 
 if (args.gam_file is not None) and (args.in_graph is not None):
-    logging.info("Hi Fawaz")
     logging.info("reading gam file and building dict")
     all_reads = main(args.in_graph, args.gam_file)
     logging.info("finished successfully")
@@ -135,7 +142,8 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
         print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
         print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
-
+        if args.out_fasta != None:
+            write_fasta(args.out_fasta, graph)
         if args.graph_out != None:
             graph.write_b_chains(output=args.graph_out)
 
