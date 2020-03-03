@@ -178,7 +178,7 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False):
                     nodes[n_id].which_allele = int(specifications[3])
 
                 if coverage:
-                    nodes[n_id].coverage = int(line[5].split(":")[-1])
+                    nodes[n_id].coverage = float(line[5].split(":")[-1].strip())
 
 
                 if min_node_length > nodes[n_id].seq_len:
