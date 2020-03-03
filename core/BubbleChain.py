@@ -89,8 +89,9 @@ class BubbleChain:
         # of the chain
         if len(self.ends) == 0:
             self.find_ends()
-            
-        start = self.ends[0]  # randomly choosing one end of the cahin as start
+
+        start = self.ends[0]  # randomly choosing one end of the chain as start
+
         while len(self.sorted) < len(self):
             for b in self.bubbles:
                 b_ends = [b.source.id, b.sink.id]

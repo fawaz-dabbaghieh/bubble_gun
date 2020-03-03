@@ -4,6 +4,7 @@ from core.functions import current_time, bfs
 from core.Graph import Graph
 from core.digest_gam import main
 from core.bubbles_fasta import write_fasta
+from core.fasta_chains import output_chains_fasta
 import argparse
 import pdb
 import time
@@ -53,6 +54,9 @@ parser.add_argument("--with_coverage", dest="coverage", action="store_true",
 
 parser.add_argument("--fasta", dest="out_fasta", metavar="FASTA",
     type=str, default=None, help="Outputs the bubble branches as fasta file")
+
+parser.add_argument("--out_haplos", dest="out_haplos", action="store_true",
+	help="output randomly two haplotypes for each chain")
 
 parser.add_argument("--log", dest="log_level", type=str, default="INFO",
     help="The logging leve [DEBUG, INFO, WARNING, ERROR, CRITICAL]")
@@ -126,10 +130,7 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
         # print("[{}] Compacting graph...".format(current_time()))
         # graph.compact()
         print("[{}] Finding chains...".format(current_time()))
-        if args.only_simple:
-            graph.find_chains(only_simple=True)
-        else:
-            graph.find_chains()
+        graph.find_chains(only_simple=args.only_simple)
 
         graph.fill_bubble_info()
         print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
@@ -142,8 +143,14 @@ if (args.compacted != None) or (args.biggest_comp != None) or (args.bubbles):
         print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
         print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
+        if args.out_haplos:
+        	output_chains_fasta(graph)
+        	sys.exit()
+
         if args.out_fasta != None:
             write_fasta(args.out_fasta, graph)
+            sys.exit()
+
         if args.graph_out != None:
             graph.write_b_chains(output=args.graph_out)
 
