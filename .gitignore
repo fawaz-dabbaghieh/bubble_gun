@@ -8,3 +8,5 @@ test/
 *.pickle
 *.log
 *.fasta
+*.txt
+bin/

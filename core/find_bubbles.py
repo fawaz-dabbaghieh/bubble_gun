@@ -184,9 +184,9 @@ def find_bubbles(graph, only_simple=False):
     """
     counter = 0
 
-    print("[{}] Sorting nodes\n".format(current_time()))
+    # print("[{}] Sorting nodes\n".format(current_time()))
     # sorting nodes by length
-    sorted_nodes = sorted(graph.nodes, key=lambda x: graph.nodes[x].seq_len, reverse=True)
+    # sorted_nodes = sorted(graph.nodes, key=lambda x: graph.nodes[x].seq_len, reverse=True)
     # find_b_alg(graph, graph.nodes[167], 0, chains)
     for n in graph.nodes.values():
 
