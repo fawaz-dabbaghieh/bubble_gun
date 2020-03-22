@@ -9,4 +9,5 @@ test/
 *.log
 *.fasta
 *.txt
+*.idea
 bin/

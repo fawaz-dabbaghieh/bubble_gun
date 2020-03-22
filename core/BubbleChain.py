@@ -1,11 +1,12 @@
 from collections import Counter
-
+import pdb
 
 class BubbleChain:
     """
     BubbleChain object which is a set of bubble objects
     """
     __slots__ = ['bubbles', 'sorted', 'ends']
+
     def __init__(self):
         """
         initialize the BubbleChain as a set of bubble
@@ -59,23 +60,30 @@ class BubbleChain:
             total_seq += n.seq_len - k
         return total_seq
 
-    def find_ends(self):
-        """
-        returns the ends of the chain as node IDs
-        """
-        all_ends = []
-        for b in self.bubbles:
-            all_ends += [b.source.id, b.sink.id]
-        
-        # looks at all the sources,sinks of the bubbles in the chain
-        # only the ends of the chain should have a count of 1
-        # the rest are counted twice as two adjacent bubbles will share
-        # the same node as sink for one and source for the other
-        self.ends = [k for k, v in Counter(all_ends).items() if v == 1]
-
 
     def sort(self):
-        # I couldn't sort the set of bubbles (overload a bigger than function
+
+        # finding ends
+        all_ends = dict()
+        for b in self.bubbles:
+            source = int(b.source.id)
+            sink = int(b.sink.id)
+            if source > sink:
+                all_ends[(source, sink)] = b
+            else:
+                all_ends[(sink, source)] = b
+
+            # looks at all the sources, sinks of the bubbles in the chain
+            # only the ends of the chain should have a count of 1
+            # the rest are counted twice as two adjacent bubbles will share
+            # the same node as sink for one and source for the other
+        if len(self.ends) == 0:
+            self.ends = [k for k, v in Counter([n for sublist in all_ends.keys() for n in sublist]).items() if v == 1]
+        try:
+            assert len(self.ends) == 2
+        except AssertionError:
+            pdb.set_trace()
+        # I couldn't sort the set of bubbles (overload a "bigger than" function
         # in Bubble to use for the python sort function) because the sorting
         # here is based on the chain and the ends of the chain
         # I don't know before hand which bubble is "bigger" or "smaller" than
@@ -83,21 +91,15 @@ class BubbleChain:
         # for example, if I start traversing from the middle of the chain
         # looking "left" or "right" I still don't know who's is "bigger"
         # until I finish the whole chain.
-
-        # The hacky way to do it then is to have a list of bubble pointers
-        # sorted based on which end of the chain I chose as the start 
-        # of the chain
-        if len(self.ends) == 0:
-            self.find_ends()
-
+        # pdb.set_trace()
         start = self.ends[0]  # randomly choosing one end of the chain as start
-
-        while len(self.sorted) < len(self):
-            for b in self.bubbles:
-                b_ends = [b.source.id, b.sink.id]
-                if b in self.sorted:
-                    continue
-                if start in b_ends:
-                    b_ends.pop(b_ends.index(start))
-                    start = b_ends[0]
-                    self.sorted.append(b)
+        all_keys = list(all_ends.keys())
+        while len(self.sorted) < len(self.bubbles):
+            for idx, key in enumerate(all_keys):
+                if start in key:
+                    rm_key = idx
+                    start = key[1 - key.index(start)]
+                    self.sorted.append(all_ends[key])
+                    break
+            del all_keys[rm_key]
+        # pdb.set_trace()

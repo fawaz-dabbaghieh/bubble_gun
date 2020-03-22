@@ -2,7 +2,7 @@ from .graph_io import read_gfa, read_vg, write_gfa, write_chains
 from .find_bubbles import find_bubbles
 from .new_compact import compact_graph
 from .connected_components import all_components
-from .functions import bfs
+from .bfs import bfs
 import sys
 import logging
 import os
@@ -15,16 +15,17 @@ class Graph:
     """
 
     __slots__ = ['nodes', 'b_chains', 'k']
+
     def __init__(self, graph_file, k=1, modified=False, coverage=False):
         if not os.path.exists(graph_file):
             print("graph file {} does not exist".format(graph_file))
             sys.exit()
         # loading nodes from file
-        if graph_file.endswith(".gfa"):
-            self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified, coverage=coverage)
-            
-        elif graph_file.endswith(".vg"):
-            self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified, coverage=coverage)
+        # if graph_file.endswith(".gfa"):
+        self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified, coverage=coverage)
+
+        # elif graph_file.endswith(".vg"):
+        #     self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified, coverage=coverage)
 
         self.b_chains = []  # list of BubbleChain objects
         # self.bubbles = set()
@@ -57,13 +58,13 @@ class Graph:
         adds a bubble chain to the graph
         """
         if len(chain.sorted) == 0:
-            chain.find_ends()
+            # chain.find_ends()
             chain.sort()
-            if len(chain.ends) != 2:  # circualr chains or other weird stuff
+            if len(chain.ends) != 2:  # circular chains or other weird stuff
                 nodes_set = set(chain.list_chain())
-                self.write_gfa(set_of_nodes=nodes_set, modified=True,
-                               append=True,
-                               output_file="circular_and_other_chains.gfa")
+                self.write_graph(set_of_nodes=nodes_set, modified=True,
+                                 append=True,
+                                 output_file="circular_and_other_chains.gfa")
             else:
                 self.b_chains.append(chain)
 
@@ -129,7 +130,7 @@ class Graph:
         """
 
         n_in_c = self.nodes_in_chains()
-        return float((len(n_in_c)*100)/len(self.nodes))
+        return float((len(n_in_c) * 100) / len(self.nodes))
 
     def chain_cov_seq(self):
         """
@@ -137,7 +138,7 @@ class Graph:
         """
 
         s_in_c = self.seq_in_chains()
-        return float((s_in_c*100)/self.total_seq_length())
+        return float((s_in_c * 100) / self.total_seq_length())
 
     def num_single_bubbles(self):
         """
@@ -221,9 +222,9 @@ class Graph:
 
         if self.k == 0:
             logging.warning("if this is De Bruijn Graph"
-                  " and you did not specify the k value"
-                  " the compacting might not be correct, as overlaps"
-                  " needs to be removed")
+                            " and you did not specify the k value"
+                            " the compacting might not be correct, as overlaps"
+                            " needs to be removed")
         compact_graph(self)
 
     def write_graph(self, set_of_nodes=None,
@@ -273,7 +274,7 @@ class Graph:
 
         neighborhood = bfs(self, start, size)
         return neighborhood
-        
+
     def fill_bubble_info(self):
         # chains_to_remove = set()
         b_counter = 0
