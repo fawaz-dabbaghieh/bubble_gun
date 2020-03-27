@@ -1,4 +1,4 @@
-from core.Graph import Graph
+from BubbleGun.Graph import Graph
 import pdb
 import sys
 

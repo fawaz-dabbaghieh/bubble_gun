@@ -1,4 +1,4 @@
-from core.functions import reverse_complement
+from BubbleGun.functions import reverse_complement
 
 def next_direction(node1, node2, direction):
     """

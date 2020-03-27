@@ -1,29 +1,32 @@
-BubbleGun:
+BubbleGun TODO list:
  ✔ Split modules into a directory @done (19-12-19 20:36)
  ✔ Turn options in main to argparser instead of optparser @done (20-01-15 16:18)
    ✔ GFA or VG file @done (19-12-19 21:19)
    ✔ K value (if not given then consider 0) @done (19-12-19 21:19)
-   ☐ Output bubbles (maybe a tsv)
-     - bubble_chain node_len seq_len nodes_comma_separated
    ✔ BFS neighbor extraction @done (19-12-20 16:01)
-   ☐ Output stats file.
+
+ ☐ Output bubbles as JSON
  ✔ Add functionality to Graph class @done (19-12-24 19:17)
    ✔ Add find bubble to graph (now graph.find_chains()) @done (19-12-19 23:13)
    ✔ Add compact graph to graph @done (19-12-20 16:02)
    ✔ Add remove lonely nodes @done (19-12-20 00:00)
    ✔ Output graph @done (19-12-24 19:17)
- ☐ Maybe return all longest chains and not just the first one (in case of more than longgest chain)
+
  ✔ Sort Bubble chain function @done (20-01-10 16:20)
  ✔ Path extractor function (takes a path, returns sequence) @done (20-02-06 16:59)
  ✔ Separate classes into separate modules in core @done (19-12-19 22:53)
  ✔ Fill in examples at after the print example command @done (20-01-22 14:24)
  ✔ Option for only detecting bubbles @done (20-01-22 14:24)
+
  ☐ Option to only detect superbubbles
+
  ✔ Add BFS search in graph @done (19-12-24 19:17)
  ✔ Add components and biggest component functionality @done (19-12-24 19:15)
- ☐ Maybe make a connected component a class with functions such as:
-   ☐ nodes len of comp
-   ☐ seq len of comp
+
+ ☐ Maybe make a connected component a separate graph
+
+ ☐ Implement the low memory version
+
  ✔ Read VG files  @done (20-01-10 16:20)
  ✔ Make sure not to write edges to removes nodes @done (19-12-19 23:52)
    ✔ function 'remove_node(node_id)' to graph that removes nodes and their edges @done (19-12-19 23:52)
@@ -31,7 +34,7 @@ BubbleGun:
  ✔ I need to compact the graph first before finding bubbles. @done (20-01-10 16:21)
  ✔ Maybe re-write the compactness script. Now it's a while loop instead of a nested function @done (20-01-22 14:24)
  ✔ Have a k check, if one of the nodes is smaller than k return an error and stop (can be done while reading the nodes) @done (20-01-15 16:18)
- ☐ Proper docstring comments on the code, use reST recommended by pep287
+ ✔ Proper docstring comments on the code, use reST recommended by pep287
   """
   This is a reST style.
 
@@ -40,22 +43,17 @@ BubbleGun:
   :returns: this is a description of what is returned
   :raises keyError: raises an exception
   """
-    #code
- ☐ Alignment file stuff:
+  #code
+
+ ✔ Alignment file stuff: (20-02-12 11:34)
    ✔ Filter alignment less than 200 bp @done (20-02-12 11:34)
-   ☐ Keep only the longest alignment if two alignments were mapped to the same chain
+   ✔ Keep only the longest alignment if two alignments were mapped to the same chain (20-02-12 11:34)
 
  ☐ Repeats:
    ☐ Choose several long chains and calculate mean and standard deviation of the coverage
    ☐ Use the mean and std according to HASLR to throw out chains that have coverage bigger than mean + 3std
 
- ☐ Solve superbubbles, what to do with them?
- 
- ☐ Output options
- ☐ Hamming and edit distance for simple bubbles
- ☐ Setup
- ☐ Bioconda package
- ☐ If not (setup, bioconda) then maybe integrate in WhatsHap
+ ☐ Solve superbubbles according to coverage
 
 Bugs:
  ✔ compacting didn't work on the graph, need to debug @done (19-12-20 17:15) 

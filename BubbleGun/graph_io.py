@@ -1,12 +1,12 @@
 import os
 import sys
 from .Node import Node
-import core.vg_pb2
 import stream
 import logging
 
+
 def write_gfa(graph, set_of_nodes=None,
-    output_file="output_file.gfa", append=False, modified=False):
+              output_file="output_file.gfa", append=False, modified=False):
     """
     Write a gfa out
 
@@ -30,7 +30,7 @@ def write_gfa(graph, set_of_nodes=None,
             f = open(output_file, "a")
         else:
             logging.warning("Trying to append to a non-existant file\n"
-                  "creating an output file")
+                            "creating an output file")
             f = open(output_file, "w+")
 
     for n1 in set_of_nodes:
@@ -142,6 +142,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
 
     f.close()
 
+
 def read_gfa(gfa_file_path, k, modified=False, coverage=False):
     """
     Read a gfa file
@@ -180,12 +181,11 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False):
                 if coverage:
                     nodes[n_id].coverage = float(line[5].split(":")[-1].strip())
 
-
                 if min_node_length > nodes[n_id].seq_len:
                     logging.error("Node {} has a sequence of length {}"
-                          " which is smaller than the provided k\n"
-                          "Not allowed.".format(nodes[n_id].id,
-                          	nodes[n_id].seq_len))
+                                  " which is smaller than the provided k\n"
+                                  "Not allowed.".format(nodes[n_id].id,
+                                                        nodes[n_id].seq_len))
                     sys.exit()
 
             elif line.startswith("L"):
@@ -237,62 +237,62 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False):
     return nodes
 
 
-def read_vg(vg_file_path, k):
-    """
-    Read a vg file
-    
-    :param vg_file_path: vg graph file.
-    :return: Dictionary of node ids and Node objects.
-    """
-    if not os.path.exists(vg_file_path):
-        logging.error("the vg file path you gave does not exist, please try again!")
-        sys.exit()
-
-    nodes = dict()
-    edges = []
-    min_node_length = k
-    with stream.open(vg_file_path, "rb") as in_stream:
-        for data in in_stream:
-            graph = core.vg_pb2.Graph()
-            # import pdb
-            # pdb.set_trace()
-            graph.ParseFromString(data)
-
-            for n in graph.node:
-                nodes[n.id] = Node(n.id)
-                nodes[n.id].seq = str(n.sequence)
-                nodes[n.id].seq_len = len(n.sequence)
-
-                if min_node_length > nodes[n_id].seq_len:
-                    logging.error("Node {} has a sequence of length {}"
-                          " which is smaller than the provided k\n"
-                          "Not allowed.".format(nodes[n_id].id,
-                          	nodes[n_id].seq_len))
-                    sys.exit()
-
-            for e in graph.edge:
-                edges.append(e)
-
-    for e in edges:
-        k = getattr(e, "from")
-        neighbor = e.to
-        from_start = e.from_start
-        to_end = e.to_end
-
-        if from_start is True and to_end is True:  # from start to end L x - y -
-            nodes[k].start.append((neighbor, 1))
-            nodes[neighbor].end.append((k, 0))
-
-        elif from_start is True and to_end is False:  # from start to start L x - y +
-            nodes[k].start.append((neighbor, 0))
-            nodes[neighbor].start.append((k, 0))
-
-        elif from_start is False and to_end is False:  # from end to start L x + y +
-            nodes[k].end.append((neighbor, 0))
-            nodes[neighbor].start.append((k, 1))
-
-        elif from_start is False and to_end is True:  # from end to end L x + y -
-            nodes[k].end.append((neighbor, 1))
-            nodes[neighbor].end.append((k, 1))
-
-    return nodes
+# def read_vg(vg_file_path, k):
+#     """
+#     Read a vg file
+#
+#     :param vg_file_path: vg graph file.
+#     :return: Dictionary of node ids and Node objects.
+#     """
+#     if not os.path.exists(vg_file_path):
+#         logging.error("the vg file path you gave does not exist, please try again!")
+#         sys.exit()
+#
+#     nodes = dict()
+#     edges = []
+#     min_node_length = k
+#     with stream.open(vg_file_path, "rb") as in_stream:
+#         for data in in_stream:
+#             graph = BubbleGun.vg_pb2.Graph()
+#             # import pdb
+#             # pdb.set_trace()
+#             graph.ParseFromString(data)
+#
+#             for n in graph.node:
+#                 nodes[n.id] = Node(n.id)
+#                 nodes[n.id].seq = str(n.sequence)
+#                 nodes[n.id].seq_len = len(n.sequence)
+#
+#                 if min_node_length > nodes[n_id].seq_len:
+#                     logging.error("Node {} has a sequence of length {}"
+#                                   " which is smaller than the provided k\n"
+#                                   "Not allowed.".format(nodes[n_id].id,
+#                                                         nodes[n_id].seq_len))
+#                     sys.exit()
+#
+#             for e in graph.edge:
+#                 edges.append(e)
+#
+#     for e in edges:
+#         k = getattr(e, "from")
+#         neighbor = e.to
+#         from_start = e.from_start
+#         to_end = e.to_end
+#
+#         if from_start is True and to_end is True:  # from start to end L x - y -
+#             nodes[k].start.append((neighbor, 1))
+#             nodes[neighbor].end.append((k, 0))
+#
+#         elif from_start is True and to_end is False:  # from start to start L x - y +
+#             nodes[k].start.append((neighbor, 0))
+#             nodes[neighbor].start.append((k, 0))
+#
+#         elif from_start is False and to_end is False:  # from end to start L x + y +
+#             nodes[k].end.append((neighbor, 0))
+#             nodes[neighbor].start.append((k, 1))
+#
+#         elif from_start is False and to_end is True:  # from end to end L x + y -
+#             nodes[k].end.append((neighbor, 1))
+#             nodes[neighbor].end.append((k, 1))
+#
+#     return nodes

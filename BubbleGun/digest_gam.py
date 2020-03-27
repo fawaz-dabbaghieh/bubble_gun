@@ -1,11 +1,18 @@
-from core.vg_pb2 import Alignment
-from core.functions import current_time
-from core.Graph import Graph
-import logging
 import sys
-import stream
+try:
+    from BubbleGun.vg_pb2 import Alignment
+except ModuleNotFoundError:
+    print("Module Google Protobuf was not found. You can install it using 'python3 -m install protobuf'")
+    sys.exit(1)
+from BubbleGun.Graph import Graph
+import logging
+try:
+    import stream
+except ModuleNotFoundError:
+    print("Module stream was not found, you can install it using 'python3 -m pip install pystream-protobuf")
+    sys.exit(1)
 import pickle
-import pdb
+
 
 class Mapping:
     """
@@ -15,13 +22,14 @@ class Mapping:
     what nodes involved in this mapping and to which chain they belong to
     """
     __slots__ = ['nodes', 'chain', 'length']
+
     def __init__(self):
         self.nodes = []
         self.chain = 0
         self.length = 0
 
     def add_node(self, node):
-        if self.chain  == 0:
+        if self.chain == 0:
             self.chain = node.which_chain
             self.nodes.append(node.id)
 
@@ -36,6 +44,7 @@ class Mapping:
         self.length = length
         for m in alignment.path.mapping:
             self.add_node(nodes[m.position.node_id])
+
 
 class ReadMappings:
 
@@ -68,6 +77,8 @@ class ReadMappings:
         for m in self.mappings:
             nodes.append(m.nodes)
         return nodes
+
+
 # def check_same_chain(list_of_nodes, nodes):
 
 #     current_chain = nodes[list_of_nodes[0]].which_chain
@@ -90,7 +101,7 @@ def build_reads_dict(nodes, gam_file_path):
 
             if (counter % 10000000) == 0:
                 logging.info("{} mappings processed".format(counter))
-                
+
             align = Alignment()
             align.ParseFromString(data)
 
@@ -112,10 +123,10 @@ def build_reads_dict(nodes, gam_file_path):
                     read_mappings.add_mapping(mapping)
                     # all_reads[read_mappings.name].add_mapping(mapping)
                     # all_reads[align.name].add_mapping(mapping)
-                
+
                 # new read, need to store the previous read_mappings
                 # in all_reads and start a new ReadMappings object to fill
-                else: 
+                else:
                     # all_reads[align.name] = ReadMappings(name=align.name)
                     # all_reads[align.name].add_mapping(mapping)
                     all_reads[read_mappings.name] = read_mappings.list_nodes()
@@ -136,13 +147,13 @@ def build_reads_dict(nodes, gam_file_path):
 
     return all_reads
 
-def main(gfa, gam):
 
+def digest_gam(gfa, gam, pickled_out):
     logging.info("Reading Graph...")
     graph = Graph(graph_file=gfa, modified=True)
     all_reads = build_reads_dict(graph.nodes, gam)
 
     logging.info("finished building dict, pickling it...")
-    out_file = open("pickled_dict_new", "ab")
+    out_file = open(pickled_out, "ab")
     pickle.dump(all_reads, out_file)
     out_file.close()

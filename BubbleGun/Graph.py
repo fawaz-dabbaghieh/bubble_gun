@@ -1,4 +1,4 @@
-from .graph_io import read_gfa, read_vg, write_gfa, write_chains
+from .graph_io import read_gfa, write_gfa, write_chains
 from .find_bubbles import find_bubbles
 from .new_compact import compact_graph
 from .connected_components import all_components
