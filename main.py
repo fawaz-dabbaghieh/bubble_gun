@@ -185,39 +185,38 @@ if args.subcommands == "bchains":
     else:
         graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
 
-    if args.bubbles:
-        # print("[{}] Compacting graph...".format(current_time()))
-        # graph.compact()
-        logging.info("Finding chains...")
-        graph.find_chains(only_simple=args.only_simple)
-        graph.fill_bubble_info()
-        logging.info("Done finding chains...")
-        print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
-        print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
-        b_numbers = graph.bubble_number()
-        print("The number of Simple Bubbles is {}\n"
-              "The number of Superbubbles is {}\n"
-              "The number of insertions is {}".format(b_numbers[0], b_numbers[1],
-                                                      b_numbers[2]))
-        print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
-        print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
+    # print("[{}] Compacting graph...".format(current_time()))
+    # graph.compact()
+    logging.info("Finding chains...")
+    graph.find_chains(only_simple=args.only_simple)
+    graph.fill_bubble_info()
+    logging.info("Done finding chains...")
+    print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
+    print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
+    b_numbers = graph.bubble_number()
+    print("The number of Simple Bubbles is {}\n"
+          "The number of Superbubbles is {}\n"
+          "The number of insertions is {}".format(b_numbers[0], b_numbers[1],
+                                                  b_numbers[2]))
+    print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
+    print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
-        if args.out_haplos:
-            logging.info("Outputting two random haplotypes of each bubble chain...")
-            output_chains_fasta(graph)
+    if args.out_haplos:
+        logging.info("Outputting two random haplotypes of each bubble chain...")
+        output_chains_fasta(graph)
 
-        if args.out_fasta is not None:
-            logging.info("Outputting each bubble branch...")
-            write_fasta(args.out_fasta, graph)
+    if args.out_fasta is not None:
+        logging.info("Outputting each bubble branch...")
+        write_fasta(args.out_fasta, graph)
 
-        if args.chains_gfa is not None:
-            logging.info("Outputting bubble chains gfa...")
-            graph.write_b_chains(output=args.chains_gfa)
+    if args.chains_gfa is not None:
+        logging.info("Outputting bubble chains gfa...")
+        graph.write_b_chains(output=args.chains_gfa)
 
-        if args.out_json is not None:
-            logging.info("Outputting bubble chains gfa...")
-            # todo
-            # graph.write_chains_json(output=args.graph_out)
+    if args.out_json is not None:
+        logging.info("Outputting bubble chains gfa...")
+        # todo
+        # graph.write_chains_json(output=args.graph_out)
 
 ####################### BFS
 if args.subcommands == "bfs":
