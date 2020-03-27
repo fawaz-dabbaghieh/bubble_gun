@@ -16,13 +16,14 @@ class Graph:
 
     __slots__ = ['nodes', 'b_chains', 'k']
 
-    def __init__(self, graph_file, k=1, modified=False, coverage=False):
+    def __init__(self, graph_file, k=1, modified=False, coverage=False, low_memory=False):
         if not os.path.exists(graph_file):
             print("graph file {} does not exist".format(graph_file))
             sys.exit()
         # loading nodes from file
         # if graph_file.endswith(".gfa"):
-        self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified, coverage=coverage)
+        self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified,
+                              coverage=coverage, low_memory=low_memory)
 
         # elif graph_file.endswith(".vg"):
         #     self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified, coverage=coverage)
@@ -36,7 +37,7 @@ class Graph:
         overloading the length function
         """
 
-        return (len(self.nodes))
+        return len(self.nodes)
 
     def __str__(self):
         """
@@ -62,8 +63,7 @@ class Graph:
             chain.sort()
             if len(chain.ends) != 2:  # circular chains or other weird stuff
                 nodes_set = set(chain.list_chain())
-                self.write_graph(set_of_nodes=nodes_set, modified=True,
-                                 append=True,
+                self.write_graph(set_of_nodes=nodes_set, modified=True, append=True,
                                  output_file="circular_and_other_chains.gfa")
             else:
                 self.b_chains.append(chain)
@@ -279,20 +279,20 @@ class Graph:
         # chains_to_remove = set()
         b_counter = 0
         for chain_num, chain in enumerate(self.b_chains):
-            chain_num += 1  # to avoid a chain id of 0
+            chain_num += 1  # To start from 1
 
             for bubble in chain.sorted:
                 b_counter += 1
                 if bubble.is_simple():
                     # randomly assigning which branch is zero and which is 1
                     # simple bubble only has 2 nodes inside, so 0 and 1
-                    for allel, node in enumerate(bubble.inside):
+                    for allele, node in enumerate(bubble.inside):
                         # check if it hasn't been processed yet
                         # it might be a nested bubble inside an SB
                         # so don't need to change the tags then
                         # SB takes presedence
                         if node.which_chain == 0:
-                            node.which_allele = allel
+                            node.which_allele = allele
                             node.which_chain = chain_num
                             node.which_b = b_counter
 

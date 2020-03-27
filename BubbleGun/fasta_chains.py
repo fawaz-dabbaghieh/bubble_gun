@@ -4,6 +4,8 @@ import pdb
 
 def output_chains_fasta(graph):
 
+    # Chain ids should be from 1 to len(graph.b_chains)
+    chain_id = 1
     hap1_file = open("haplotype1.fasta", "w")
     hap2_file = open("haplotype2.fasta", "w")
     # chain_counter = 1
@@ -17,7 +19,7 @@ def output_chains_fasta(graph):
         # should do it with topological sorting but I'm too tired
         for b in chain.sorted:
             if len(hap1) == 0:
-                chain_id = b.source.which_chain
+                # chain_id = b.source.which_chain
                 hap1.append(chain.ends[0])
                 hap2.append(chain.ends[0])
                 hap1.append(b.inside[0].id)
@@ -52,7 +54,7 @@ def output_chains_fasta(graph):
         read_name = ">chain_" + str(chain_id) + "_hap2"
         hap2_file.write(read_name + "\n")
         hap2_file.write(seq2 + "\n")
-        #chain_counter += 1
+        chain_id += 1
 
     hap1_file.close()
     hap2_file.close()

@@ -39,7 +39,7 @@ bubble_parser.add_argument("--bubble_json", dest="out_json", default=None, type=
 bubble_parser.add_argument("--only_simple", action="store_true",
                            help="If used then only simple bubbles are detected")
 
-bubble_parser.add_argument("--save_memory", action="store_true",
+bubble_parser.add_argument("--save_memory", action="store_true", dest="low_memory",
                            help="Identifies bubble chain with less memory. No statistics outputted")
 
 bubble_parser.add_argument("--chains_gfa", dest="chains_gfa", default=None, type=str,
@@ -183,7 +183,7 @@ if args.subcommands == "bchains":
     if args.k_mer == 0:
         graph = Graph(args.in_graph, 1, args.coverage)
     else:
-        graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
+        graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage, low_memory=args.low_memory)
 
     # print("[{}] Compacting graph...".format(current_time()))
     # graph.compact()
@@ -191,15 +191,17 @@ if args.subcommands == "bchains":
     graph.find_chains(only_simple=args.only_simple)
     graph.fill_bubble_info()
     logging.info("Done finding chains...")
-    print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
-    print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
     b_numbers = graph.bubble_number()
     print("The number of Simple Bubbles is {}\n"
           "The number of Superbubbles is {}\n"
           "The number of insertions is {}".format(b_numbers[0], b_numbers[1],
                                                   b_numbers[2]))
-    print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
-    print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
+
+    if not args.low_memory:
+        print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
+        print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
+        print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
+        print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
     if args.out_haplos:
         logging.info("Outputting two random haplotypes of each bubble chain...")

@@ -1,7 +1,6 @@
 import os
 import sys
 from .Node import Node
-import stream
 import logging
 
 
@@ -143,12 +142,14 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
     f.close()
 
 
-def read_gfa(gfa_file_path, k, modified=False, coverage=False):
+def read_gfa(gfa_file_path, k, modified=False, coverage=False, low_memory=False):
     """
     Read a gfa file
 
     :param gfa_file_path: gfa graph file.
     :param modified: if I'm reading my modified GFA with extra information for the nodes
+    :param coverage: read the coverage from the graph
+    :param low_memory: don't read the sequences to save memory
     :return: Dictionary of node ids and Node objects.
     """
     if not os.path.exists(gfa_file_path):
@@ -166,8 +167,10 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False):
                 n_id = int(line[1])
                 n_len = len(line[2])
                 nodes[n_id] = Node(n_id)
-                nodes[n_id].seq_len = n_len
-                nodes[n_id].seq = str(line[2]).strip()
+
+                if not low_memory:
+                    nodes[n_id].seq_len = n_len
+                    nodes[n_id].seq = str(line[2]).strip()
 
                 if modified:
                     specifications = str(line[3])
@@ -181,12 +184,13 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False):
                 if coverage:
                     nodes[n_id].coverage = float(line[5].split(":")[-1].strip())
 
-                if min_node_length > nodes[n_id].seq_len:
-                    logging.error("Node {} has a sequence of length {}"
-                                  " which is smaller than the provided k\n"
-                                  "Not allowed.".format(nodes[n_id].id,
-                                                        nodes[n_id].seq_len))
-                    sys.exit()
+                if not low_memory:
+                    if min_node_length > nodes[n_id].seq_len:
+                        logging.error("Node {} has a sequence of length {}"
+                                      " which is smaller than the provided k\n"
+                                      "Not allowed.".format(nodes[n_id].id,
+                                                            nodes[n_id].seq_len))
+                        sys.exit()
 
             elif line.startswith("L"):
                 edges.append(line)

@@ -5,7 +5,6 @@ BubbleGun TODO list:
    ✔ K value (if not given then consider 0) @done (19-12-19 21:19)
    ✔ BFS neighbor extraction @done (19-12-20 16:01)
 
- ☐ Output bubbles as JSON
  ✔ Add functionality to Graph class @done (19-12-24 19:17)
    ✔ Add find bubble to graph (now graph.find_chains()) @done (19-12-19 23:13)
    ✔ Add compact graph to graph @done (19-12-20 16:02)
@@ -18,15 +17,16 @@ BubbleGun TODO list:
  ✔ Fill in examples at after the print example command @done (20-01-22 14:24)
  ✔ Option for only detecting bubbles @done (20-01-22 14:24)
 
- ☐ Option to only detect superbubbles
+ ☐ Implement the low-memory bubbles detection version (compare both versions).
+ ☐ Read coverages and output the coverages too.
+ ☐ Proper topological sorting.
+ ☐ Output bubbles as JSON.
+ ☐ Option to only detect Superbubbles.
+ ☐ Implement the low memory version.
+ ☐ Maybe make a connected component a separate graph.
 
  ✔ Add BFS search in graph @done (19-12-24 19:17)
  ✔ Add components and biggest component functionality @done (19-12-24 19:15)
-
- ☐ Maybe make a connected component a separate graph
-
- ☐ Implement the low memory version
-
  ✔ Read VG files  @done (20-01-10 16:20)
  ✔ Make sure not to write edges to removes nodes @done (19-12-19 23:52)
    ✔ function 'remove_node(node_id)' to graph that removes nodes and their edges @done (19-12-19 23:52)

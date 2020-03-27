@@ -28,7 +28,7 @@ class Bubble:
         return (sink, source)
 
     # I need to hash the bubbles because I can find the same bubble
-    # twice as I'm coming from both directions
+    # twice as I'm coming from different directions
     # this way I can avoid adding it twice to the list of bubbles
     def __hash__(self):
         return hash(self.__key())
