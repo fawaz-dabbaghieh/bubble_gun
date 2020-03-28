@@ -5,8 +5,10 @@ from BubbleGun.Graph import Graph
 from BubbleGun.bubbles_fasta import write_fasta
 from BubbleGun.digest_gam import digest_gam
 from BubbleGun.fasta_chains import output_chains_fasta
+from BubbleGun.json_out import json_out
 import argparse
 import logging
+import pdb
 
 parser = argparse.ArgumentParser(description='Find Bubble Chains.', add_help=True)
 subparsers = parser.add_subparsers(help='Available subcommands', dest="subcommands")
@@ -55,14 +57,14 @@ bubble_parser.add_argument("--out_haplos", dest="out_haplos", action="store_true
 ########################## Compact graph ###############################
 compact_parser = subparsers.add_parser('compact', help='Command for compacting graphs')
 
-compact_parser.add_argument("--compact", dest="compacted", metavar="COMPACTED",
-                            default=None, type=str, help="Output compacted file to path given")
+compact_parser.add_argument(dest="compacted", metavar="PATH_COMPACTED",
+                            default=None, type=str, help="Compacted graph output path")
 
 ########################## Biggest component ###############################
 biggest_comp_parser = subparsers.add_parser('biggestcomp', help='Command for separating biggest component')
 
-biggest_comp_parser.add_argument("--biggest_comp", dest="biggest_comp", metavar="BIG_COMP",
-                                 default=None, type=str, help="Output biggest component to path given")
+biggest_comp_parser.add_argument(dest="biggest_comp", metavar="PATH_BIG_COMP",
+                                 default=None, type=str, help="Biggest component output path")
 
 ########################## BFS commands ###############################
 bfs_parser = subparsers.add_parser('bfs', help='Command for separating neighborhood')
@@ -80,6 +82,9 @@ bfs_parser.add_argument("--output_neighborhood", dest="output_neighborhood", met
 gam_parser = subparsers.add_parser('gamdigest', help='Command for digesting a gam file')
 gam_parser.add_argument("--alignment_file", dest="gam_file", metavar="GAM",
                         type=str, default=None, help="Take GAM file and output pickled dict")
+
+gam_parser.add_argument("--min_cutoff", dest="min_cutoff", type=int, default=None,
+                        help="The minimum cutoff of a mapping length.")
 
 gam_parser.add_argument("--out_dict", dest="pickle_out",
                         type=str, default=None,
@@ -129,12 +134,17 @@ if args.k_mer == 0:
 if args.subcommands == "gamdigest":
     if args.gam_file is not None:
         if args.pickle_out is not None:
-            logging.info("reading gam file and building dict")
-            all_reads = digest_gam(args.in_graph, args.gam_file, args.pickle_out)
-            logging.info("finished successfully")
-            sys.exit()
+            if args.min_cutoff is not None:
+                logging.info("reading gam file and building dict")
+                all_reads = digest_gam(args.in_graph, args.gam_file, args.min_cutoff, args.pickle_out)
+                logging.info("finished successfully")
+                sys.exit()
+            else:
+                print("You did not provide the minimum cutoff. Maybe something like 3 times the k-mer length")
+                sys.exit(1)
         else:
             print("You did not provide a path for the pickled dictionary output")
+            sys.exit(1)
     else:
         print("Please provide the path to the gam file")
         sys.exit(1)
@@ -187,6 +197,7 @@ if args.subcommands == "bchains":
 
     # print("[{}] Compacting graph...".format(current_time()))
     # graph.compact()
+    # tracemalloc.start()
     logging.info("Finding chains...")
     graph.find_chains(only_simple=args.only_simple)
     graph.fill_bubble_info()
@@ -196,30 +207,34 @@ if args.subcommands == "bchains":
           "The number of Superbubbles is {}\n"
           "The number of insertions is {}".format(b_numbers[0], b_numbers[1],
                                                   b_numbers[2]))
-
     if not args.low_memory:
         print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
         print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
         print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq(graph.k)))
         print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
-    if args.out_haplos:
-        logging.info("Outputting two random haplotypes of each bubble chain...")
-        output_chains_fasta(graph)
+    # snapshot = tracemalloc.take_snapshot()
+    # BubbleGun.memory_profile.display_top(snapshot, limit=10)
+    #
 
-    if args.out_fasta is not None:
-        logging.info("Outputting each bubble branch...")
-        write_fasta(args.out_fasta, graph)
+    if args.out_json is not None:
+        logging.info("Outputting bubble chains gfa...")
+        json_out(graph, args.out_json)
 
     if args.chains_gfa is not None:
         logging.info("Outputting bubble chains gfa...")
         graph.write_b_chains(output=args.chains_gfa)
 
-    if args.out_json is not None:
-        logging.info("Outputting bubble chains gfa...")
-        # todo
-        # graph.write_chains_json(output=args.graph_out)
+    if args.out_fasta is not None:
+        logging.info("Outputting each bubble branch...")
+        write_fasta(args.out_fasta, graph)
 
+    if args.out_haplos:
+        logging.info("Outputting two random haplotypes of each bubble chain...")
+        output_chains_fasta(graph)
+
+    # h = guppy.hpy()
+    # print(h.heap())
 ####################### BFS
 if args.subcommands == "bfs":
     if args.starting_nodes is not None:

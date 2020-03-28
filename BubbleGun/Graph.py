@@ -290,7 +290,7 @@ class Graph:
                         # check if it hasn't been processed yet
                         # it might be a nested bubble inside an SB
                         # so don't need to change the tags then
-                        # SB takes presedence
+                        # SB takes precedence
                         if node.which_chain == 0:
                             node.which_allele = allele
                             node.which_chain = chain_num

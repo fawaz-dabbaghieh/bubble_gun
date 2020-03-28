@@ -17,7 +17,7 @@ BubbleGun TODO list:
  ✔ Fill in examples at after the print example command @done (20-01-22 14:24)
  ✔ Option for only detecting bubbles @done (20-01-22 14:24)
 
- ☐ Implement the low-memory bubbles detection version (compare both versions).
+ ✔ Implement the low-memory bubbles detection version (compare both versions).
  ☐ Read coverages and output the coverages too.
  ☐ Proper topological sorting.
  ☐ Output bubbles as JSON.

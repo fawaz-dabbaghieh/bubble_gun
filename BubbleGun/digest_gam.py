@@ -53,6 +53,8 @@ class ReadMappings:
         self.mappings = []
 
     def check_add(self, mapping):
+        # I am checking if it's a mapping to the same chain
+        # if it is and it is longer, the previous one is removed and the new mapping is added
         for idx, m in enumerate(self.mappings):
             if m.chain == mapping.chain:
                 if m.length > mapping.length:
@@ -88,7 +90,7 @@ class ReadMappings:
 #             print("list of nodes are {}".format(list_of_nodes))
 #             sys.exit()
 
-def build_reads_dict(nodes, gam_file_path):
+def build_reads_dict(nodes, gam_file_path, min_cutoff):
     all_reads = dict()
 
     # reading gam file
@@ -105,8 +107,8 @@ def build_reads_dict(nodes, gam_file_path):
             align = Alignment()
             align.ParseFromString(data)
 
-            # skipping alignments with less than 200 base pairs
-            if len(align.sequence) < 200:
+            # skipping alignments with less than minimum cutoff
+            if len(align.sequence) < min_cutoff:
                 continue
 
             if align.name not in all_reads:  # either first or new read
@@ -148,10 +150,10 @@ def build_reads_dict(nodes, gam_file_path):
     return all_reads
 
 
-def digest_gam(gfa, gam, pickled_out):
+def digest_gam(gfa, gam, min_cutoff, pickled_out):
     logging.info("Reading Graph...")
     graph = Graph(graph_file=gfa, modified=True)
-    all_reads = build_reads_dict(graph.nodes, gam)
+    all_reads = build_reads_dict(graph.nodes, gam, min_cutoff)
 
     logging.info("finished building dict, pickling it...")
     out_file = open(pickled_out, "ab")

@@ -1,6 +1,7 @@
 from collections import Counter
 import pdb
 
+
 class BubbleChain:
     """
     BubbleChain object which is a set of bubble objects
@@ -60,9 +61,10 @@ class BubbleChain:
             total_seq += n.seq_len - k
         return total_seq
 
-
     def sort(self):
-
+        """
+        sorts the bubbles in the chain
+        """
         # finding ends
         all_ends = dict()
         for b in self.bubbles:
@@ -102,4 +104,3 @@ class BubbleChain:
                     self.sorted.append(all_ends[key])
                     break
             del all_keys[rm_key]
-        # pdb.set_trace()
