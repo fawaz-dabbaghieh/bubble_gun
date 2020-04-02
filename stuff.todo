@@ -20,9 +20,11 @@ BubbleGun TODO list:
  ✔ Implement the low-memory bubbles detection version (compare both versions).
  ☐ Read coverages and output the coverages too.
  ☐ Proper topological sorting.
- ☐ Output bubbles as JSON.
+ ✔ Output bubbles as JSON.
+ ☐ Implement the nested bubbles detection (hash chains with their ends).
+ ☐ Read GFA 2 files too (add that maybe as an option with the default as GFA 1)
  ☐ Option to only detect Superbubbles.
- ☐ Implement the low memory version.
+ ✔ Implement the low memory version.
  ☐ Maybe make a connected component a separate graph.
 
  ✔ Add BFS search in graph @done (19-12-24 19:17)
