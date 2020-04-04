@@ -22,6 +22,7 @@ BubbleGun TODO list:
  ☐ Proper topological sorting.
  ✔ Output bubbles as JSON.
  ☐ Implement the nested bubbles detection (hash chains with their ends).
+ ☐ See what information can be removed from the node object
  ☐ Read GFA 2 files too (add that maybe as an option with the default as GFA 1)
  ☐ Option to only detect Superbubbles.
  ✔ Implement the low memory version.

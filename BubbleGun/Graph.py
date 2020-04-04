@@ -1,5 +1,5 @@
 from .graph_io import read_gfa, write_gfa, write_chains
-from .find_bubbles import find_bubbles
+from .find_bubbles import find_bubble_chains
 from .new_compact import compact_graph
 from .connected_components import all_components
 from .bfs import bfs
@@ -14,23 +14,25 @@ class Graph:
     Graph object containing the important information about the graph
     """
 
-    __slots__ = ['nodes', 'b_chains', 'k']
+    __slots__ = ['nodes', 'b_chains', 'k', 'child_parent']
 
-    def __init__(self, graph_file, k=1, modified=False, coverage=False, low_memory=False):
-        if not os.path.exists(graph_file):
-            print("graph file {} does not exist".format(graph_file))
-            sys.exit()
-        # loading nodes from file
-        # if graph_file.endswith(".gfa"):
-        self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified,
-                              coverage=coverage, low_memory=low_memory)
-
+    def __init__(self, graph_file=None, k=1, modified=False, coverage=False, low_memory=False):
+        if graph_file is not None:
+            if not os.path.exists(graph_file):
+                print("graph file {} does not exist".format(graph_file))
+                sys.exit()
+            # loading nodes from file
+            self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified,
+                                  coverage=coverage, low_memory=low_memory)
+        else:
+            self.nodes = dict()
         # elif graph_file.endswith(".vg"):
         #     self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified, coverage=coverage)
 
-        self.b_chains = []  # list of BubbleChain objects
+        self.b_chains = dict()  # list of BubbleChain objects
         # self.bubbles = set()
         self.k = k
+        self.child_parent = dict()
 
     def __len__(self):
         """
@@ -59,14 +61,14 @@ class Graph:
         adds a bubble chain to the graph
         """
         if len(chain.sorted) == 0:
-            # chain.find_ends()
+            chain.find_ends()
             chain.sort()
             if len(chain.ends) != 2:  # circular chains or other weird stuff
                 nodes_set = set(chain.list_chain())
                 self.write_graph(set_of_nodes=nodes_set, modified=True, append=True,
-                                 output_file="circular_and_other_chains.gfa")
+                                 output_file="circular_and_other_problematic_chains.gfa")
             else:
-                self.b_chains.append(chain)
+                self.b_chains[chain._BubbleChain__key()] = chain
 
     def total_seq_length(self):
         """
@@ -85,10 +87,10 @@ class Graph:
         returns the first one found
         """
 
-        lengths_list = [len(x) for x in self.b_chains]
+        lengths_list = [len(x) for x in self.b_chains.values()]
         m = max(lengths_list)
-        # returning only one chain that is the max, there could be a tie
-        return self.b_chains[[i for i, j in enumerate(lengths_list) if j == m][0]]
+        m_idx = lengths_list.index(m)
+        return self.b_chains[list(self.b_chains.keys())[m_idx]]
 
     def longest_chain_seq(self):
         """
@@ -97,10 +99,11 @@ class Graph:
         returns the first one found
         """
 
-        lengths_list = [x.length_seq(k=self.k) for x in self.b_chains]
+        lengths_list = [x.length_seq(k=self.k) for x in self.b_chains.values()]
         m = max(lengths_list)
+        m_idx = lengths_list.index(m)
         # returning only one chain that is the max, there could be a tie
-        return self.b_chains[[i for i, j in enumerate(lengths_list) if j == m][0]]
+        return self.b_chains[list(self.b_chains.keys())[m_idx]]
 
     def nodes_in_chains(self):
         """
@@ -108,7 +111,7 @@ class Graph:
         """
 
         all_nodes = []
-        for chain in self.b_chains:
+        for chain in self.b_chains.values():
             all_nodes += chain.list_chain()
 
         return set(all_nodes)
@@ -119,7 +122,7 @@ class Graph:
         """
 
         s_in_c = 0
-        for chain in self.b_chains:
+        for chain in self.b_chains.values():
             s_in_c += chain.length_seq(k=self.k)
 
         return s_in_c
@@ -146,7 +149,7 @@ class Graph:
         """
 
         nsb = 0
-        for chain in self.b_chains:
+        for chain in self.b_chains.values():
             if len(chain) == 1:
                 nsb += 1
         return nsb
@@ -165,7 +168,7 @@ class Graph:
         """
 
         counter = [0, 0, 0]
-        for chain in self.b_chains:
+        for chain in self.b_chains.values():
             for b in chain.bubbles:
                 if b.is_simple():
                     counter[0] += 1
@@ -182,7 +185,7 @@ class Graph:
         then adds the objects to the graph
         """
 
-        find_bubbles(self, only_simple)
+        find_bubble_chains(self, only_simple)
 
     def remove_node(self, n_id):
         """
@@ -278,7 +281,9 @@ class Graph:
     def fill_bubble_info(self):
         # chains_to_remove = set()
         b_counter = 0
-        for chain_num, chain in enumerate(self.b_chains):
+        chain_num = 0
+        for chain in self.b_chains.values():
+        # for chain_num, chain in enumerate(self.b_chains):
             chain_num += 1  # To start from 1
 
             for bubble in chain.sorted:

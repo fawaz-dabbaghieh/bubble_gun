@@ -6,7 +6,7 @@ class BubbleChain:
     """
     BubbleChain object which is a set of bubble objects
     """
-    __slots__ = ['bubbles', 'sorted', 'ends']
+    __slots__ = ['bubbles', 'sorted', 'ends', 'key', 'id']
 
     def __init__(self):
         """
@@ -15,6 +15,25 @@ class BubbleChain:
         self.bubbles = set()
         self.sorted = []  # sorted bubble pointers
         self.ends = []  # node ids of the chain ends
+        self.id = 0
+        # self.key = self.__hash__()
+
+    def __key(self):
+        """
+        calculated the key of the bubble chain
+        """
+        if self.ends[0] > self.ends[1]:
+            return (self.ends[0], self.ends[1])
+        return (self.ends[1], self.ends[0])
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __len__(self):
         """
@@ -61,6 +80,14 @@ class BubbleChain:
             total_seq += n.seq_len - k
         return total_seq
 
+    def find_ends(self):
+        """
+        Find the ends of a chain
+
+        todo maybe add the ends while constructing the chain in find_sb_alg
+        """
+        self.ends = [k for k, v in Counter([b.source.id for b in self.bubbles] + [b.sink.id for b in self.bubbles]).items() if v == 1]
+
     def sort(self):
         """
         sorts the bubbles in the chain
@@ -79,12 +106,12 @@ class BubbleChain:
             # only the ends of the chain should have a count of 1
             # the rest are counted twice as two adjacent bubbles will share
             # the same node as sink for one and source for the other
-        if len(self.ends) == 0:
-            self.ends = [k for k, v in Counter([n for sublist in all_ends.keys() for n in sublist]).items() if v == 1]
-        try:
-            assert len(self.ends) == 2
-        except AssertionError:
-            pdb.set_trace()
+        # if len(self.ends) == 0:
+        #     self.ends = [k for k, v in Counter([n for sublist in all_ends.keys() for n in sublist]).items() if v == 1]
+        # try:
+        #     assert len(self.ends) == 2
+        # except AssertionError:
+        #     pdb.set_trace()
         # I couldn't sort the set of bubbles (overload a "bigger than" function
         # in Bubble to use for the python sort function) because the sorting
         # here is based on the chain and the ends of the chain

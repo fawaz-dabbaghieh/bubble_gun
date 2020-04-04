@@ -2,7 +2,7 @@ class Bubble:
     """
     Bubble object that has the important information about a bubble
     """
-    __slots__ = ['source', 'sink', 'inside', 'key']
+    __slots__ = ['source', 'sink', 'inside', 'key', 'id']
 
     def __init__(self, source, sink, inside):
         """
@@ -12,6 +12,7 @@ class Bubble:
         self.sink = sink
         self.inside = inside
         self.key = self.__hash__()
+        self.id = 0
         # self.visited = False  # I need this when finding chains
 
     def __len__(self):

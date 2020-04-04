@@ -177,7 +177,7 @@ def find_b_alg(graph, s, direction, chain):
             find_b_alg(graph, graph.nodes[c_of_c[0]], d, chain)
 
 
-def find_bubbles(graph, only_simple=False):
+def find_bubble_chains(graph, only_simple=False, list_of_nodes=None):
     """
     main function for finding bubbles
     Takes a graph and fills in the bubble chains
@@ -188,8 +188,12 @@ def find_bubbles(graph, only_simple=False):
     # sorting nodes by length
     # sorted_nodes = sorted(graph.nodes, key=lambda x: graph.nodes[x].seq_len, reverse=True)
     # find_b_alg(graph, graph.nodes[167], 0, chains)
-    for n in graph.nodes.values():
+    # pdb.set_trace()
+    if list_of_nodes is None:
+        list_of_nodes = graph.nodes.values()
 
+    for n in list_of_nodes:
+        # print(n.id)
         chain = BubbleChain()
         # counter += 1
         # if (counter % 1000000) == 0:
@@ -200,6 +204,7 @@ def find_bubbles(graph, only_simple=False):
                 # find_b_alg(graph, n, d, chain)
                 find_sb_alg(graph, n, d, chain, only_simple)
             if len(chain) != 0:
+                # chain.find_ends()
                 graph.add_chain(chain)
 
                 for n in chain.list_chain(ids=False):

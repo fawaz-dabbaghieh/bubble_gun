@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import sys
-from BubbleGun.functions import current_time, bfs
+from BubbleGun.functions import bfs
 from BubbleGun.Graph import Graph
 from BubbleGun.bubbles_fasta import write_fasta
 from BubbleGun.digest_gam import digest_gam
 from BubbleGun.fasta_chains import output_chains_fasta
 from BubbleGun.json_out import json_out
+from BubbleGun.find_child_chains import find_children
 import argparse
 import logging
 import pdb
@@ -200,7 +201,11 @@ if args.subcommands == "bchains":
     # tracemalloc.start()
     logging.info("Finding chains...")
     graph.find_chains(only_simple=args.only_simple)
-    graph.fill_bubble_info()
+    # todo add a function here to find nested chains
+    # I don't think I need to fill info here
+    # I can do that if I am outputting a json
+    find_children(graph)
+    # graph.fill_bubble_info()
     logging.info("Done finding chains...")
     b_numbers = graph.bubble_number()
     print("The number of Simple Bubbles is {}\n"
@@ -215,8 +220,6 @@ if args.subcommands == "bchains":
 
     # snapshot = tracemalloc.take_snapshot()
     # BubbleGun.memory_profile.display_top(snapshot, limit=10)
-    #
-
     if args.out_json is not None:
         logging.info("Outputting bubble chains gfa...")
         json_out(graph, args.out_json)

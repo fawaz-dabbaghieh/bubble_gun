@@ -13,11 +13,11 @@ class Node:
         self.end = []  # 96 bytes
         self.visited = False  # 28 bytes (used for bubble and superbubble detection)
         # bubble related information
-        self.which_chain = 0
-        self.which_sb = 0
-        self.which_b = 0
-        self.which_allele = -1
-        self.coverage = 0
+        # self.which_chain = 0
+        # self.which_sb = 0
+        # self.which_b = 0
+        # self.which_allele = -1
+        # self.coverage = 0
 
     def __sizeof__(self):
         size = self.id.__sizeof__() + self.seq_len.__sizeof__() + self.visited.__sizeof__()
