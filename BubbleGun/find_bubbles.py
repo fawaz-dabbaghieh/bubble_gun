@@ -1,6 +1,7 @@
 from .Bubble import Bubble
 from .BubbleChain import BubbleChain
 import pdb
+import sys
 
 """
 Pseudo code for finding Super- and Simple-Bubbles
@@ -27,7 +28,7 @@ for node s in nodes:
 """
 
 
-def find_sb_alg(graph, s, direction, chain, only_simple=False):
+def find_sb_alg(graph, s, direction, chain, only_simple=False, only_super=False):
     """
     takes the graph and a start node s and add a bubble to the chain 
     if one is found if s was the source
@@ -110,6 +111,10 @@ def find_sb_alg(graph, s, direction, chain, only_simple=False):
                     else:
                         # todo add end of chain here and test
                         break
+                elif only_super:
+                    if bubble.is_super():
+                        chain.add_bubble(bubble)
+
                 else:
                     chain.add_bubble(bubble)
                 # calling the function again on sink
@@ -177,7 +182,7 @@ def find_b_alg(graph, s, direction, chain):
             find_b_alg(graph, graph.nodes[c_of_c[0]], d, chain)
 
 
-def find_bubble_chains(graph, only_simple=False, list_of_nodes=None):
+def find_bubble_chains(graph, only_simple=False, only_super=False, list_of_nodes=None):
     """
     main function for finding bubbles
     Takes a graph and fills in the bubble chains
@@ -189,6 +194,10 @@ def find_bubble_chains(graph, only_simple=False, list_of_nodes=None):
     # sorted_nodes = sorted(graph.nodes, key=lambda x: graph.nodes[x].seq_len, reverse=True)
     # find_b_alg(graph, graph.nodes[167], 0, chains)
     # pdb.set_trace()
+    if only_simple and only_super:
+        print("You can't choose both only super and only simple, either one of them or none for all bubbles")
+        sys.exit(1)
+
     if list_of_nodes is None:
         list_of_nodes = graph.nodes.values()
 
@@ -202,7 +211,7 @@ def find_bubble_chains(graph, only_simple=False, list_of_nodes=None):
 
             for d in [0, 1]:
                 # find_b_alg(graph, n, d, chain)
-                find_sb_alg(graph, n, d, chain, only_simple)
+                find_sb_alg(graph, n, d, chain, only_simple, only_super)
             if len(chain) != 0:
                 # chain.find_ends()
                 graph.add_chain(chain)

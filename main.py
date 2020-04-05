@@ -4,9 +4,11 @@ from BubbleGun.functions import bfs
 from BubbleGun.Graph import Graph
 from BubbleGun.bubbles_fasta import write_fasta
 from BubbleGun.digest_gam import digest_gam
+from BubbleGun.find_bubbles import find_bubble_chains
 from BubbleGun.fasta_chains import output_chains_fasta
 from BubbleGun.json_out import json_out
 from BubbleGun.find_child_chains import find_children
+from BubbleGun.output_certain_chains import write_certain_chains
 import argparse
 import logging
 import pdb
@@ -40,6 +42,9 @@ bubble_parser.add_argument("--bubble_json", dest="out_json", default=None, type=
                            help="Outputs Bubbles, Superbubbles, and Chains as a JSON file")
 
 bubble_parser.add_argument("--only_simple", action="store_true",
+                           help="If used then only simple bubbles are detected")
+
+bubble_parser.add_argument("--only_super", action="store_true",
                            help="If used then only simple bubbles are detected")
 
 bubble_parser.add_argument("--save_memory", action="store_true", dest="low_memory",
@@ -91,6 +96,17 @@ gam_parser.add_argument("--out_dict", dest="pickle_out",
                         type=str, default=None,
                         help="A pickled dictionary output path. contains read_id:[nodes]")
 
+########################## output chain ###############################
+output_chain = subparsers.add_parser('chainout', help='Outputs certain chain(s) given by their id as a GFA file')
+output_chain.add_argument("--json_file", dest="json_file", metavar="JSON_FILE",
+                          type=str, default=None, help="The JSON file wtih bubble chains information")
+
+output_chain.add_argument("--chain_ids", dest="chain_ids", metavar="CHAIN_IDS", type=int, nargs="+",
+                          default=None, help="Give the chain Id(s) to be outputted")
+
+output_chain.add_argument("--output_chain", dest="output_chain", metavar="OUTPUT",
+                          type=str, default=None, help="Output path for the chains chosen")
+
 args = parser.parse_args()
 
 # log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
@@ -99,6 +115,8 @@ log_file = "log.log"
 logging.basicConfig(filename=log_file, filemode='w',
                     format='[%(asctime)s] %(message)s',
                     level=getattr(logging, args.log_level.upper()))
+
+logging.info("".join(["argument given: "] + sys.argv))
 
 if len(sys.argv) == 1:
     print("You didn't give any arguments\n"
@@ -131,6 +149,31 @@ if args.k_mer == 0:
           "The output statistics might not be accurate\n"
           "If the graph is bluntified ignore this warning.")
 
+####################### chainout
+if args.subcommands == "chainout":
+    if args.json_file is not None:
+        if args.chain_ids is not None:
+            if args.output_chain is not None:
+
+                logging.info("Reading Graph...")
+                if args.k_mer == 0:
+                    graph = Graph(args.in_graph, 1, args.coverage)
+                else:
+                    graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
+
+                logging.info("Outputting chains chosen...")
+                write_certain_chains(args.json_file, graph, args.chain_ids, args.output_chain)
+
+            else:
+                print("You did not provide the output file path")
+                sys.exit(1)
+        else:
+            print("You did not provide a chain id(s) to be outputted")
+            sys.exit(1)
+    else:
+        print("You did not provide the JSON file with the chain information")
+        sys.exit(1)
+
 ####################### gamdigest
 if args.subcommands == "gamdigest":
     if args.gam_file is not None:
@@ -139,7 +182,7 @@ if args.subcommands == "gamdigest":
                 logging.info("reading gam file and building dict")
                 all_reads = digest_gam(args.in_graph, args.gam_file, args.min_cutoff, args.pickle_out)
                 logging.info("finished successfully")
-                sys.exit()
+                # sys.exit()
             else:
                 print("You did not provide the minimum cutoff. Maybe something like 3 times the k-mer length")
                 sys.exit(1)
@@ -200,7 +243,8 @@ if args.subcommands == "bchains":
     # graph.compact()
     # tracemalloc.start()
     logging.info("Finding chains...")
-    graph.find_chains(only_simple=args.only_simple)
+    find_bubble_chains(graph, only_simple=args.only_simple)
+    # graph.find_chains(only_simple=args.only_simple)
     # todo add a function here to find nested chains
     # I don't think I need to fill info here
     # I can do that if I am outputting a json
@@ -254,7 +298,7 @@ if args.subcommands == "bfs":
                     logging.info("extracting neighborhood around node {}".format(n))
                     set_of_nodes = bfs(graph, n, args.bfs_len)
                     graph.write_graph(set_of_nodes=set_of_nodes,
-                                      output_file=args.output_neighborhood, append=True, modified=True)
+                                      output_file=args.output_neighborhood, append=True, modified=False)
                     logging.info("finished successfully...")
             else:
                 print("You need to give an output file name --output_neighborhood")

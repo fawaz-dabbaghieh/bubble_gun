@@ -179,13 +179,13 @@ class Graph:
 
         return counter
 
-    def find_chains(self, only_simple=False):
-        """
-        calls the find bubbles and chains algorithms
-        then adds the objects to the graph
-        """
-
-        find_bubble_chains(self, only_simple)
+    # def find_chains(self, only_simple=False):
+    #     """
+    #     calls the find bubbles and chains algorithms
+    #     then adds the objects to the graph
+    #     """
+    #
+    #     find_bubble_chains(self, only_simple)
 
     def remove_node(self, n_id):
         """

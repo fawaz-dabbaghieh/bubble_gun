@@ -20,13 +20,15 @@ BubbleGun TODO list:
  ✔ Implement the low-memory bubbles detection version (compare both versions).
  ☐ Read coverages and output the coverages too.
  ☐ Proper topological sorting.
+ ☐ Output information such as the arguments given and the input output files in the log
  ✔ Output bubbles as JSON.
- ☐ Implement the nested bubbles detection (hash chains with their ends).
- ☐ See what information can be removed from the node object
+ ✔ Implement the nested bubbles detection (hash chains with their ends).
+ ✔ See what information can be removed from the node object
+ ✔ Let user output certain chains based on id
  ☐ Read GFA 2 files too (add that maybe as an option with the default as GFA 1)
- ☐ Option to only detect Superbubbles.
+ ✔ Option to only detect Superbubbles.
  ✔ Implement the low memory version.
- ☐ Maybe make a connected component a separate graph.
+ ☐ Solve superbubbles according to coverage
 
  ✔ Add BFS search in graph @done (19-12-24 19:17)
  ✔ Add components and biggest component functionality @done (19-12-24 19:15)
@@ -55,8 +57,6 @@ BubbleGun TODO list:
  ☐ Repeats:
    ☐ Choose several long chains and calculate mean and standard deviation of the coverage
    ☐ Use the mean and std according to HASLR to throw out chains that have coverage bigger than mean + 3std
-
- ☐ Solve superbubbles according to coverage
 
 Bugs:
  ✔ compacting didn't work on the graph, need to debug @done (19-12-20 17:15) 

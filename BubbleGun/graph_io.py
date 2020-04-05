@@ -33,6 +33,10 @@ def write_gfa(graph, set_of_nodes=None,
             f = open(output_file, "w+")
 
     for n1 in set_of_nodes:
+        if n1 not in nodes:
+            logging.warning("Node {} does not exist in the graph, skipped in output".format(n1))
+            continue
+
         # writing nodes in gfa file
         if modified:
             node = nodes[n1]
