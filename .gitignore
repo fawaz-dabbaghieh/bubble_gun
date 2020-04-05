@@ -1,13 +1,12 @@
 *.pyc
 *__pycache__
-*.gfa
 *.vg
 side_notes.txt
 test/
-*.png
 *.pickle
 *.log
 *.fasta
 *.txt
 *.idea
 bin/
+random/
