@@ -1,17 +1,9 @@
-import sys
-try:
-    from BubbleGun.vg_pb2 import Alignment
-except ModuleNotFoundError:
-    print("Module Google Protobuf was not found. You can install it using 'python3 -m install protobuf'")
-    sys.exit(1)
-from BubbleGun.Graph import Graph
+import json
 import logging
-try:
-    import stream
-except ModuleNotFoundError:
-    print("Module stream was not found, you can install it using 'python3 -m pip install pystream-protobuf")
-    sys.exit(1)
+import stream
 import pickle
+from BubbleGun.vg_pb2 import Alignment
+from BubbleGun.Graph import Graph
 
 
 class Mapping:
@@ -28,22 +20,22 @@ class Mapping:
         self.chain = 0
         self.length = 0
 
-    def add_node(self, node):
+    def add_node(self, node_id, chain_id):
         if self.chain == 0:
-            self.chain = node.which_chain
-            self.nodes.append(node.id)
+            self.chain = chain_id
+            self.nodes.append(node_id)
 
-        elif self.chain != node.which_chain:
-            logging.warning("Node {} does not belong to the same chain".format(node.id))
+        elif self.chain != chain_id:
+            logging.warning("Node {} does not belong to the same chain".format(node_id))
             # self.nodes.append(node.id)
 
         else:
-            self.nodes.append(node.id)
+            self.nodes.append(node_id)
 
     def fill_mapping(self, nodes, alignment, length):
         self.length = length
         for m in alignment.path.mapping:
-            self.add_node(nodes[m.position.node_id])
+            self.add_node(m.position.node_id, nodes[m.position.node_id])
 
 
 class ReadMappings:
@@ -150,10 +142,22 @@ def build_reads_dict(nodes, gam_file_path, min_cutoff):
     return all_reads
 
 
-def digest_gam(gfa, gam, min_cutoff, pickled_out):
-    logging.info("Reading Graph...")
-    graph = Graph(graph_file=gfa, modified=True)
-    all_reads = build_reads_dict(graph.nodes, gam, min_cutoff)
+def digest_gam(json_file, gam, min_cutoff, pickled_out):
+    nodes = dict()
+    logging.info("Reading JSON file...")
+    with open(json_file, "r") as in_file:
+        for line in in_file:
+            chain = json.loads(line)
+            for n in chain['ends']:
+                nodes[n] = chain.id
+            for bubble in chain['bubbles']:
+                for n in bubble['ends']:
+                    nodes[n] = chain.id
+                for n in bubble['ends']:
+                    nodes[n] = chain.id
+
+    # graph = Graph(graph_file=gfa, modified=True)
+    all_reads = build_reads_dict(nodes, gam, min_cutoff)
 
     logging.info("finished building dict, pickling it...")
     out_file = open(pickled_out, "ab")

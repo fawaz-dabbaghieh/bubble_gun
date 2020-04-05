@@ -27,7 +27,7 @@ parser.add_argument("-g", "--in_graph", metavar="GRAPH_PATH", dest="in_graph",
                     default=None, type=str, help="graph file path (GFA or VG)")
 
 parser.add_argument("-k", "--k_mer", dest="k_mer", metavar="K",
-                    default=0, type=int, help="K value of as integer")
+                    default=0, type=int, help="K value of as integer (default is 1)")
 
 parser.add_argument("--with_coverage", dest="coverage", action="store_true",
                     help="If this option given, mean coverage is taken from the GFA file")
@@ -86,6 +86,10 @@ bfs_parser.add_argument("--output_neighborhood", dest="output_neighborhood", met
 
 ########################## Digest gam ###############################
 gam_parser = subparsers.add_parser('gamdigest', help='Command for digesting a gam file')
+
+gam_parser.add_argument("--json_file", dest="json_file", metavar="JSON_FILE",
+                        type=str, default=None, help="The JSON file wtih bubble chains information")
+
 gam_parser.add_argument("--alignment_file", dest="gam_file", metavar="GAM",
                         type=str, default=None, help="Take GAM file and output pickled dict")
 
@@ -140,14 +144,13 @@ if args.subcommands is None:
     sys.exit(1)
 
 if args.in_graph is None:
-    print("you didn't give an input graph file")
-    parser.print_help()
-    sys.exit(0)
+    if args.subcommands != "gamdigest":
+        print("you didn't give an input graph file")
+        parser.print_help()
+        sys.exit(0)
 
 if args.k_mer == 0:
-    print("WARNING! You did not give a k value."
-          "The output statistics might not be accurate\n"
-          "If the graph is bluntified ignore this warning.")
+    args.k_mer = 1
 
 ####################### chainout
 if args.subcommands == "chainout":

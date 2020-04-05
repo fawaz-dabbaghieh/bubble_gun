@@ -1,4 +1,23 @@
 BubbleGun TODO list:
+
+ ✔ Fix chain coverages as it's over a 100% because of children and parents
+ ☐ Proper topological sorting.
+ ☐ Fix output haplotypes and output fasta after the changes
+ ☐ Fix gam digest, it should take the JSON file now and use the information there
+ ✔ Output information such as the arguments given and the input output files in the log
+ ☐ Solve superbubbles according to coverage (try using the mean k-mer coverage)
+ ☐ Read GFA 2 files too (add that maybe as an option with the default as GFA 1)
+ ☐ Proper docstring comments on the code, use reST recommended by pep287
+  """
+  This is a reST style.
+
+  :param param1: this is a first param
+  :param param2: this is a second param
+  :returns: this is a description of what is returned
+  :raises keyError: raises an exception
+  """
+  #code
+
  ✔ Split modules into a directory @done (19-12-19 20:36)
  ✔ Turn options in main to argparser instead of optparser @done (20-01-15 16:18)
    ✔ GFA or VG file @done (19-12-19 21:19)
@@ -18,17 +37,12 @@ BubbleGun TODO list:
  ✔ Option for only detecting bubbles @done (20-01-22 14:24)
 
  ✔ Implement the low-memory bubbles detection version (compare both versions).
- ☐ Read coverages and output the coverages too.
- ☐ Proper topological sorting.
- ☐ Output information such as the arguments given and the input output files in the log
  ✔ Output bubbles as JSON.
  ✔ Implement the nested bubbles detection (hash chains with their ends).
  ✔ See what information can be removed from the node object
  ✔ Let user output certain chains based on id
- ☐ Read GFA 2 files too (add that maybe as an option with the default as GFA 1)
  ✔ Option to only detect Superbubbles.
  ✔ Implement the low memory version.
- ☐ Solve superbubbles according to coverage
 
  ✔ Add BFS search in graph @done (19-12-24 19:17)
  ✔ Add components and biggest component functionality @done (19-12-24 19:15)
@@ -39,16 +53,6 @@ BubbleGun TODO list:
  ✔ I need to compact the graph first before finding bubbles. @done (20-01-10 16:21)
  ✔ Maybe re-write the compactness script. Now it's a while loop instead of a nested function @done (20-01-22 14:24)
  ✔ Have a k check, if one of the nodes is smaller than k return an error and stop (can be done while reading the nodes) @done (20-01-15 16:18)
- ✔ Proper docstring comments on the code, use reST recommended by pep287
-  """
-  This is a reST style.
-
-  :param param1: this is a first param
-  :param param2: this is a second param
-  :returns: this is a description of what is returned
-  :raises keyError: raises an exception
-  """
-  #code
 
  ✔ Alignment file stuff: (20-02-12 11:34)
    ✔ Filter alignment less than 200 bp @done (20-02-12 11:34)

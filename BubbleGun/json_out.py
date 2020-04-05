@@ -6,14 +6,14 @@ def json_out(graph, output):
     # For each chain I output each bubble's ends and insides
     # First I'll give each bubble an id so the children chain can have a parent id
     # now the parent is just a pointer to a sb object and a chain object
-    b_counter = 1
-    chain_counter = 1
-    for chain in graph.b_chains.values():
-        chain.id = chain_counter
-        for b in chain.sorted:
-            b.id = b_counter
-            b_counter += 1
-        chain_counter += 1
+    # b_counter = 1
+    # chain_counter = 1
+    # for chain in graph.b_chains.values():
+    #     chain.id = chain_counter
+    #     for b in chain.sorted:
+    #         b.id = b_counter
+    #         b_counter += 1
+    #     chain_counter += 1
 
     # pdb.set_trace()
     output_f = open(output, "w")

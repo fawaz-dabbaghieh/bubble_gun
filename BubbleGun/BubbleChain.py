@@ -77,7 +77,7 @@ class BubbleChain:
         """
         total_seq = 0
         for n in self.list_chain(ids=False):
-            total_seq += n.seq_len - k
+            total_seq += n.seq_len - k - 1
         return total_seq
 
     def find_ends(self):

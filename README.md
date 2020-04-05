@@ -1,26 +1,44 @@
 # BubbleGun
-A tool for detecting Bubbles and Superbubble chains in graphs. It mainly works with GFA.
-It can also compact the graph, separate biggest component, and separate neighborhood from graphs efficiently.
 
+A tool for detecting Bubbles and Superbubble chains in graphs.
+Takes as input a GFA file and output a JSON file with information about bubble chains and nested chains inside superbubbles.
+
+The tools has function also to compact the graph, extract certain chains and neighborhoods in the graph for downstream analysis of the bubbles.
+
+## Installation
+
+I will expaling here how a user can install, or use the tool. For now, the repostory can be cloned and main.py can be called.
+It should work with python3.5 without any extra dependencies.
+
+## Example graph
+![alt text](images/drawing_new.png)
+
+The graph above represents a bluntified (overlaps removed) of a de Bruijn graph with *k*-mer size of 9.
+These 4 sequences are traced with the different dotted lines in the graph, and they construct a bubble chains of 3 bubbles.
+2 simple bubbles and 1 superbubble with a nested simple bubble inside.
+
+The following sections will demonstrate some examples of using this tool.
 
 ## Usage and Subcommands
-These are the general information about the tool
+The tool has several subcommans and `-h` or `--help` can be used to print this message.
 
-```
+```shell script
 usage: main.py [-h] [-e] [-g GRAPH_PATH] [-k K] [--with_coverage]
                [--log LOG_LEVEL]
-               {bchains,compact,biggestcomp,bfs,gamdigest} ...
+               {bchains,compact,biggestcomp,bfs,gamdigest,chainout} ...
 
 Find Bubble Chains.
 
 Subcommands:
-  {bchains,compact,biggestcomp,bfs,gamdigest}
+  {bchains,compact,biggestcomp,bfs,gamdigest,chainout}
                         Available subcommands
     bchains             Command for detecting bubble chains
     compact             Command for compacting graphs
     biggestcomp         Command for separating biggest component
     bfs                 Command for separating neighborhood
     gamdigest           Command for digesting a gam file
+    chainout            Outputs certain chain(s) given by their id as a GFA
+                        file
 
 Global Arguments:
   -h, --help            show this help message and exit
@@ -33,14 +51,14 @@ Global Arguments:
   --log LOG_LEVEL       The logging level [DEBUG, INFO, WARNING, ERROR,
                         CRITICAL]
 ```
-As shown, it takes some Global arguments then specific subcommands.
-Each subcommand will be explained in the following sections with example commands to run the tool using that subcommand.
+As shown, it takes some Global arguments then specific subcommands. The global arguments `-g` and `-k` are required
 
 
 ### Subcommand bchains
-This subcommand is for detecting bubbles and bubble chains and outputting results.
+
+This subcommand is for detecting bubble and superbubble chains.
 The following help page is available for bchains
-```
+```shell script
 usage: main.py bchains [-h] [--bubble_json OUT_JSON] [--only_simple]
                        [--save_memory] [--chains_gfa CHAINS_GFA]
                        [--fasta FASTA] [--out_haplos]
@@ -59,13 +77,48 @@ optional arguments:
                         work with memory saving)
   --out_haplos          output randomly two haplotypes for each chain (doesn't
                         work with memory saving)
-
 ```
 Examples:
-* A user wants to only detect the bubble chains and output JSON file with information about the bubbles and low memory usage. Command: `./main.py -g test.gfa -k 51 bchains --bubble_json test.json --save_memory`. With saving memory, only the graph topology will be stored in memory and the sequences will not be read from the file.
-* A user wants to only detect the bubble chains and output a new GFA graph with only the bubble chains. Command: `./main.py -g test.gfa -k 51 bchains --chains_gfa chains_output.gfa`
-* A user wants to detect bubble chains, output a JSON file, a GFA file with only chains and a FASTA file with only bubble branches sequences, where the sequence name indicate from which chains and which bubble they come. Command: `./main.py -g test.gfa -k 51 bchains --bubble_json test.json --chains_gfa chains_output.gfa --fasta test_output.fasta`
+* A user wants to detect chains and output JSON file with information about the bubbles and low memory usage.
+. With saving memory, only the graph topology will be stored in memory and the sequences will not be read from the file.
+Command:
 
+  `./main.py -g test_graph.gfa -k 9 bchains --bubble_json test_graph_chains.json`
+* A user wants to detect chains and output a new GFA graph with only the bubble chains.
+Command:
+
+  `./main.py -g test_graph.gfa -k 51 bchains --chains_gfa chains_output.gfa`
+* A user wants to detect chains and output a FASTA file with only bubble branches sequences (currently only works for simple bubbles), 
+where the sequence name indicate from which chains and which bubble they come from. Command:
+
+  `./main.py -g test_graph.gfa -k 51 bchains --fasta test_output.fasta`
+ 
+For the previous example, the JSON and FASTA output can be seen in [example](example)
+Of course, all the previous commands can be combined in one to output a JSON, a GFA and a FASTA.
+
+### Subcommand chainout
+This subcommand separates a chain or several chains by their ids according to the JSON file.
+The following help page is available for the chainout subcommand:
+```shell script
+usage: main.py chainout [-h] [--json_file JSON_FILE]
+                        [--chain_ids CHAIN_IDS [CHAIN_IDS ...]]
+                        [--output_chain OUTPUT]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --json_file JSON_FILE
+                        The JSON file wtih bubble chains information
+  --chain_ids CHAIN_IDS [CHAIN_IDS ...]
+                        Give the chain Id(s) to be outputted
+  --output_chain OUTPUT
+                        Output path for the chains chosen
+```
+
+Example comman:
+
+`./main.py -g test_graph.gfa -k 41 chainout --json_file test_graph_chains.json --chain_ids 10 13 30 --output_chain test_output.gfa`
+
+The ids given should be present in the JSON file and the graph given should be the same graph used to generate the JSON file.
 
 ### Subcommand compact
 This subcommand outputs a compacted GFA file. Example:
@@ -74,7 +127,7 @@ This subcommand outputs a compacted GFA file. Example:
 
 
 ### Subcommand biggestcomp
-This subcommand separates the biggest component in the graph and output it. Example:
+This subcommand separates the biggest component in the graph and outputs it. Example:
 
 `./main.py -g test_graph.gfa -k 41 biggestcomp biggest_comp.gfa`
 
@@ -82,11 +135,35 @@ This subcommand separates the biggest component in the graph and output it. Exam
 ### Subcommand bfs
 This subcommand can be used to extract a neighborhood using BFS around a start node or several start nodes (takes the node id), these neighborhood will be outputted as a GFA file. Examples:
 * Extracting a neighborhood of size 100 nodes around the node with id 540
-`./main.py -g test_graph.gfa -k 51 bfs --start 540 --neighborhood_size 100 --output_neighborhood output.gfa`
-* Extracting the neighborhoods of size 100 nodes around nodes 500, 540, and 1509. Regardless if these neighborhood are connected or not, they all will be in the same output file.
-`./main.py -g test_graph.gfa -k 51 bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
 
+  `./main.py -g test_graph.gfa -k 51 bfs --start 540 --neighborhood_size 100 --output_neighborhood output.gfa`
+* Extracting the neighborhoods of size 100 nodes around nodes 500, 540, and 1509. Regardless if these neighborhood are connected or not, they all will be in the same output file.
+
+  `./main.py -g test_graph.gfa -k 51 bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
 
 ### Subcommand gamdigest
-This command is used to "filter" a GAM file which is an alignment file of reads aligned to the graph. This mainly works on the output from [GraphAligner](https://github.com/maickrau/GraphAligner) after aligning long reads to the graph. GraphAligner outputs a GAM files which this commands takes along with the bubble chain graph aligned to and a minimum length cutoff for mappings. Each read would have several mappings, first, all mappings that are smaller than the cutoff are dicarded, then if the same read mapped to the same chain more than once, the longest mapping is kept.
+This subcommand filters an alignemnt GAM file.
+The following help is available for this subcommand:
+```shell script
+usage: main.py gamdigest [-h] [--json_file JSON_FILE] [--alignment_file GAM]
+                         [--min_cutoff MIN_CUTOFF] [--out_dict PICKLE_OUT]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --json_file JSON_FILE
+                        The JSON file wtih bubble chains information
+  --alignment_file GAM  Take GAM file and output pickled dict
+  --min_cutoff MIN_CUTOFF
+                        The minimum cutoff of a mapping length.
+  --out_dict PICKLE_OUT
+                        A pickled dictionary output path. contains
+                        read_id:[nodes]
+```
+This command is used to "filter" a GAM file which is an alignment file of reads aligned to the graph. This mainly works on the output from [GraphAligner](https://github.com/maickrau/GraphAligner) after aligning long reads to the graph.
+
+GraphAligner outputs a GAM files which this commands takes along with the bubble chain graph aligned to and a minimum length cutoff for mappings. Each read would have several mappings, first, all mappings that are smaller than the cutoff are dicarded, then if the same read mapped to the same chain more than once, the longest mapping is kept.
 The output is a pickled dictionary with keys as read names and values as a list of nodes the read have mapped to. This pickled dictionary along with the graph can be given then to Whatshap phaseb command to output phased bubbles according to how the long reads mapped to these bubbles, but this is still under construction.
+
+Example command:
+
+`./main.py gamdigest --json_file test_graph_chains.json --alignment_file test_alignment.gam --min_cutoff 200 --out_dict alignment_dictionary.pickle`

@@ -29,7 +29,7 @@ class Graph:
         # elif graph_file.endswith(".vg"):
         #     self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified, coverage=coverage)
 
-        self.b_chains = dict()  # list of BubbleChain objects
+        self.b_chains = set() # list of BubbleChain objects
         # self.bubbles = set()
         self.k = k
         self.child_parent = dict()
@@ -68,7 +68,8 @@ class Graph:
                 self.write_graph(set_of_nodes=nodes_set, modified=True, append=True,
                                  output_file="circular_and_other_problematic_chains.gfa")
             else:
-                self.b_chains[chain._BubbleChain__key()] = chain
+                # self.b_chains[chain._BubbleChain__key()] = chain
+                self.b_chains.add(chain)
 
     def total_seq_length(self):
         """
@@ -77,7 +78,7 @@ class Graph:
 
         total = 0
         for n in self.nodes.values():
-            total += n.seq_len - self.k
+            total += n.seq_len - self.k - 1
         return total
 
     def longest_chain_bubble(self):
@@ -87,10 +88,10 @@ class Graph:
         returns the first one found
         """
 
-        lengths_list = [len(x) for x in self.b_chains.values()]
+        lengths_list = [len(x) for x in self.b_chains]
         m = max(lengths_list)
         m_idx = lengths_list.index(m)
-        return self.b_chains[list(self.b_chains.keys())[m_idx]]
+        return list(self.b_chains)[m_idx]
 
     def longest_chain_seq(self):
         """
@@ -99,31 +100,32 @@ class Graph:
         returns the first one found
         """
 
-        lengths_list = [x.length_seq(k=self.k) for x in self.b_chains.values()]
+        lengths_list = [x.length_seq(k=self.k) for x in self.b_chains]
         m = max(lengths_list)
         m_idx = lengths_list.index(m)
         # returning only one chain that is the max, there could be a tie
-        return self.b_chains[list(self.b_chains.keys())[m_idx]]
+        return list(self.b_chains)[m_idx]
 
     def nodes_in_chains(self):
         """
         returns the set of all nodes in bubble chains
         """
-
+        # pdb.set_trace()
         all_nodes = []
-        for chain in self.b_chains.values():
+        for chain in self.b_chains:
             all_nodes += chain.list_chain()
 
         return set(all_nodes)
 
     def seq_in_chains(self):
         """
-        returns how much sequence ther are in the bubble chains
+        returns how much sequence their are in the bubble chains
         """
 
         s_in_c = 0
-        for chain in self.b_chains.values():
-            s_in_c += chain.length_seq(k=self.k)
+        for chain in self.b_chains:
+            if chain in self.child_parent:
+                s_in_c += chain.length_seq(k=self.k)
 
         return s_in_c
 
@@ -131,7 +133,7 @@ class Graph:
         """
         returns the percentage the nodes in chains covered
         """
-
+        # pdb.set_trace()
         n_in_c = self.nodes_in_chains()
         return float((len(n_in_c) * 100) / len(self.nodes))
 
@@ -141,6 +143,11 @@ class Graph:
         """
 
         s_in_c = self.seq_in_chains()
+        # n_in_c = self.nodes_in_chains()
+        # chains_length = 0
+        # for n in n_in_c:
+        #     chains_length += self.nodes[n].seq_len - self.k - 1
+        # return float((chains_length * 100) / self.total_seq_length())
         return float((s_in_c * 100) / self.total_seq_length())
 
     def num_single_bubbles(self):
@@ -149,7 +156,7 @@ class Graph:
         """
 
         nsb = 0
-        for chain in self.b_chains.values():
+        for chain in self.b_chains:
             if len(chain) == 1:
                 nsb += 1
         return nsb
@@ -168,7 +175,7 @@ class Graph:
         """
 
         counter = [0, 0, 0]
-        for chain in self.b_chains.values():
+        for chain in self.b_chains:
             for b in chain.bubbles:
                 if b.is_simple():
                     counter[0] += 1
@@ -282,7 +289,7 @@ class Graph:
         # chains_to_remove = set()
         b_counter = 0
         chain_num = 0
-        for chain in self.b_chains.values():
+        for chain in self.b_chains:
         # for chain_num, chain in enumerate(self.b_chains):
             chain_num += 1  # To start from 1
 
