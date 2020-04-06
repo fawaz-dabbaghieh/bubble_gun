@@ -1,3 +1,14 @@
+- [BubbleGun](#bubblegun)
+  * [Installation](#installation)
+  * [Example graph](#example-graph)
+  * [Usage and Subcommands](#usage-and-subcommands)
+    + [bchains](#bchains)
+    + [chainout](#chainout)
+    + [compact](#compact)
+    + [biggestcomp](#biggestcomp)
+    + [bfs](#bfs)
+    + [gamdigest](#gamdigest)
+
 # BubbleGun
 
 A tool for detecting Bubbles and Superbubble chains in graphs.
@@ -54,7 +65,7 @@ Global Arguments:
 As shown, it takes some Global arguments then specific subcommands. The global arguments `-g` and `-k` are required
 
 
-### Subcommand bchains
+### bchains
 
 This subcommand is for detecting bubble and superbubble chains.
 The following help page is available for bchains
@@ -96,7 +107,7 @@ where the sequence name indicate from which chains and which bubble they come fr
 For the previous example, the JSON and FASTA output can be seen in [example](example)
 Of course, all the previous commands can be combined in one to output a JSON, a GFA and a FASTA.
 
-### Subcommand chainout
+### chainout
 This subcommand separates a chain or several chains by their ids according to the JSON file.
 The following help page is available for the chainout subcommand:
 ```shell script
@@ -120,19 +131,19 @@ Example comman:
 
 The ids given should be present in the JSON file and the graph given should be the same graph used to generate the JSON file.
 
-### Subcommand compact
+### compact
 This subcommand outputs a compacted GFA file. Example:
 
 `./main.py -g test_graph.gfa -k 41 compact compacted_test.gfa`
 
 
-### Subcommand biggestcomp
+### biggestcomp
 This subcommand separates the biggest component in the graph and outputs it. Example:
 
 `./main.py -g test_graph.gfa -k 41 biggestcomp biggest_comp.gfa`
 
 
-### Subcommand bfs
+### bfs
 This subcommand can be used to extract a neighborhood using BFS around a start node or several start nodes (takes the node id), these neighborhood will be outputted as a GFA file. Examples:
 * Extracting a neighborhood of size 100 nodes around the node with id 540
 
@@ -141,7 +152,7 @@ This subcommand can be used to extract a neighborhood using BFS around a start n
 
   `./main.py -g test_graph.gfa -k 51 bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
 
-### Subcommand gamdigest
+### gamdigest
 This subcommand filters an alignemnt GAM file.
 The following help is available for this subcommand:
 ```shell script

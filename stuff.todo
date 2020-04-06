@@ -2,8 +2,10 @@ BubbleGun TODO list:
 
  ✔ Fix chain coverages as it's over a 100% because of children and parents
  ☐ Proper topological sorting.
- ☐ Fix output haplotypes and output fasta after the changes
- ☐ Fix gam digest, it should take the JSON file now and use the information there
+ ☐ Fix output haplotypes and fasta bubbles output:
+    ☐ I should separate those into a new subcommand that takes the JSON file and graph and output this information
+
+ ✔ Fix gam digest, it should take the JSON file now and use the information there
  ✔ Output information such as the arguments given and the input output files in the log
  ☐ Solve superbubbles according to coverage (try using the mean k-mer coverage)
  ☐ Read GFA 2 files too (add that maybe as an option with the default as GFA 1)
