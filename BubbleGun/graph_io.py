@@ -109,12 +109,17 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
             node = nodes[n1]
             # todo for now I don't care to which sb the node belongs
             # I just care about simple bubbles for phasing
-            specification = str(":".join((str(node.which_chain), str(0),
-                                          str(node.which_b), str(node.which_allele))))
+            # this does not exist anymore
+            # specification = str(":".join((str(node.which_chain), str(0),
+            #                               str(node.which_b), str(node.which_allele))))
             if node.seq == "":
-                line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), specification)))
+                line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len)
+                                      # , specification
+                                      )))
             else:
-                line = str("\t".join(("S", str(n1), nodes[n1].seq, specification)))
+                line = str("\t".join(("S", str(n1), nodes[n1].seq
+                                      # , specification
+                                      )))
 
             f.write(line + "\n")
             # writing edges
