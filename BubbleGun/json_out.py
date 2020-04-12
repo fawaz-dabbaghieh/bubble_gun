@@ -41,9 +41,9 @@ def json_out(graph, output):
 
         output_f.write(json.dumps(chain_line) + "\n")
 
-    for chain_key, chain in graph.b_chains.items():
+    for chain in graph.b_chains:
         # The chains that are not nested
-        if chain_key not in graph.child_parent:
+        if chain not in graph.child_parent:
             chain_line = dict()
             chain_line['id'] = chain.id
             chain_line['ends'] = chain.ends
