@@ -114,7 +114,6 @@ class Graph:
         all_nodes = []
         for chain in self.b_chains:
             all_nodes += chain.list_chain()
-        pdb.set_trace()
         return set(all_nodes)
 
     def seq_in_chains(self):
@@ -128,7 +127,6 @@ class Graph:
             if chain not in self.child_parent:
                 counter += 1
                 s_in_c += chain.length_seq(k=self.k)
-        pdb.set_trace()
         return s_in_c
 
     def chain_cov_node(self):

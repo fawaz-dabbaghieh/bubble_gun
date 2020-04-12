@@ -206,7 +206,6 @@ if args.subcommands == "compact":
         else:
             graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
         logging.info("Compacting Graph...")
-        # pdb.set_trace()
         graph.compact()
         logging.info("Writing Compacted Graph...")
         graph.write_graph(output_file=args.compacted)
