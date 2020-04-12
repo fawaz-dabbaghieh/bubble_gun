@@ -1,4 +1,8 @@
-def write_fasta(fa_path, graph):
+# todo I need to change this to output each bubble as two sequences
+# including the source and sink
+# I think I can use the extract_path function for this
+
+def write_fasta(graph, fa_path):
     out_file_bubbles = open(fa_path, "w")
     other_file = "other_nodes" + fa_path
     out_file_other = open(other_file, "w")

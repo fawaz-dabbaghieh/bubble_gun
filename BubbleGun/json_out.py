@@ -19,10 +19,11 @@ def json_out(graph, output):
     output_f = open(output, "w")
     for child_chain_key, parent_info in graph.child_parent.items():
         chain_line = dict()
-        chain_line['id'] = graph.b_chains[child_chain_key].id
-        chain_line['ends'] = graph.b_chains[child_chain_key].ends
+        # pdb.set_trace()
+        chain_line['id'] = child_chain_key.id
+        chain_line['ends'] = child_chain_key.ends
         chain_line['bubbles'] = []
-        chain_line['parent_chain'] = graph.b_chains[parent_info[0]].id
+        chain_line['parent_chain'] = parent_info[0].id
         chain_line['parent_sb'] = parent_info[1].id
         for bubble in graph.b_chains[child_chain_key].sorted:
             line = dict()

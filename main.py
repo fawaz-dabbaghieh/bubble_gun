@@ -277,7 +277,7 @@ if args.subcommands == "bchains":
 
     if args.out_fasta is not None:
         logging.info("Outputting each bubble branch...")
-        write_fasta(args.out_fasta, graph)
+        write_fasta(graph, args.out_fasta)
 
     if args.out_haplos:
         logging.info("Outputting two random haplotypes of each bubble chain...")

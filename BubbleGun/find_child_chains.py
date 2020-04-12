@@ -40,7 +40,7 @@ def find_child_chains(graph, chain):
                     # parent child information can be added here
                     new_chain.find_ends()
                     # graph.child_parent[new_chain._BubbleChain__key()] = value
-                    graph.child_parent[chain] = value
+                    graph.child_parent[new_chain] = value
 
                     # calling again in case the nested chain had more nested chains
                     find_child_chains(graph, new_chain)

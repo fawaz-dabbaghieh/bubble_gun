@@ -9,6 +9,8 @@ This one uses a while loop instead of nested functions
 Nested functions took too much memory when there were many nodes to compact
 This doesn't take any extra memory than what's already stored.
 """
+
+
 def merge_end(graph, n):
     # print("in merge END with n {} and neighbor {}".format(n, nodes[n].end[0]))
     # print("and n's START are {}".format(nodes[n].start))
@@ -19,8 +21,6 @@ def merge_end(graph, n):
         neighbor = nodes[n].end[0]
         # checking if the neighbor is connected at start (so we have + + edge)
         # and that it only have one node from the start which is n
-        # if neighbor[0] == 3827:
-        #     pdb.set_trace()
         if (neighbor[1] == 0) and (len(nodes[neighbor[0]].start) == 1):
             # the ends of n becomes the ends of neighbor
             # I am copying the connections of neighbors on the opposite side
@@ -29,12 +29,12 @@ def merge_end(graph, n):
             nodes[n].end += [(x[0], x[1]) for x in nodes[neighbor[0]].end]
             # the sequence and seq_len gets updated
             nodes[n].seq += nodes[neighbor[0]].seq[k - 1:]
+            # adding the coverages and taking the mean
+            nodes[n].coverage = (nodes[n].coverage + nodes[neighbor[0]].coverage)/2
+
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
-            # if neighbor[0] == 3827:
-            #     pdb.set_trace()
             graph.remove_node(neighbor[0])
-            # nodes[n].end = copy.deepcopy(nodes[neighbor[0]].end)
             # I think I can remove the neighbor node here with
             # Here I need to check the new neighbors at end, 
             # and remove the merged nod
@@ -44,7 +44,7 @@ def merge_end(graph, n):
             # nodes[n].end at the same time
             for nn in new_ends:
                 if nn[1] == 0:
-                    #nodes[nn[0]].start.remove((neighbor[0], 1))
+                    # nodes[nn[0]].start.remove((neighbor[0], 1))
                     nodes[nn[0]].start.append((n, 1))
                 elif nn[1] == 1:
                     # the if else here needed in case of there was a self 
@@ -56,7 +56,7 @@ def merge_end(graph, n):
                     else:
                         try:
                             nodes[n].end.remove((neighbor[0], 1))
-                            nodes[n].end.append((n, 1))            
+                            nodes[n].end.append((n, 1))
                         except:
                             pdb.set_trace()
 
@@ -75,6 +75,7 @@ def merge_end(graph, n):
 
             reverse = reverse_complement(nodes[neighbor[0]].seq)
             nodes[n].seq += reverse[k - 1:]
+            nodes[n].coverage = (nodes[n].coverage + nodes[neighbor[0]].coverage)/2
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
             # if neighbor[0] == 3827:
@@ -109,6 +110,7 @@ def merge_end(graph, n):
     # if I'm here that mean none of the True returns were reached
     return False
 
+
 def merge_start(graph, n):
     # print("in merge START with n {} and neighbor {}".format(n, nodes[n].start[0]))
     # print("and n's END are {}".format(nodes[n].end))
@@ -138,12 +140,12 @@ def merge_start(graph, n):
             for nn in starts:
                 # We are connected to it from start
                 if nn[1] == 0:
-                    #nodes[nn[0]].start.remove((neighbor[0], 1))
+                    # nodes[nn[0]].start.remove((neighbor[0], 1))
                     nodes[nn[0]].start.append((n, 0))
 
                 elif nn[1] == 1:
                     if nn[0] != neighbor[0]:
-                        #nodes[nn[0]].end.remove((neighbor[0], 1))
+                        # nodes[nn[0]].end.remove((neighbor[0], 1))
                         nodes[nn[0]].end.append((n, 0))
                     else:
                         try:
@@ -191,6 +193,7 @@ def merge_start(graph, n):
 
     return False
 
+
 def compact_graph(graph):
     # need to have a list of nodes to iterate through
     # can't iterate and change the same dictionary
@@ -199,10 +202,10 @@ def compact_graph(graph):
         if n in graph.nodes:
             # print("at node {}".format(n))
             # print("begin at node {}".format(n))
-    # # checking it's not a node that already got merged in the while loop
-    #     if graph.nodes[n] is not None:
-    #         # checking if it has one neighbor and it's not a self loop
-        # print("I am at nodes {}".format(n))
+            # # checking it's not a node that already got merged in the while loop
+            #     if graph.nodes[n] is not None:
+            #         # checking if it has one neighbor and it's not a self loop
+            # print("I am at nodes {}".format(n))
             while True:
                 # pdb.set_trace()
                 if len(graph.nodes[n].end) == 1:
