@@ -25,7 +25,7 @@ def json_out(graph, output):
         chain_line['bubbles'] = []
         chain_line['parent_chain'] = parent_info[0].id
         chain_line['parent_sb'] = parent_info[1].id
-        for bubble in graph.b_chains[child_chain_key].sorted:
+        for bubble in child_chain_key.sorted:
             line = dict()
             if bubble.is_simple():
                 line['type'] = 'simple'
