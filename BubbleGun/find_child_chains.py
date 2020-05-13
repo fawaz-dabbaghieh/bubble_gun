@@ -59,13 +59,11 @@ def find_children(graph):
     for chain in chains:
         find_child_chains(graph, chain)
 
-    # adding ids
+    # filling bubbles and chains ids
     b_counter = 1
     chain_counter = 1
     for chain in graph.b_chains:
         chain.id = chain_counter
-        if chain.id == 0:
-            pdb.set_trace()
         for b in chain.sorted:
             b.id = b_counter
             b_counter += 1

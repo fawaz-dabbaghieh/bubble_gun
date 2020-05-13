@@ -1,5 +1,6 @@
 from BubbleGun.functions import reverse_complement
 
+
 def next_direction(node1, node2, direction):
     """
     returns the next direction to look for a neighbor
@@ -17,6 +18,7 @@ def next_direction(node1, node2, direction):
         for n in node1.end:
             if node2.id == n[0]:
                 return 1 - n[1]  # flipping 0 and 1
+
 
 def path_checker(graph, path):
     """
@@ -39,6 +41,7 @@ def path_checker(graph, path):
         # first two nodes are not connected
         return False
 
+    # todo somewhere here is wrong
     for i in range(len(path) - 1):
         current_node = graph.nodes[path[i]]
         next_node = graph.nodes[path[i+1]]
@@ -49,6 +52,7 @@ def path_checker(graph, path):
             return False
 
     return True
+
 
 def sequence_extractor(graph, path, k):
     """

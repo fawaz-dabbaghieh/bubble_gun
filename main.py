@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import sys
-from BubbleGun.functions import bfs
+from BubbleGun.bfs import bfs
 from BubbleGun.Graph import Graph
-from BubbleGun.bubbles_fasta import write_fasta
+from BubbleGun.bubbles_fasta import write_bubbles
 from BubbleGun.digest_gam import digest_gam
 from BubbleGun.find_bubbles import find_bubble_chains
 from BubbleGun.fasta_chains import output_chains_fasta
@@ -120,7 +120,7 @@ logging.basicConfig(filename=log_file, filemode='w',
                     format='[%(asctime)s] %(message)s',
                     level=getattr(logging, args.log_level.upper()))
 
-logging.info("".join(["argument given: "] + sys.argv))
+logging.info(" ".join(["argument given:"] + sys.argv))
 
 if len(sys.argv) == 1:
     print("You didn't give any arguments\n"
@@ -225,7 +225,7 @@ if args.subcommands == "biggestcomp":
             graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
         logging.info("Finding Biggest Component...")
         biggest_comp = graph.biggest_comp()
-        print("Writing Biggset Component...")
+        logging.info("Writing Biggset Component...")
         graph.write_graph(output_file=args.biggest_comp, set_of_nodes=biggest_comp)
         logging.info("Done...")
     else:
@@ -247,7 +247,6 @@ if args.subcommands == "bchains":
     logging.info("Finding chains...")
     find_bubble_chains(graph, only_simple=args.only_simple)
     # graph.find_chains(only_simple=args.only_simple)
-    # todo add a function here to find nested chains
     # I don't think I need to fill info here
     # I can do that if I am outputting a json
     find_children(graph)
@@ -276,7 +275,7 @@ if args.subcommands == "bchains":
 
     if args.out_fasta is not None:
         logging.info("Outputting each bubble branch...")
-        write_fasta(graph, args.out_fasta)
+        write_bubbles(graph, args.out_fasta)
 
     if args.out_haplos:
         logging.info("Outputting two random haplotypes of each bubble chain...")

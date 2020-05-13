@@ -15,7 +15,7 @@ def output_chains_fasta(graph):
         if len(chain.sorted) == 0:
             chain.sort()
 
-        # very hacky stuff, don't judge
+        # very hacky stuff, don't judge, I wrote it on a train from Dusseldorf to Saarbrucken
         # should do it with topological sorting but I'm too tired
         for b in chain.sorted:
             if len(hap1) == 0:

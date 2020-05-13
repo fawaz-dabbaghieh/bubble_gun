@@ -1,30 +1,26 @@
 # todo I need to change this to output each bubble as two sequences
 # including the source and sink
 # I think I can use the extract_path function for this
+from .path_extractor import sequence_extractor
 
-def write_fasta(graph, fa_path):
-    out_file_bubbles = open(fa_path, "w")
-    other_file = "other_nodes" + fa_path
-    out_file_other = open(other_file, "w")
+
+def write_bubbles(graph, output_path):
+    out_file = open(output_path, "w")
 
     for chain in graph.b_chains:
         for bubble in chain.bubbles:
-            allele = 1
-            for branch in bubble.inside:
-                read_name = ">bubble_" + str(branch.which_b) + "_allele_" + str(allele) + "_chain_" + str(branch.which_chain) + "_km_" + str(branch.coverage) + "_node_" + str(branch.id)
-                allele += 1
-                out_file_bubbles.write(read_name + "\n")
-                out_file_bubbles.write(branch.seq + "\n")
 
-    for n in graph.nodes.values():
-        if (n.which_chain != 0) and (n.which_allele == -1):
-            read_name = ">node_" + str(n.id) + "_chain_" + str(n.which_chain)
-            out_file_other.write(read_name + "\n")
-            out_file_other.write(n.seq + "\n")
-        elif n.which_chain == 0:
-            read_name = ">node_" + str(n.id) + "_chain_0"
-            out_file_other.write(read_name + "\n")
-            out_file_other.write(n.seq + "\n")
+            first_path = [bubble.source.id, bubble.inside[0].id, bubble.sink.id]
+            seq1 = sequence_extractor(graph, first_path, graph.k)
+            second_path = [bubble.source.id, bubble.inside[1].id, bubble.sink.id]
+            seq2 = sequence_extractor(graph, second_path, graph.k)
 
-    out_file_bubbles.close()
-    out_file_other.close()
+            read_name1 = ">bubble_" + str(bubble.id) + "_allele_1" + "_chain_" + str(chain.id)
+            read_name2 = ">bubble_" + str(bubble.id) + "_allele_2" + "_chain_" + str(chain.id)
+
+            out_file.write(read_name1 + "\n")
+            out_file.write(seq1 + "\n")
+            out_file.write(read_name2 + "\n")
+            out_file.write(seq2 + "\n")
+
+    out_file.close()

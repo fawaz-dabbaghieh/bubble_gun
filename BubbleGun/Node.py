@@ -17,7 +17,7 @@ class Node:
         # self.which_sb = 0
         # self.which_b = 0
         # self.which_allele = -1
-        # self.coverage = 0
+        self.coverage = 0
 
     def __sizeof__(self):
         size = self.id.__sizeof__() + self.seq_len.__sizeof__() + self.visited.__sizeof__()
