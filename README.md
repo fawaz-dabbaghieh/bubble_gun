@@ -18,8 +18,13 @@ The tools has function also to compact the graph, extract certain chains and nei
 
 ## Installation
 
-I will expaling here how a user can install, or use the tool. For now, the repostory can be cloned and main.py can be called.
-It should work with python3.5 without any extra dependencies.
+BubbleGun can be installed using the setup scrip
+```
+python3 setup.py install
+```
+This will also download the needed dependencies and creat a callable entry point for the tool and it should be added to the path, so `BubbleGun` can be called anywhere to get the CLI and then be used.
+
+Also `pip -e .` can be used for the setups. However, for some reason it doesn't always install the dependencies but the previous method always install dependencies. Anyway, there are only two dependencies that can easily be install with pip too.
 
 ## Example graph
 ![alt text](images/drawing_new.png)
