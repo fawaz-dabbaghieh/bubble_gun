@@ -4,14 +4,12 @@ BubbleGun TODO list:
  ✔ Fix gam digest, it should take the JSON file now and use the information there
  ✔ Output information such as the arguments given and the input output files in the log
 
- ☐ Proper topological sorting. ( I can take the code from the protein project)
+ ☐ finding children should be done several times, or maybe the code revised
  ☐ Add and average the coverage when compacting
- ☐ Fix output haplotypes and fasta bubbles output:
-    ☐ I should separate those into a new subcommand that takes the JSON file and graph and output this information
+ ✔ Fix output haplotypes and fasta bubbles output:
  ☐ Solve superbubbles according to coverage (try using the mean k-mer coverage)
- ☐ Read GFA 2 files too (add that maybe as an option with the default as GFA 1)
- ☐ Setup script
- ☐ Proper docstring comments on the code, use reST recommended by pep287
+ ✔ Setup script
+ ✔ Proper docstring comments on the code, use reST recommended by pep287
   """
   This is a reST style.
 
@@ -61,10 +59,6 @@ BubbleGun TODO list:
  ✔ Alignment file stuff: (20-02-12 11:34)
    ✔ Filter alignment less than 200 bp @done (20-02-12 11:34)
    ✔ Keep only the longest alignment if two alignments were mapped to the same chain (20-02-12 11:34)
-
- ☐ Repeats:
-   ☐ Choose several long chains and calculate mean and standard deviation of the coverage
-   ☐ Use the mean and std according to HASLR to throw out chains that have coverage bigger than mean + 3std
 
 Bugs:
  ✔ compacting didn't work on the graph, need to debug @done (19-12-20 17:15) 

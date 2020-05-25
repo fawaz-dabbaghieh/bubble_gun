@@ -1,6 +1,3 @@
-# todo I need to change this to output each bubble as two sequences
-# including the source and sink
-# I think I can use the extract_path function for this
 from .path_extractor import sequence_extractor
 
 

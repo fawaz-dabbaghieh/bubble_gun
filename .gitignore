@@ -10,3 +10,7 @@ test/
 *.idea
 bin/
 random/
+BubbleGun.egg-info/
+build/
+dist/
+
