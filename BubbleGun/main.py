@@ -125,7 +125,7 @@ logging.info(" ".join(["argument given:"] + sys.argv))
 
 def main():
     if len(sys.argv) == 1:
-        print("You didn't give any arguments\n"
+        print("You did not provide any arguments\n"
               "Try to use -h or --help for help\n"
               "Or -e --examples for examples to use the tool")
         sys.exit()

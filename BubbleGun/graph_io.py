@@ -173,7 +173,7 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False, low_memory=False)
         for line in lines:
             if line.startswith("S"):
                 line = line.split("\t")
-                n_id = int(line[1])
+                n_id = str(line[1])
                 n_len = len(line[2])
                 nodes[n_id] = Node(n_id)
 
@@ -207,8 +207,8 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False, low_memory=False)
     for e in edges:
         line = e.split()
 
-        k = int(line[1])
-        neighbor = int(line[3])
+        k = str(line[1])
+        neighbor = str(line[3])
         if line[2] == "-":
             from_start = True
         else:

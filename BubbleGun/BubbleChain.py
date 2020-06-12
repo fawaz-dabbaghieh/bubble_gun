@@ -95,8 +95,8 @@ class BubbleChain:
         # finding ends
         all_ends = dict()
         for b in self.bubbles:
-            source = int(b.source.id)
-            sink = int(b.sink.id)
+            source = str(b.source.id)
+            sink = str(b.sink.id)
             if source > sink:
                 all_ends[(source, sink)] = b
             else:

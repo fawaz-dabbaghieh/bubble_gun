@@ -22,8 +22,8 @@ class Bubble:
         return len(self.inside) + 2
 
     def __key(self):
-        source = int(self.source.id)
-        sink = int(self.sink.id)
+        source = str(self.source.id)
+        sink = str(self.sink.id)
         if source > sink:
             return (source, sink)
         return (sink, source)
