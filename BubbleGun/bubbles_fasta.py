@@ -6,6 +6,8 @@ def write_bubbles(graph, output_path):
 
     for chain in graph.b_chains:
         for bubble in chain.bubbles:
+            if not bubble.is_simple():
+                continue
 
             first_path = [bubble.source.id, bubble.inside[0].id, bubble.sink.id]
             seq1 = sequence_extractor(graph, first_path, graph.k)
