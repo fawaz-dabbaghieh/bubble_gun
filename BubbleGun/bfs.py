@@ -1,5 +1,4 @@
 from collections import deque
-import pdb
 
 
 def main_while_loop(graph, start_node, queue, direction, visited, size):
@@ -33,7 +32,7 @@ def bfs(graph, start_node, size):
 
     Using only bfs was resulting in a one-sided neighborhood.
     So the neighborhood I was getting was mainly going from the start node
-    into one direction becuase we have FIFO and it basically keeps going
+    into one direction because we have FIFO and it basically keeps going
     in that direction. So I decided to split check if have two possible directions
     From start, too look in both directions separately and add that to the whole neighborhood
 

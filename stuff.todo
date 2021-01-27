@@ -8,6 +8,9 @@ BubbleGun TODO list:
  ☐ Add and average the coverage when compacting
  ✔ Fix output haplotypes and fasta bubbles output:
  ☐ Solve superbubbles according to coverage (try using the mean k-mer coverage)
+ ☐ Change the Node object so that I store overlaps as well
+   ☐ Basically instead of always taking k, I look at the number before the M in the L line
+   ☐ 
  ✔ Setup script
  ✔ Proper docstring comments on the code, use reST recommended by pep287
   """

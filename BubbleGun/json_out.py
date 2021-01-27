@@ -17,10 +17,11 @@ def json_out(graph, output):
 
     # pdb.set_trace()
     output_f = open(output, "w")
+    output_f.write("[\n")
     for child_chain_key, parent_info in graph.child_parent.items():
         chain_line = dict()
-        # pdb.set_trace()
-        chain_line['id'] = child_chain_key.id
+
+        chain_line['chain_id'] = child_chain_key.id
         chain_line['ends'] = child_chain_key.ends
         chain_line['bubbles'] = []
         chain_line['parent_chain'] = parent_info[0].id
@@ -39,13 +40,13 @@ def json_out(graph, output):
             line['inside'] = [x.id for x in bubble.inside]
             chain_line['bubbles'].append(line)
 
-        output_f.write(json.dumps(chain_line) + "\n")
+        output_f.write(json.dumps(chain_line) + ",\n")
 
     for chain in graph.b_chains:
         # The chains that are not nested
         if chain not in graph.child_parent:
             chain_line = dict()
-            chain_line['id'] = chain.id
+            chain_line['chain_id'] = chain.id
             chain_line['ends'] = chain.ends
             chain_line['bubbles'] = []
             for bubble in chain.sorted:
@@ -69,6 +70,7 @@ def json_out(graph, output):
 
                 chain_line['bubbles'].append(line)
 
-            output_f.write(json.dumps(chain_line) + "\n")
+            output_f.write(json.dumps(chain_line) + ", \n")
 
+    output_f.write("]")
     output_f.close()

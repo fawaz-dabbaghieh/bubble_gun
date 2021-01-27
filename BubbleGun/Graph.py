@@ -69,7 +69,8 @@ class Graph:
                                  output_file="circular_and_other_problematic_chains.gfa")
             else:
                 # self.b_chains[chain._BubbleChain__key()] = chain
-                self.b_chains.add(chain)
+                if chain not in self.b_chains:
+                    self.b_chains.add(chain)
 
     def total_seq_length(self):
         """

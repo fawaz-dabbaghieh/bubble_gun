@@ -13,4 +13,6 @@ random/
 BubbleGun.egg-info/
 build/
 dist/
-
+venv/
+testing/
+bubble_gun_test.py
