@@ -74,10 +74,7 @@ def json_out(graph, output):
 
                 chain_line['bubbles'].append(line)
 
-            if chain.id in json_out:
-                pdb.set_trace()
-            else:
-                json_out[chain.id] = chain_line
+            json_out[chain.id] = chain_line
             # output_f.write(json.dumps(chain_line) + ",\n")
     output_f.write(json.dumps(json_out))
     # output_f.write("]")
