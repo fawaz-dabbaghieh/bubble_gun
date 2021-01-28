@@ -17,7 +17,9 @@ def json_out(graph, output):
 
     # pdb.set_trace()
     output_f = open(output, "w")
-    output_f.write("[\n")
+    # output_f.write("[\n")
+    json_out = dict()
+    # I am writing the nested chains first
     for child_chain_key, parent_info in graph.child_parent.items():
         chain_line = dict()
 
@@ -40,8 +42,10 @@ def json_out(graph, output):
             line['inside'] = [x.id for x in bubble.inside]
             chain_line['bubbles'].append(line)
 
-        output_f.write(json.dumps(chain_line) + ",\n")
+        json_out[child_chain_key.id] = chain_line
+        # output_f.write(json.dumps(chain_line) + ",\n")
 
+    # not nested chains
     for chain in graph.b_chains:
         # The chains that are not nested
         if chain not in graph.child_parent:
@@ -70,7 +74,11 @@ def json_out(graph, output):
 
                 chain_line['bubbles'].append(line)
 
-            output_f.write(json.dumps(chain_line) + ", \n")
-
-    output_f.write("]")
+            if chain.id in json_out:
+                pdb.set_trace()
+            else:
+                json_out[chain.id] = chain_line
+            # output_f.write(json.dumps(chain_line) + ",\n")
+    output_f.write(json.dumps(json_out))
+    # output_f.write("]")
     output_f.close()
