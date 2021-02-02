@@ -21,7 +21,7 @@ Several graph-related functions are also implemented in BubbleGun:
 
 ## Installation
 
-BubbleGun can be installed using the setup script
+BubbleGun can be installed using the setup script simply with this command:
 ```
 python3 setup.py install
 ```
