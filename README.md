@@ -10,21 +10,24 @@
     + [gamdigest](#gamdigest)
 
 # BubbleGun
-
-A tool for detecting Bubbles and Superbubble chains in graphs.
-Takes as input a GFA file and output a JSON file with information about bubble chains and nested chains inside superbubbles.
-
-The tools has function also to compact the graph, extract certain chains and neighborhoods in the graph for downstream analysis of the bubbles.
+A tool for detecting Bubbles and Superbubble in De-bruijn graphs. BubbleGun outputs runs of bubbles and superbubbles we call bubble chains.
+Several graph-related functions are also implemented in BubbleGun:
+- Graph compacting (mergin linear stretches of single nodes),
+- Extracing biggest component in the graph
+- Separating certain chains by their id for further examination
+- Extracting a user-specified neighborhood size around a node to extract as a separate graph for examination
+- Extracting two randome paths from each bubble chain for haplotyping
+- Extracting information from long reads aligned to bubble chains
 
 ## Installation
 
-BubbleGun can be installed using the setup scrip
+BubbleGun can be installed using the setup script
 ```
 python3 setup.py install
 ```
-This will also download the needed dependencies and creat a callable entry point for the tool and it should be added to the path, so `BubbleGun` can be called anywhere to get the CLI and then be used.
 
-Also `pip -e .` can be used for the setups. However, for some reason it doesn't always install the dependencies but the previous method always install dependencies. Anyway, there are only two dependencies that can easily be install with pip too.
+In case you do not have admin access or want to install BubbleGun locally for the user, then `--user` can be added after `install`. And the binary will be added usually to `~/.local/bin` on Linux systems. 
+This will also download the needed dependencies and creat a callable entry point for the tool and it should be added to the path, so `BubbleGun` can be called anywhere to get the CLI and then be used.
 
 ## Example graph
 ![alt text](images/drawing_new.png)
@@ -36,9 +39,8 @@ These 4 sequences are traced with the different dotted lines in the graph, and t
 The following sections will demonstrate some examples of using this tool.
 
 ## Usage and Subcommands
-The tool has several subcommans and `-h` or `--help` can be used to print this message.
-
-```shell script
+The tool has several subcommands and `-h` or `--help` can be used to print the help message.
+```
 usage: main.py [-h] [-e] [-g GRAPH_PATH] [-k K] [--with_coverage]
                [--log LOG_LEVEL]
                {bchains,compact,biggestcomp,bfs,gamdigest,chainout} ...
@@ -67,14 +69,15 @@ Global Arguments:
   --log LOG_LEVEL       The logging level [DEBUG, INFO, WARNING, ERROR,
                         CRITICAL]
 ```
-As shown, it takes some Global arguments then specific subcommands. The global arguments `-g` and `-k` are required
+As shown, it takes some Global arguments then specific subcommands. The global arguments `-g` and `-k` are required, for an input graph and input *k*-mer size respectively.
+Individual help messages for the subcommands can be called by using the subcommand then followed by `-h` or `--help`
 
 
 ### bchains
 
 This subcommand is for detecting bubble and superbubble chains.
 The following help page is available for bchains
-```shell script
+```
 usage: main.py bchains [-h] [--bubble_json OUT_JSON] [--only_simple]
                        [--save_memory] [--chains_gfa CHAINS_GFA]
                        [--fasta FASTA] [--out_haplos]
@@ -96,26 +99,27 @@ optional arguments:
 ```
 Examples:
 * A user wants to detect chains and output JSON file with information about the bubbles and low memory usage.
-. With saving memory, only the graph topology will be stored in memory and the sequences will not be read from the file.
+. With saving memory, only the graph topology will be stored in memory, and the sequences will not be read from the file.
 Command:
 
-  `./main.py -g test_graph.gfa -k 9 bchains --bubble_json test_graph_chains.json`
+  `BubbleGun -g test_graph.gfa -k 9 bchains --bubble_json test_graph_chains.json`
 * A user wants to detect chains and output a new GFA graph with only the bubble chains.
 Command:
 
-  `./main.py -g test_graph.gfa -k 51 bchains --chains_gfa chains_output.gfa`
+  `BubbleGun -g test_graph.gfa -k 9 bchains --chains_gfa chains_output.gfa`
 * A user wants to detect chains and output a FASTA file with only bubble branches sequences (currently only works for simple bubbles), 
 where the sequence name indicate from which chains and which bubble they come from. Command:
 
-  `./main.py -g test_graph.gfa -k 51 bchains --fasta test_output.fasta`
+  `BubbleGun -g test_graph.gfa -k 9 bchains --only_simple --fasta test_output.fasta`
  
 For the previous example, the JSON and FASTA output can be seen in [example](example)
-Of course, all the previous commands can be combined in one to output a JSON, a GFA and a FASTA.
-
+* Of course, all the previous commands can be combined in one to output a JSON, a GFA and a FASTA.
+  `BubbleGun -g test_graph.gfa -k 9 bchains --only_simple `
+  
 ### chainout
 This subcommand separates a chain or several chains by their ids according to the JSON file.
 The following help page is available for the chainout subcommand:
-```shell script
+```
 usage: main.py chainout [-h] [--json_file JSON_FILE]
                         [--chain_ids CHAIN_IDS [CHAIN_IDS ...]]
                         [--output_chain OUTPUT]
@@ -130,26 +134,63 @@ optional arguments:
                         Output path for the chains chosen
 ```
 
-Example comman:
+Example command:
 
 `./main.py -g test_graph.gfa -k 41 chainout --json_file test_graph_chains.json --chain_ids 10 13 30 --output_chain test_output.gfa`
 
 The ids given should be present in the JSON file and the graph given should be the same graph used to generate the JSON file.
 
 ### compact
-This subcommand outputs a compacted GFA file. Example:
+This subcommand outputs a compacted GFA file.
 
+```
+usage: BubbleGun compact [-h] PATH_COMPACTED
+
+positional arguments:
+  PATH_COMPACTED  Compacted graph output path
+
+optional arguments:
+  -h, --help      show this help message and exit
+
+```
+Example:
 `./main.py -g test_graph.gfa -k 41 compact compacted_test.gfa`
 
 
 ### biggestcomp
-This subcommand separates the biggest component in the graph and outputs it. Example:
+This subcommand separates the biggest component in the graph and outputs it.
 
+```
+usage: BubbleGun biggestcomp [-h] PATH_BIG_COMP
+
+positional arguments:
+  PATH_BIG_COMP  Biggest component output path
+
+optional arguments:
+  -h, --help     show this help message and exit
+
+```
+Example:
 `./main.py -g test_graph.gfa -k 41 biggestcomp biggest_comp.gfa`
 
 
 ### bfs
-This subcommand can be used to extract a neighborhood using BFS around a start node or several start nodes (takes the node id), these neighborhood will be outputted as a GFA file. Examples:
+This subcommand can be used to extract a neighborhood using BFS around a start node or several start nodes (takes the node id), these neighborhood will be outputted as a GFA file.
+
+```
+usage: BubbleGun bfs [-h] [--start START_NODES [START_NODES ...]] [--neighborhood_size SIZE]
+                     [--output_neighborhood OUTPUT]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --start START_NODES [START_NODES ...]
+                        Give the starting node(s) for neighborhood extraction
+  --neighborhood_size SIZE
+                        With -s --start option, size of neighborhood to extract
+  --output_neighborhood OUTPUT
+                        Output neighborhood file
+```
+Examples:
 * Extracting a neighborhood of size 100 nodes around the node with id 540
 
   `./main.py -g test_graph.gfa -k 51 bfs --start 540 --neighborhood_size 100 --output_neighborhood output.gfa`
@@ -160,7 +201,7 @@ This subcommand can be used to extract a neighborhood using BFS around a start n
 ### gamdigest
 This subcommand filters an alignemnt GAM file.
 The following help is available for this subcommand:
-```shell script
+```
 usage: main.py gamdigest [-h] [--json_file JSON_FILE] [--alignment_file GAM]
                          [--min_cutoff MIN_CUTOFF] [--out_dict PICKLE_OUT]
 

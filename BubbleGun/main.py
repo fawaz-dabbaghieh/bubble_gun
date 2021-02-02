@@ -237,6 +237,10 @@ def main():
     ####################### Bubbles
     if args.subcommands == "bchains":
         # output_file = args.out_bubbles
+        if args.low_memory and (args.out_fasta is not None) or args.low_memory and (args.chains_gfa is not None):
+        	print("You cannot combine memory saving with --fasta or --chains_gfa")
+        	sys.exit(0)
+
         logging.info("Reading Graph...")
         if args.k_mer == 0:
             graph = Graph(args.in_graph, 1, args.coverage)
@@ -247,6 +251,7 @@ def main():
         # graph.compact()
         # tracemalloc.start()
         logging.info("Finding chains...")
+
         find_bubble_chains(graph, only_simple=args.only_simple)
         # graph.find_chains(only_simple=args.only_simple)
         # I don't think I need to fill info here
