@@ -75,7 +75,7 @@ biggest_comp_parser.add_argument(dest="biggest_comp", metavar="PATH_BIG_COMP",
 ########################## BFS commands ###############################
 bfs_parser = subparsers.add_parser('bfs', help='Command for separating neighborhood')
 
-bfs_parser.add_argument("--start", dest="starting_nodes", metavar="START_NODES", type=int, nargs="+",
+bfs_parser.add_argument("--start", dest="starting_nodes", metavar="START_NODES", type=str, nargs="+",
                         default=None, help="Give the starting node(s) for neighborhood extraction")
 
 bfs_parser.add_argument("--neighborhood_size", dest="bfs_len", metavar="SIZE", default=None,
@@ -238,8 +238,8 @@ def main():
     if args.subcommands == "bchains":
         # output_file = args.out_bubbles
         if args.low_memory and (args.out_fasta is not None) or args.low_memory and (args.chains_gfa is not None):
-        	print("You cannot combine memory saving with --fasta or --chains_gfa")
-        	sys.exit(0)
+            print("You cannot combine memory saving with --fasta or --chains_gfa")
+            sys.exit(0)
 
         logging.info("Reading Graph...")
         if args.k_mer == 0:
@@ -316,6 +316,7 @@ def main():
                 sys.exit(1)
         else:
             print("You did not give the starting node(s)")
+
 
 if __name__ == "__main__":
     main()
