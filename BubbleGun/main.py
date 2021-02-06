@@ -105,7 +105,7 @@ output_chain = subparsers.add_parser('chainout', help='Outputs certain chain(s) 
 output_chain.add_argument("--json_file", dest="json_file", metavar="JSON_FILE",
                           type=str, default=None, help="The JSON file wtih bubble chains information")
 
-output_chain.add_argument("--chain_ids", dest="chain_ids", metavar="CHAIN_IDS", type=int, nargs="+",
+output_chain.add_argument("--chain_ids", dest="chain_ids", metavar="CHAIN_IDS", type=str, nargs="+",
                           default=None, help="Give the chain Id(s) to be outputted")
 
 output_chain.add_argument("--output_chain", dest="output_chain", metavar="OUTPUT",
