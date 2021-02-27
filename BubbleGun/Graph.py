@@ -1,12 +1,10 @@
 from .graph_io import read_gfa, write_gfa, write_chains
-from .find_bubbles import find_bubble_chains
 from .new_compact import compact_graph
 from .connected_components import all_components
 from .bfs import bfs
 import sys
 import logging
 import os
-import pdb
 
 
 class Graph:
@@ -16,14 +14,13 @@ class Graph:
 
     __slots__ = ['nodes', 'b_chains', 'k', 'child_parent']
 
-    def __init__(self, graph_file=None, k=1, modified=False, coverage=False, low_memory=False):
+    def __init__(self, graph_file=None, low_memory=False):
         if graph_file is not None:
             if not os.path.exists(graph_file):
                 print("graph file {} does not exist".format(graph_file))
                 sys.exit()
             # loading nodes from file
-            self.nodes = read_gfa(gfa_file_path=graph_file, k=k, modified=modified,
-                                  coverage=coverage, low_memory=low_memory)
+            self.nodes = read_gfa(gfa_file_path=graph_file, k=1, low_memory=low_memory)
         else:
             self.nodes = dict()
         # elif graph_file.endswith(".vg"):
@@ -31,7 +28,7 @@ class Graph:
 
         self.b_chains = set()  # list of BubbleChain objects
         # self.bubbles = set()
-        self.k = k
+        self.k = 1
         self.child_parent = dict()
 
     def __len__(self):
@@ -197,21 +194,23 @@ class Graph:
 
     def remove_node(self, n_id):
         """
-        remove a node and its corrisponding edges
+        remove a node and its corresponding edges
         """
         starts = [x for x in self.nodes[n_id].start]
         for n_start in starts:
+            overlap = n_start[2]
             if n_start[1] == 1:
-                self.nodes[n_start[0]].end.remove((n_id, 0))
+                self.nodes[n_start[0]].end.remove((n_id, 0, overlap))
             else:
-                self.nodes[n_start[0]].start.remove((n_id, 0))
+                self.nodes[n_start[0]].start.remove((n_id, 0, overlap))
 
         ends = [x for x in self.nodes[n_id].end]
         for n_end in ends:
+            overlap = n_end[2]
             if n_end[1] == 1:
-                self.nodes[n_end[0]].end.remove((n_id, 1))
+                self.nodes[n_end[0]].end.remove((n_id, 1, overlap))
             else:
-                self.nodes[n_end[0]].start.remove((n_id, 1))
+                self.nodes[n_end[0]].start.remove((n_id, 1, overlap))
 
         del self.nodes[n_id]
 
@@ -278,8 +277,7 @@ class Graph:
         """
         Returns a neighborhood of size given around start node
 
-        :param graph: A graph object from class Graph
-        :param start_node: starting node for the BFS search
+        :param start: starting node for the BFS search
         :param size: size of the neighborhood to return
         """
 
@@ -291,7 +289,6 @@ class Graph:
         b_counter = 0
         chain_num = 0
         for chain in self.b_chains:
-        # for chain_num, chain in enumerate(self.b_chains):
             chain_num += 1  # To start from 1
 
             for bubble in chain.sorted:

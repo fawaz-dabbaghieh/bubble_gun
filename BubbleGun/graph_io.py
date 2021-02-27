@@ -151,7 +151,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
     f.close()
 
 
-def read_gfa(gfa_file_path, k, modified=False, coverage=False, low_memory=False):
+def read_gfa(gfa_file_path, k, low_memory=False):
     """
     Read a gfa file
 
@@ -181,19 +181,10 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False, low_memory=False)
                     nodes[n_id].seq_len = n_len
                     nodes[n_id].seq = str(line[2]).strip()
 
-                if modified:
-                    specifications = str(line[3])
-                    # the extra column
-                    specifications = specifications.split(":")
-                    nodes[n_id].which_chain = int(specifications[0])
-                    nodes[n_id].which_sb = int(specifications[1])
-                    nodes[n_id].which_b = int(specifications[2])
-                    nodes[n_id].which_allele = int(specifications[3])
+                    # reading extra informationa about nodes
+                    # nodes[n_id].kc = int([x for x in line if x.startswith("KC")][0].split(":")[-1])
+                    # nodes[n_id].km = float([x for x in line if x.startswith("km")][0].split(":")[-1])
 
-                if coverage:
-                    nodes[n_id].coverage = float(line[5].split(":")[-1].strip())
-
-                if not low_memory:
                     if min_node_length > nodes[n_id].seq_len:
                         logging.error("Node {} has a sequence of length {}"
                                       " which is smaller than the provided k\n"
@@ -208,6 +199,8 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False, low_memory=False)
         line = e.split()
 
         k = str(line[1])
+        overlap = int(line[5][:-1])
+
         neighbor = str(line[3])
         if line[2] == "-":
             from_start = True
@@ -219,33 +212,33 @@ def read_gfa(gfa_file_path, k, modified=False, coverage=False, low_memory=False)
         else:
             to_end = False
 
-        if from_start is True and to_end is True:  # from start to end L x - y -
-            if (neighbor, 1) not in nodes[k].start:
-                nodes[k].start.append((neighbor, 1))
-            if (k, 0) not in nodes[neighbor].end:
-                nodes[neighbor].end.append((k, 0))
+        if from_start and to_end :  # from start to end L x - y -
+            if (neighbor, 1, overlap) not in nodes[k].start:
+                nodes[k].start.append((neighbor, 1, overlap))
+            if (k, 0, overlap) not in nodes[neighbor].end:
+                nodes[neighbor].end.append((k, 0, overlap))
 
-        elif from_start is True and to_end is False:  # from start to start L x - y +
+        elif from_start and not to_end:  # from start to start L x - y +
 
-            if (neighbor, 0) not in nodes[k].start:
-                nodes[k].start.append((neighbor, 0))
+            if (neighbor, 0, overlap) not in nodes[k].start:
+                nodes[k].start.append((neighbor, 0, overlap))
 
-            if (k, 0) not in nodes[neighbor].start:
-                nodes[neighbor].start.append((k, 0))
+            if (k, 0, overlap) not in nodes[neighbor].start:
+                nodes[neighbor].start.append((k, 0, overlap))
 
-        elif from_start is False and to_end is False:  # from end to start L x + y +
-            if (neighbor, 0) not in nodes[k].end:
-                nodes[k].end.append((neighbor, 0))
+        elif not from_start and not to_end:  # from end to start L x + y +
+            if (neighbor, 0, overlap) not in nodes[k].end:
+                nodes[k].end.append((neighbor, 0, overlap))
 
-            if (k, 1) not in nodes[neighbor].start:
-                nodes[neighbor].start.append((k, 1))
+            if (k, 1, overlap) not in nodes[neighbor].start:
+                nodes[neighbor].start.append((k, 1, overlap))
 
-        elif from_start is False and to_end is True:  # from end to end L x + y -
-            if (neighbor, 1) not in nodes[k].end:
-                nodes[k].end.append((neighbor, 1))
+        elif not from_start and to_end:  # from end to end L x + y -
+            if (neighbor, 1, overlap) not in nodes[k].end:
+                nodes[k].end.append((neighbor, 1, overlap))
 
-            if (k, 1) not in nodes[neighbor].end:
-                nodes[neighbor].end.append((k, 1))
+            if (k, 1, overlap) not in nodes[neighbor].end:
+                nodes[neighbor].end.append((k, 1, overlap))
 
     return nodes
 

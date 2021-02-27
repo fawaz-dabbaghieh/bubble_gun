@@ -1,6 +1,5 @@
 from .Bubble import Bubble
 from .BubbleChain import BubbleChain
-import pdb
 import sys
 
 """

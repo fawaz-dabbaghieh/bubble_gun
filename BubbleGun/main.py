@@ -2,7 +2,6 @@
 import sys
 import argparse
 import logging
-import pdb
 from BubbleGun.bfs import bfs
 from BubbleGun.Graph import Graph
 from BubbleGun.bubbles_fasta import write_bubbles
@@ -29,8 +28,6 @@ parser.add_argument("-g", "--in_graph", metavar="GRAPH_PATH", dest="in_graph",
 parser.add_argument("-k", "--k_mer", dest="k_mer", metavar="K",
                     default=0, type=int, help="K value of as integer (default is 1)")
 
-parser.add_argument("--with_coverage", dest="coverage", action="store_true",
-                    help="If this option given, mean coverage is taken from the GFA file")
 
 parser.add_argument("--log", dest="log_level", type=str, default="DEBUG",
                     help="The logging level [DEBUG, INFO, WARNING, ERROR, CRITICAL]")
@@ -162,9 +159,9 @@ def main():
 
                     logging.info("Reading Graph...")
                     if args.k_mer == 0:
-                        graph = Graph(args.in_graph, 1, args.coverage)
+                        graph = Graph(args.in_graph)
                     else:
-                        graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
+                        graph = Graph(args.in_graph)
 
                     logging.info("Outputting chains chosen...")
                     write_certain_chains(args.json_file, graph, args.chain_ids, args.output_chain)
@@ -204,9 +201,9 @@ def main():
             logging.info("Reading Graph...")
 
             if args.k_mer == 0:
-                graph = Graph(args.in_graph, 1, args.coverage)
+                graph = Graph(args.in_graph)
             else:
-                graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
+                graph = Graph(args.in_graph)
             logging.info("Compacting Graph...")
             graph.compact()
             logging.info("Writing Compacted Graph...")
@@ -222,9 +219,9 @@ def main():
             logging.info("Reading Graph...")
 
             if args.k_mer == 0:
-                graph = Graph(args.in_graph, 1, args.coverage)
+                graph = Graph(args.in_graph)
             else:
-                graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage)
+                graph = Graph(args.in_graph)
             logging.info("Finding Biggest Component...")
             biggest_comp = graph.biggest_comp()
             logging.info("Writing Biggset Component...")
@@ -243,9 +240,9 @@ def main():
 
         logging.info("Reading Graph...")
         if args.k_mer == 0:
-            graph = Graph(args.in_graph, 1, args.coverage)
+            graph = Graph(args.in_graph)
         else:
-            graph = Graph(args.in_graph, args.k_mer, coverage=args.coverage, low_memory=args.low_memory)
+            graph = Graph(args.in_graph, low_memory=args.low_memory)
 
         # print("[{}] Compacting graph...".format(current_time()))
         # graph.compact()
@@ -298,9 +295,9 @@ def main():
 
                     logging.info("Reading Graph...")
                     if args.k_mer == 0:
-                        graph = Graph(args.in_graph, 1)
+                        graph = Graph(args.in_graph)
                     else:
-                        graph = Graph(args.in_graph, args.k_mer)
+                        graph = Graph(args.in_graph)
 
                     for n in args.starting_nodes:
                         logging.info("extracting neighborhood around node {}".format(n))

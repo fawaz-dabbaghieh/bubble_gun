@@ -12,14 +12,17 @@ or according to my structure it's given the number 1
 merge_start checks for merges from the "start" side of the node,
 or the "0" side
 """
+
+
 def merge_end(graph, n):
+
     # print("in merge END with n {} and neighbor {}".format(n, nodes[n].end[0]))
     # print("and n's START are {}".format(nodes[n].start))
     nodes = graph.nodes
     k = graph.k
 
     if n != nodes[n].end[0][0]:  # no self loops
-        neighbor = nodes[n].end[0]
+        neighbor = nodes[n].end[0]  # tuple (n_id, direction, overlap)
         # checking if the neighbor is connected at start (so we have + + edge)
         # and that it only have one node from the start which is n
         if (neighbor[1] == 0) and (len(nodes[neighbor[0]].start) == 1):
@@ -28,7 +31,7 @@ def merge_end(graph, n):
             # and removing neighbor node
             nodes[n].end += [(x[0], x[1]) for x in nodes[neighbor[0]].end]
             # the sequence and seq_len gets updated
-            nodes[n].seq += nodes[neighbor[0]].seq[k - 1:]
+            nodes[n].seq += nodes[neighbor[0]].seq[neighbor[2]:]
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
             graph.remove_node(neighbor[0])
@@ -38,20 +41,21 @@ def merge_end(graph, n):
             # and remove the merged node
             # and add n to them
             for nn in nodes[n].end:
+                overlap = nn[2]
                 # We are connected to it from start
                 if nn[1] == 0:
                     #nodes[nn[0]].start.remove((neighbor[0], 1))
-                    nodes[nn[0]].start.append((n, 1))
+                    nodes[nn[0]].start.append((n, 1, overlap))
                 elif nn[1] == 1:
                     # the if else here needed in case of there was a self 
                     # loop on the end side of neighbor
                     # the self loops is added to the merged node
                     if nn[0] != neighbor[0]:
                         # nodes[nn[0]].end.remove((neighbor[0], 1))
-                        nodes[nn[0]].end.append((n, 1))
+                        nodes[nn[0]].end.append((n, 1, overlap))
                     else:
                         # nodes[n].end.remove((neighbor[0], 1))
-                        nodes[n].end.append((n, 1))
+                        nodes[n].end.append((n, 1, overlap))
 
             if len(nodes[n].end) == 1:
                 merge_end(graph, n)
@@ -63,7 +67,8 @@ def merge_end(graph, n):
             # I think I can remove the neighbor node here with
             nodes[n].end += [(x[0], x[1]) for x in nodes[neighbor[0]].start]
             reverse = reverse_complement(nodes[neighbor[0]].seq)
-            nodes[n].seq += reverse[k - 1:]
+            nodes[n].seq += reverse[neighbor[2]:]
+            # nodes[n].seq += reverse[k - 1:]
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
 
@@ -72,6 +77,7 @@ def merge_end(graph, n):
             # and remove the merged node
             # and add n to them
             for nn in nodes[n].end:
+                overlap = nn[2]
                 # We are connected to it from start
                 if nn[1] == 0:
                     # the if else here needed in case of there was a 
@@ -79,17 +85,18 @@ def merge_end(graph, n):
                     # the self loops is added to the merged node
                     if nn[0] != neighbor[0]:
                         # nodes[nn[0]].start.remove((neighbor[0], 0))
-                        nodes[nn[0]].start.append((nodes[n].id, 1))
+                        nodes[nn[0]].start.append((n, 1, overlap))
                     else:
                         # nodes[n].end.remove((neighbor[0], 0))
-                        nodes[n].end.append((n, 1))
+                        nodes[n].end.append((n, 1, overlap))
 
                 elif nn[1] == 1:
                     # nodes[nn[0]].end.remove((neighbor[0], 0))
-                    nodes[nn[0]].end.append((nodes[n].id, 1))
+                    nodes[nn[0]].end.append((n, 1, overlap))
 
             if len(nodes[n].end) == 1:
                 merge_end(graph, n)
+
 
 def merge_start(graph, n):
     # print("in merge START with n {} and neighbor {}".format(n, nodes[n].start[0]))
@@ -108,25 +115,26 @@ def merge_start(graph, n):
             nodes[n].start += [(x[0], x[1]) for x in nodes[neighbor[0]].end]
 
             reverse = reverse_complement(nodes[neighbor[0]].seq)
-            nodes[n].seq = reverse[:len(reverse) - (k - 1)] + nodes[n].seq
+            nodes[n].seq = reverse[:len(reverse) - neighbor[2]] + nodes[n].seq
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
             graph.remove_node(neighbor[0])
             # Here I need to check the new neighbors at end, and remove the merged node
             # and n to them
             for nn in nodes[n].start:
+                overlap = nn[2]
                 # We are connected to it from start
                 if nn[1] == 0:
                     #nodes[nn[0]].start.remove((neighbor[0], 1))
-                    nodes[nn[0]].start.append((nodes[n].id, 0))
+                    nodes[nn[0]].start.append((n, 0, overlap))
 
                 elif nn[1] == 1:
                     if nn[0] != neighbor[0]:
                         #nodes[nn[0]].end.remove((neighbor[0], 1))
-                        nodes[nn[0]].end.append((nodes[n].id, 0))
+                        nodes[nn[0]].end.append((n, 0, overlap))
                     else:
                         #nodes[n].start.remove((neighbor[0], 1))
-                        nodes[n].start.append((n, 0))
+                        nodes[n].start.append((n, 0, overlap))
 
             if len(nodes[n].start) == 1:
                 merge_start(graph, n)
@@ -136,13 +144,10 @@ def merge_start(graph, n):
 
 
 def compact_graph(graph):
-    # keeping the nodes that got merged to remove later
     node_ids = list(graph.nodes.keys())
     for n in node_ids:
         if n in graph.nodes:
-        # # checking it's not a node that already got merged in the while loop
-        #     if graph.nodes[n] is not None:
-        #         # checking if it has one neighbor and it's not a self loop
+
             # print("I am at nodes {}".format(n))
             if len(graph.nodes[n].end) == 1:
                 merge_end(graph, n)

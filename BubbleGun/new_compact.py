@@ -25,12 +25,13 @@ def merge_end(graph, n):
             # the ends of n becomes the ends of neighbor
             # I am copying the connections of neighbors on the opposite side
             # and removing neighbor node
-            new_ends = [(x[0], x[1]) for x in nodes[neighbor[0]].end]
-            nodes[n].end += [(x[0], x[1]) for x in nodes[neighbor[0]].end]
+            new_ends = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
+            nodes[n].end += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
             # the sequence and seq_len gets updated
-            nodes[n].seq += nodes[neighbor[0]].seq[k - 1:]
+            nodes[n].seq += nodes[neighbor[0]].seq[neighbor[2]:]
+            # nodes[n].seq += nodes[neighbor[0]].seq[k - 1:]
             # adding the coverages and taking the mean
-            nodes[n].coverage = (nodes[n].coverage + nodes[neighbor[0]].coverage)/2
+            # nodes[n].coverage = (nodes[n].coverage + nodes[neighbor[0]].coverage)/2
 
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
@@ -43,20 +44,21 @@ def merge_end(graph, n):
             # I needed new_ends because I can't iterate and change
             # nodes[n].end at the same time
             for nn in new_ends:
+                overlap = nn[2]
                 if nn[1] == 0:
                     # nodes[nn[0]].start.remove((neighbor[0], 1))
-                    nodes[nn[0]].start.append((n, 1))
+                    nodes[nn[0]].start.append((n, 1, overlap))
                 elif nn[1] == 1:
                     # the if else here needed in case of there was a self 
                     # loop on the end side of neighbor
                     # the self loops is added to the merged node
                     if nn[0] != neighbor[0]:
                         # nodes[nn[0]].end.remove((neighbor[0], 1))
-                        nodes[nn[0]].end.append((n, 1))
+                        nodes[nn[0]].end.append((n, 1, overlap))
                     else:
                         try:
-                            nodes[n].end.remove((neighbor[0], 1))
-                            nodes[n].end.append((n, 1))
+                            nodes[n].end.remove((neighbor[0], 1, overlap))
+                            nodes[n].end.append((n, 1, overlap))
                         except:
                             pdb.set_trace()
 
@@ -70,12 +72,12 @@ def merge_end(graph, n):
             # and the sequence and seq_len get updated
             # nodes[n].end = copy.deepcopy(nodes[neighbor[0]].start)
             # I think I can remove the neighbor node here with
-            new_ends = [(x[0], x[1]) for x in nodes[neighbor[0]].start]
-            nodes[n].end += [(x[0], x[1]) for x in nodes[neighbor[0]].start]
+            new_ends = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
+            nodes[n].end += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
 
             reverse = reverse_complement(nodes[neighbor[0]].seq)
             nodes[n].seq += reverse[k - 1:]
-            nodes[n].coverage = (nodes[n].coverage + nodes[neighbor[0]].coverage)/2
+            # nodes[n].coverage = (nodes[n].coverage + nodes[neighbor[0]].coverage)/2
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
             # if neighbor[0] == 3827:
@@ -85,24 +87,24 @@ def merge_end(graph, n):
             # and remove the merged node
             # and add n to them
             for nn in new_ends:
-
+                overlap = nn[2]
                 if nn[1] == 0:
                     # the if else here needed in case of there was a 
                     # self loop on the end side of neighbor
                     # the self loops is added to the merged node
                     if nn[0] != neighbor[0]:
                         # nodes[nn[0]].start.remove((neighbor[0], 0))
-                        nodes[nn[0]].start.append((n, 1))
+                        nodes[nn[0]].start.append((n, 1, overlap))
                     else:
                         try:
-                            nodes[n].end.remove((neighbor[0], 0))
+                            nodes[n].end.remove((neighbor[0], 0, overlap))
                             nodes[n].end.append((n, 1))
                         except:
                             pdb.set_trace()
 
                 elif nn[1] == 1:
                     # nodes[nn[0]].end.remove((neighbor[0], 0))
-                    nodes[nn[0]].end.append((n, 1))
+                    nodes[nn[0]].end.append((n, 1, overlap))
 
             return True
             # if len(nodes[n].end) == 1:
@@ -125,8 +127,8 @@ def merge_start(graph, n):
             # the start of n becomes the ends of neighbor
             # and the sequence and seq_len get updated
             # nodes[n].start = copy.deepcopy(nodes[neighbor[0]].end)
-            starts = [(x[0], x[1]) for x in nodes[neighbor[0]].end]
-            nodes[n].start += [(x[0], x[1]) for x in nodes[neighbor[0]].end]
+            starts = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
+            nodes[n].start += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
 
             # reverse = reverse_complement(nodes[neighbor[0]].seq)
             nodes[n].seq = nodes[neighbor[0]].seq[:nodes[neighbor[0]].seq_len - (k - 1)] + nodes[n].seq
@@ -138,19 +140,20 @@ def merge_start(graph, n):
             # Here I need to check the new neighbors at end, and remove the merged node
             # and add n to them
             for nn in starts:
+                overlap = nn[2]
                 # We are connected to it from start
                 if nn[1] == 0:
                     # nodes[nn[0]].start.remove((neighbor[0], 1))
-                    nodes[nn[0]].start.append((n, 0))
+                    nodes[nn[0]].start.append((n, 0, overlap))
 
                 elif nn[1] == 1:
                     if nn[0] != neighbor[0]:
                         # nodes[nn[0]].end.remove((neighbor[0], 1))
-                        nodes[nn[0]].end.append((n, 0))
+                        nodes[nn[0]].end.append((n, 0, overlap))
                     else:
                         try:
-                            nodes[n].start.remove((neighbor[0], 1))
-                            nodes[n].start.append((n, 0))
+                            nodes[n].start.remove((neighbor[0], 1, overlap))
+                            nodes[n].start.append((n, 0, overlap))
                         except:
                             pdb.set_trace()
 
@@ -162,8 +165,8 @@ def merge_start(graph, n):
             # the start of n becomes the ends of neighbor
             # and the sequence and seq_len get updated
             # nodes[n].start = copy.deepcopy(nodes[neighbor[0]].end)
-            starts = [(x[0], x[1]) for x in nodes[neighbor[0]].start]
-            nodes[n].start += [(x[0], x[1]) for x in nodes[neighbor[0]].start]
+            starts = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
+            nodes[n].start += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
 
             reverse = reverse_complement(nodes[neighbor[0]].seq)
             nodes[n].seq = reverse[:len(reverse) - (k - 1)] + nodes[n].seq
