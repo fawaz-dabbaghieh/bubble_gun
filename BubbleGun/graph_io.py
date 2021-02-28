@@ -5,7 +5,7 @@ import logging
 
 
 def write_gfa(graph, set_of_nodes=None,
-              output_file="output_file.gfa", append=False, modified=False):
+              output_file="output_file.gfa", append=False):
     """
     Write a gfa out
 
@@ -38,31 +38,32 @@ def write_gfa(graph, set_of_nodes=None,
             continue
 
         # writing nodes in gfa file
-        if modified:
-            node = nodes[n1]
-            # todo for now I don't care to which sb the node belongs
-            # I just care about simple bubbles for phasing
-            specification = str(":".join((str(node.which_chain), str(0),
-                                          str(node.which_b), str(node.which_allele))))
-            if nodes[n1].seq == "":
-                line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), specification)))
-            else:
-                line = str("\t".join(("S", str(n1), nodes[n1].seq, specification)))
+        # if modified:
+        #     node = nodes[n1]
+        #     # todo for now I don't care to which sb the node belongs
+        #     # I just care about simple bubbles for phasing
+        #     specification = str(":".join((str(node.which_chain), str(0),
+        #                                   str(node.which_b), str(node.which_allele))))
+        #     if nodes[n1].seq == "":
+        #         line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), specification)))
+        #     else:
+        #         line = str("\t".join(("S", str(n1), nodes[n1].seq, specification)))
+        #
+        #     f.write(line + "\n")
+        # else:
+        # if nodes[n1].seq == "":
+        #     line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), "LN:i:" + len())))
+        # else:
+        line = str("\t".join(("S", str(n1), nodes[n1].seq, "LN:i:" + str(nodes[n1].seq_len))))
 
-            f.write(line + "\n")
-        else:
-            if nodes[n1].seq == "":
-                line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len))))
-            else:
-                line = str("\t".join(("S", str(n1), nodes[n1].seq)))
-
-            f.write(line + "\n")
+        f.write(line + "\n")
 
         # writing edges
         edges = []
-        overlap = str(graph.k - 1) + "M\n"
+        # overlap = str(graph.k - 1) + "M\n"
 
         for n in nodes[n1].start:
+            overlap = str(n[2]) + "M\n"
             # I am checking if the are nodes I want to write
             # I think I can remove this later as I implemented the .remove_node
             # to the Graph class that safely removes a node and all its edgse
@@ -76,6 +77,8 @@ def write_gfa(graph, set_of_nodes=None,
                     edges.append(edge)
 
         for n in nodes[n1].end:
+            overlap = str(n[2]) + "M\n"
+
             if n[0] in set_of_nodes:
                 if n[1] == 0:
                     edge = str("\t".join(("L", str(n1), "+", str(n[0]), "+", overlap)))
@@ -100,7 +103,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
     nodes = graph.nodes
     f = open(output_file, "w+")
 
-    overlap = str(graph.k - 1) + "M\n"
+    # overlap = str(graph.k - 1) + "M\n"
     for chain in graph.b_chains:
         set_of_nodes = chain.list_chain()
 
@@ -112,14 +115,12 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
             # this does not exist anymore
             # specification = str(":".join((str(node.which_chain), str(0),
             #                               str(node.which_b), str(node.which_allele))))
-            if node.seq == "":
-                line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len)
-                                      # , specification
-                                      )))
-            else:
-                line = str("\t".join(("S", str(n1), nodes[n1].seq
-                                      # , specification
-                                      )))
+            # if node.seq == "":
+            #     line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len)
+            #                           # , specification
+            #                           )))
+            # else:
+            line = str("\t".join(("S", str(n1), nodes[n1].seq,  "LN:i:" + str(nodes[n1].seq_len))))
 
             f.write(line + "\n")
             # writing edges
@@ -129,6 +130,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
                 # I check if the neighbor belongs to the same chain
                 # otherwise I don't write that edge 
                 if n[0] in set_of_nodes:
+                    overlap = str(n[2]) + "M\n"
                     if n[1] == 0:
                         edge = str("\t".join(("L", str(n1), "-", str(n[0]), "+", overlap)))
                         edges.append(edge)
@@ -137,6 +139,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
                         edges.append(edge)
 
             for n in nodes[n1].end:
+                overlap = str(n[2]) + "M\n"
                 if n[0] in set_of_nodes:
                     if n[1] == 0:
                         edge = str("\t".join(("L", str(n1), "+", str(n[0]), "+", overlap)))

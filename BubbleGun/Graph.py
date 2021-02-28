@@ -12,7 +12,7 @@ class Graph:
     Graph object containing the important information about the graph
     """
 
-    __slots__ = ['nodes', 'b_chains', 'k', 'child_parent']
+    __slots__ = ['nodes', 'b_chains', 'child_parent']
 
     def __init__(self, graph_file=None, low_memory=False):
         if graph_file is not None:
@@ -28,7 +28,7 @@ class Graph:
 
         self.b_chains = set()  # list of BubbleChain objects
         # self.bubbles = set()
-        self.k = 1
+        # self.k = 1
         self.child_parent = dict()
 
     def __len__(self):
@@ -62,7 +62,7 @@ class Graph:
             chain.sort()
             if len(chain.ends) != 2:  # circular chains or other weird stuff
                 nodes_set = set(chain.list_chain())
-                self.write_graph(set_of_nodes=nodes_set, modified=True, append=True,
+                self.write_graph(set_of_nodes=nodes_set, append=True,
                                  output_file="circular_and_other_problematic_chains.gfa")
             else:
                 # self.b_chains[chain._BubbleChain__key()] = chain
@@ -75,8 +75,20 @@ class Graph:
         """
 
         total = 0
+        counted_overlap = set()
         for n in self.nodes.values():
-            total += n.seq_len - self.k - 1
+
+            total += n.seq_len
+            if n.id not in counted_overlap:
+                counted_overlap.add(n.id)
+
+                for nn in n.end:
+                    counted_overlap.add(nn[0])
+                    total -= nn[2]
+                for nn in n.start:
+                    counted_overlap.add(nn[0])
+                    total -= nn[2]
+
         return total
 
     def longest_chain_bubble(self):
@@ -98,7 +110,7 @@ class Graph:
         returns the first one found
         """
 
-        lengths_list = [x.length_seq(k=self.k) for x in self.b_chains]
+        lengths_list = [x.length_seq() for x in self.b_chains]
         m = max(lengths_list)
         m_idx = lengths_list.index(m)
         # returning only one chain that is the max, there could be a tie
@@ -124,7 +136,7 @@ class Graph:
         for chain in self.b_chains:
             if chain not in self.child_parent:
                 counter += 1
-                s_in_c += chain.length_seq(k=self.k)
+                s_in_c += chain.length_seq()
         return s_in_c
 
     def chain_cov_node(self):
@@ -230,16 +242,16 @@ class Graph:
         and turns the graph into a compacted one
         """
 
-        if self.k == 0:
-            logging.warning("if this is De Bruijn Graph"
-                            " and you did not specify the k value"
-                            " the compacting might not be correct, as overlaps"
-                            " needs to be removed")
+        # if self.k == 0:
+        #     logging.warning("if this is De Bruijn Graph"
+        #                     " and you did not specify the k value"
+        #                     " the compacting might not be correct, as overlaps"
+        #                     " needs to be removed")
         compact_graph(self)
 
     def write_graph(self, set_of_nodes=None,
                     output_file="output_graph.gfa",
-                    append=False, modified=False):
+                    append=False):
         """writes a graph file as GFA
 
         list_of_nodes can be a list of node ids to write
@@ -252,7 +264,7 @@ class Graph:
             output_file += ".gfa"
 
         write_gfa(self, set_of_nodes=set_of_nodes, output_file=output_file,
-                  append=append, modified=modified)
+                  append=append)
 
     def write_b_chains(self, output="bubble_chains.gfa"):
         """writes bubble gains to a GFA file

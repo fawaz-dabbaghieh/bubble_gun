@@ -43,14 +43,14 @@ def output_chains_fasta(graph):
                     hap1.append(b.source.id)
                     hap2.append(b.source.id)
 
-        seq1 = sequence_extractor(graph, hap1, graph.k)
+        seq1 = sequence_extractor(graph, hap1)
         if len(seq1) == 0:
             pdb.set_trace()
         read_name = ">chain_" + str(chain_id) + "_hap1"
         hap1_file.write(read_name + "\n")
         hap1_file.write(seq1 + "\n")
 
-        seq2 = sequence_extractor(graph, hap2, graph.k)
+        seq2 = sequence_extractor(graph, hap2)
         read_name = ">chain_" + str(chain_id) + "_hap2"
         hap2_file.write(read_name + "\n")
         hap2_file.write(seq2 + "\n")

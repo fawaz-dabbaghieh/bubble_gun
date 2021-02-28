@@ -15,7 +15,7 @@ def merge_end(graph, n):
     # print("in merge END with n {} and neighbor {}".format(n, nodes[n].end[0]))
     # print("and n's START are {}".format(nodes[n].start))
     nodes = graph.nodes
-    k = graph.k
+    # k = graph.k
 
     if n != nodes[n].end[0][0]:  # no self loops
         neighbor = nodes[n].end[0]
@@ -118,7 +118,7 @@ def merge_start(graph, n):
     # print("and n's END are {}".format(nodes[n].end))
 
     nodes = graph.nodes
-    k = graph.k
+    # k = graph.k
     if n != nodes[n].start[0][0]:  # no self loop
         neighbor = nodes[n].start[0]
         # checking if the neighbor is connected at start (so we have - + edge)

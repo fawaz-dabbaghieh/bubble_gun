@@ -71,13 +71,22 @@ class BubbleChain:
         """
         return len(self.list_chain())
 
-    def length_seq(self, k):
+    def length_seq(self):
         """
         returns sequence length covered by the chain
         """
         total_seq = 0
+        counted_overlaps = set()
         for n in self.list_chain(ids=False):
-            total_seq += n.seq_len - k - 1
+            total_seq += n.seq_len
+            if n.id not in counted_overlaps:
+                for nn in n.end:
+                    counted_overlaps.add(nn[0])
+                    total_seq -= nn[2]
+                for nn in n.start:
+                    counted_overlaps.add(nn[0])
+                    total_seq -= nn[2]
+
         return total_seq
 
     def find_ends(self):

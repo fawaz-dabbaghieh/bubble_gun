@@ -12,12 +12,12 @@ def next_direction(node1, node2, direction):
     if direction == 0:
         for n in node1.start:
             if node2.id == n[0]:
-                return 1 - n[1]  # flipping 0 and 1
+                return 1 - n[1], n[2] # flipping 0 and 1
 
     elif direction == 1:
         for n in node1.end:
             if node2.id == n[0]:
-                return 1 - n[1]  # flipping 0 and 1
+                return 1 - n[1], n[2] # flipping 0 and 1
 
 
 def path_checker(graph, path):
@@ -33,9 +33,9 @@ def path_checker(graph, path):
         return False
 
     # I don't know where to look first
-    if graph.nodes[path[0]].in_direction(graph.nodes[path[1]].id, 0):
+    if graph.nodes[path[0]].in_direction(path[1], 0):
         direction = 0
-    elif graph.nodes[path[0]].in_direction(graph.nodes[path[1]].id, 1):
+    elif graph.nodes[path[0]].in_direction(path[1], 1):
         direction = 1
     else:
         # first two nodes are not connected
@@ -47,14 +47,14 @@ def path_checker(graph, path):
         next_node = graph.nodes[path[i+1]]
 
         if current_node.in_direction(next_node.id, direction):
-            direction = next_direction(current_node, next_node, direction)
+            direction, overlap = next_direction(current_node, next_node, direction)
         else:
             return False
 
     return True
 
 
-def sequence_extractor(graph, path, k):
+def sequence_extractor(graph, path):
     """
     returns the sequence of the path
 
@@ -80,15 +80,14 @@ def sequence_extractor(graph, path, k):
     for i in range(len(path) - 1):
         current_node = graph.nodes[path[i]]
         next_node = graph.nodes[path[i+1]]
-
         if current_node.in_direction(next_node.id, direction):
-            direction = next_direction(current_node, next_node, direction)
+            direction, overlap = next_direction(current_node, next_node, direction)
             # if next direction is one this means current node connects to
             # next node from 0 so I don't need to take the reverse complement
             # Otherwise I need to
             if direction == 1:
-                sequence += next_node.seq[k - 1:]
+                sequence += next_node.seq[overlap:]
             else:
-                sequence += reverse_complement(next_node.seq)[k - 1:]
+                sequence += reverse_complement(next_node.seq)[overlap:]
 
     return sequence
