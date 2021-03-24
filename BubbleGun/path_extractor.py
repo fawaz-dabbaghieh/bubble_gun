@@ -12,12 +12,12 @@ def next_direction(node1, node2, direction):
     if direction == 0:
         for n in node1.start:
             if node2.id == n[0]:
-                return 1 - n[1], n[2] # flipping 0 and 1
+                return 1 - n[1], n[2]  # flipping 0 and 1
 
     elif direction == 1:
         for n in node1.end:
             if node2.id == n[0]:
-                return 1 - n[1], n[2] # flipping 0 and 1
+                return 1 - n[1], n[2]  # flipping 0 and 1
 
 
 def path_checker(graph, path):

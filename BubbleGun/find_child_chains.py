@@ -35,7 +35,7 @@ def find_child_chains(graph, chain):
 
                 for d in [0, 1]:
                     # find_b_alg(graph, n, d, chain)
-                    find_sb_alg(graph, n, d, new_chain, False)
+                    find_sb_alg(graph, n, d)
                 if len(new_chain) != 0:
                     # parent child information can be added here
                     new_chain.find_ends()
@@ -59,16 +59,8 @@ def find_children(graph):
     for chain in chains:
         find_child_chains(graph, chain)
 
-    # filling bubbles and chains ids
-    b_counter = 1
-    chain_counter = 1
-    for chain in graph.b_chains:
-        chain.id = chain_counter
-
-        for b in chain.sorted:
-            b.id = b_counter
-            b_counter += 1
-        chain_counter += 1
+    chain_counter = len(graph.b_chains)
+    b_counter = len(graph.bubbles)
 
     for key in graph.child_parent.keys():
         if key.id == 0:

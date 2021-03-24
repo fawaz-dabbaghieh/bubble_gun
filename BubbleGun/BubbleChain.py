@@ -6,7 +6,7 @@ class BubbleChain:
     """
     BubbleChain object which is a set of bubble objects
     """
-    __slots__ = ['bubbles', 'sorted', 'ends', 'key', 'id']
+    __slots__ = ['bubbles', 'sorted', 'ends', 'key', 'id', 'parent_chain', 'parent_sb']
 
     def __init__(self):
         """
@@ -16,6 +16,8 @@ class BubbleChain:
         self.sorted = []  # sorted bubble pointers
         self.ends = []  # node ids of the chain ends
         self.id = 0
+        self.parent_sb = 0
+        self.parent_chain = 0
         # self.key = self.__hash__()
 
     def __key(self):

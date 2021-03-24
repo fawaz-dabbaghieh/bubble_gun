@@ -1,5 +1,6 @@
 from .Bubble import Bubble
 from .BubbleChain import BubbleChain
+from .connect_bubbles import connect_bubbles
 import sys
 
 """
@@ -27,7 +28,7 @@ for node s in nodes:
 """
 
 
-def find_sb_alg(graph, s, direction, chain, only_simple=False, only_super=False):
+def find_sb_alg(graph, s, direction, only_simple=False, only_super=False):
     """
     takes the graph and a start node s and add a bubble to the chain 
     if one is found if s was the source
@@ -37,6 +38,7 @@ def find_sb_alg(graph, s, direction, chain, only_simple=False, only_super=False)
     visited = set()
     nodes_inside = []
     seen.add((s.id, direction))
+    # seen.add(s.id)
     S = {(s, direction)}
     while len(S) > 0:
 
@@ -64,6 +66,7 @@ def find_sb_alg(graph, s, direction, chain, only_simple=False, only_super=False)
             if u[1] == 0:
                 u_child_direction = 1
                 u_parents = [x[0] for x in graph.nodes[u[0]].start]
+
             else:
                 u_child_direction = 0
                 u_parents = [x[0] for x in graph.nodes[u[0]].end]
@@ -74,6 +77,7 @@ def find_sb_alg(graph, s, direction, chain, only_simple=False, only_super=False)
                 break
 
             # adding child to seen
+            # seen.add(u[0])
             if u[1] == 0:
                 seen.add((u[0], 1))
             else:
@@ -100,29 +104,41 @@ def find_sb_alg(graph, s, direction, chain, only_simple=False, only_super=False)
             nodes_inside.remove(s)
             nodes_inside.remove(t[0])
             bubble = Bubble(source=s, sink=t[0], inside=nodes_inside)
+
+            if only_simple:
+                if bubble.is_simple():
+                    return bubble
+            elif only_super:
+                if bubble.is_super():
+                    return bubble
+            else:
+                return bubble
+
             # if we already found the same bubble from another direction
             # I don't think I need to check because I'm finding bubbles sequentially
             # but I will investigate this later
-            if bubble not in chain:
-                if only_simple:
-                    if bubble.is_simple():
-                        chain.add_bubble(bubble)
-                    else:
-                        # todo add end of chain here and test
-                        break
-                elif only_super:
-                    if bubble.is_super():
-                        chain.add_bubble(bubble)
 
-                else:
-                    chain.add_bubble(bubble)
-                # calling the function again on sink
-                # and continuing the search to chain bubbles
-                find_sb_alg(graph, t[0], t[1], chain, only_simple)
-
-            else:
-                # todo add end of chain here and test
-                break
+            # if bubble not in chain:
+            #     if only_simple:
+            #         if bubble.is_simple():
+            #             chain.add_bubble(bubble)
+            #         else:
+            #             # todo add end of chain here and test
+            #             break
+            #     elif only_super:
+            #         if bubble.is_super():
+            #             chain.add_bubble(bubble)
+            #
+            #     else:
+            #         chain.add_bubble(bubble)
+            #     # calling the function again on sink
+            #     # and continuing the search to chain bubbles
+            #     find_sb_alg(graph, t[0], t[1], chain, only_simple)
+            #
+            # else:
+            #     # todo add end of chain here and test
+            #     break
+    return None
 
 
 def children_of_children(graph, children):
@@ -181,7 +197,7 @@ def find_b_alg(graph, s, direction, chain):
             find_b_alg(graph, graph.nodes[c_of_c[0]], d, chain)
 
 
-def find_bubble_chains(graph, only_simple=False, only_super=False, list_of_nodes=None):
+def find_bubbles(graph, only_simple=False, only_super=False, list_of_nodes=None):
     """
     main function for finding bubbles
     Takes a graph and fills in the bubble chains
@@ -193,8 +209,9 @@ def find_bubble_chains(graph, only_simple=False, only_super=False, list_of_nodes
     # sorted_nodes = sorted(graph.nodes, key=lambda x: graph.nodes[x].seq_len, reverse=True)
     # find_b_alg(graph, graph.nodes[167], 0, chains)
     # pdb.set_trace()
+
     if only_simple and only_super:
-        print("You can't choose both only super and only simple, either one of them or none for all bubbles")
+        print("You can't mix both only_super and only_simple, choose one or not add these arguments to detect both")
         sys.exit(1)
 
     if list_of_nodes is None:
@@ -202,18 +219,22 @@ def find_bubble_chains(graph, only_simple=False, only_super=False, list_of_nodes
 
     for n in list_of_nodes:
         # print(n.id)
-        chain = BubbleChain()
+        # chain = BubbleChain()
         # counter += 1
         # if (counter % 1000000) == 0:
         #     print("[{}] {} nodes have been processed".format(current_time(), counter))
         if not n.visited:
 
-            for d in [0, 1]:
+            for d in [0, 1]:  # looking in both direction for each node
                 # find_b_alg(graph, n, d, chain)
-                find_sb_alg(graph, n, d, chain, only_simple, only_super)
-            if len(chain) != 0:
-                # chain.find_ends()
-                graph.add_chain(chain)
+                bubble = find_sb_alg(graph, n, d, only_simple, only_super)
 
-                for n in chain.list_chain(ids=False):
-                    n.visited = True
+                if bubble is not None:
+                    graph.bubbles[bubble.key] = bubble
+                    # graph.bubbles.add(bubble)
+            # if len(chain) != 0:
+            #     # chain.find_ends()
+            #     graph.add_chain(chain)
+
+                # for n in chain.list_chain(ids=False):
+                #     n.visited = True

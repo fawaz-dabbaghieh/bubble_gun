@@ -2,19 +2,19 @@ import os
 import sys
 from .Node import Node
 import logging
+import pdb
 
 
 def write_gfa(graph, set_of_nodes=None,
-              output_file="output_file.gfa", append=False):
+              output_file="output_file.gfa", append=False, optional_info=False):
     """
     Write a gfa out
 
     :param nodes: Dictionary of nodes object.
     :param set_of_nodes: A list of node ids of the path or nodes we want to generate a GFA file for.
-    :param k: overlap between two nodes.
     :param output_file: path to output file
     :param append: if I want to append to a file instead of rewriting it
-    :param modified: To write my modified GFA file format instead of the standard GFA
+    :param optional_info: If set to True, all optional columns for S lines are outputted as well
     :return: writes a gfa file
     """
     nodes = graph.nodes
@@ -55,6 +55,8 @@ def write_gfa(graph, set_of_nodes=None,
         #     line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), "LN:i:" + len())))
         # else:
         line = str("\t".join(("S", str(n1), nodes[n1].seq, "LN:i:" + str(nodes[n1].seq_len))))
+        if optional_info:
+            line += "\t" + nodes[n1].optional_info
 
         f.write(line + "\n")
 
@@ -93,7 +95,7 @@ def write_gfa(graph, set_of_nodes=None,
     f.close()
 
 
-def write_chains(graph, output_file="output_bubble_chains.gfa"):
+def write_chains(graph, output_file="output_bubble_chains.gfa", optional_info=False):
     """
     Write bubble chains as gfa file
 
@@ -110,17 +112,13 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
         for n1 in set_of_nodes:
             # writing nodes in gfa file
             node = nodes[n1]
-            # todo for now I don't care to which sb the node belongs
-            # I just care about simple bubbles for phasing
-            # this does not exist anymore
-            # specification = str(":".join((str(node.which_chain), str(0),
-            #                               str(node.which_b), str(node.which_allele))))
-            # if node.seq == "":
-            #     line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len)
-            #                           # , specification
-            #                           )))
-            # else:
-            line = str("\t".join(("S", str(n1), nodes[n1].seq,  "LN:i:" + str(nodes[n1].seq_len))))
+
+            if "LN" in nodes[n1].optional_info:
+                line = str("\t".join(("S", str(n1), nodes[n1].seq)))
+            else:
+                line = str("\t".join(("S", str(n1), nodes[n1].seq,  "LN:i:" + str(nodes[n1].seq_len))))
+            if optional_info:
+                line += "\t" + nodes[n1].optional_info
 
             f.write(line + "\n")
             # writing edges
@@ -154,14 +152,13 @@ def write_chains(graph, output_file="output_bubble_chains.gfa"):
     f.close()
 
 
-def read_gfa(gfa_file_path, k, low_memory=False):
+def read_gfa(gfa_file_path, low_memory=False):
     """
     Read a gfa file
 
     :param gfa_file_path: gfa graph file.
-    :param modified: if I'm reading my modified GFA with extra information for the nodes
-    :param coverage: read the coverage from the graph
     :param low_memory: don't read the sequences to save memory
+    :param optional_info: if set true, all optional columns in S lines will be stored
     :return: Dictionary of node ids and Node objects.
     """
     if not os.path.exists(gfa_file_path):
@@ -170,15 +167,17 @@ def read_gfa(gfa_file_path, k, low_memory=False):
 
     nodes = dict()
     edges = []
-
-    min_node_length = k
+    # min_node_length = k
     with open(gfa_file_path, "r") as lines:
         for line in lines:
             if line.startswith("S"):
-                line = line.split("\t")
+                line = line.strip().split("\t")
                 n_id = str(line[1])
                 n_len = len(line[2])
                 nodes[n_id] = Node(n_id)
+
+                if len(line) > 3:  # save optional info
+                    nodes[n_id].optional_info = "\t".join(line[3:])
 
                 if not low_memory:
                     nodes[n_id].seq_len = n_len
@@ -188,12 +187,12 @@ def read_gfa(gfa_file_path, k, low_memory=False):
                     # nodes[n_id].kc = int([x for x in line if x.startswith("KC")][0].split(":")[-1])
                     # nodes[n_id].km = float([x for x in line if x.startswith("km")][0].split(":")[-1])
 
-                    if min_node_length > nodes[n_id].seq_len:
-                        logging.error("Node {} has a sequence of length {}"
-                                      " which is smaller than the provided k\n"
-                                      "Not allowed.".format(nodes[n_id].id,
-                                                            nodes[n_id].seq_len))
-                        sys.exit()
+                    # if min_node_length > nodes[n_id].seq_len:
+                    #     logging.error("Node {} has a sequence of length {}"
+                    #                   " which is smaller than the provided k\n"
+                    #                   "Not allowed.".format(nodes[n_id].id,
+                    #                                         nodes[n_id].seq_len))
+                    #     sys.exit()
 
             elif line.startswith("L"):
                 edges.append(line)

@@ -2,23 +2,22 @@ import sys
 
 
 class Node:
-    __slots__ = ['id', 'seq', 'seq_len', 'start', 'end', 'visited', 'coverage', 'kc', 'km']
+    __slots__ = ['id', 'seq', 'seq_len', 'start', 'end', 'visited', 'optional_info']
 
-    def __init__(self, identifier, kc=0, km=0):
+    def __init__(self, identifier):
         self.id = identifier  # size is between 28 and 32 bytes
         self.seq = ""
         self.seq_len = 0  # mostly 28 bytes
         self.start = []  # 96 bytes for 4 neighbors
         self.end = []  # 96 bytes
         self.visited = False  # 28 bytes (used for bubble and superbubble detection)
-        self.kc = 0  # kmer count
-        self.km = 0  # I am guessing k-mer average
+        self.optional_info = ""
         # bubble related information
         # self.which_chain = 0
         # self.which_sb = 0
         # self.which_b = 0
         # self.which_allele = -1
-        self.coverage = 0
+        # self.coverage = 0
 
     def __sizeof__(self):
         size = self.id.__sizeof__() + self.seq_len.__sizeof__() + self.visited.__sizeof__()

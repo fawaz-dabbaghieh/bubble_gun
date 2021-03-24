@@ -19,6 +19,7 @@ Several graph-related functions are also implemented in BubbleGun:
 - Extracting two randome paths from each bubble chain for haplotyping
 - Extracting information from long reads aligned to bubble chains
 
+Preprint can be found on Bioarxiv [here](https://www.biorxiv.org/content/10.1101/2021.03.23.436631v1)
 ## Installation
 
 BubbleGun can be installed using the setup script simply with this command:

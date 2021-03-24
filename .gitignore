@@ -16,3 +16,4 @@ dist/
 venv/
 testing/
 bubble_gun_test.py
+main_test.py

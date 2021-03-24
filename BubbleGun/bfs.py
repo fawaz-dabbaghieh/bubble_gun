@@ -47,7 +47,6 @@ def bfs(graph, start_node, size):
 
     queue.append(start_node)
     visited.add(start_node)
-    pdb.set_trace()
     first_direction = graph.nodes[start_node].children(0)
     len_first_direction = 0
     second_direction = graph.nodes[start_node].children(1)

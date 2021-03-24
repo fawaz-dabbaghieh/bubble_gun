@@ -12,7 +12,7 @@ class Graph:
     Graph object containing the important information about the graph
     """
 
-    __slots__ = ['nodes', 'b_chains', 'child_parent']
+    __slots__ = ['nodes', 'b_chains', 'bubbles', 'compacted']
 
     def __init__(self, graph_file=None, low_memory=False):
         if graph_file is not None:
@@ -20,16 +20,16 @@ class Graph:
                 print("graph file {} does not exist".format(graph_file))
                 sys.exit()
             # loading nodes from file
-            self.nodes = read_gfa(gfa_file_path=graph_file, k=1, low_memory=low_memory)
+            self.nodes = read_gfa(gfa_file_path=graph_file, low_memory=low_memory)
         else:
             self.nodes = dict()
         # elif graph_file.endswith(".vg"):
         #     self.nodes = read_vg(vg_file_path=graph_file, k=k, modified=modified, coverage=coverage)
 
         self.b_chains = set()  # list of BubbleChain objects
-        # self.bubbles = set()
+        self.bubbles = dict()
+        self.compacted = False
         # self.k = 1
-        self.child_parent = dict()
 
     def __len__(self):
         """
@@ -63,7 +63,8 @@ class Graph:
             if len(chain.ends) != 2:  # circular chains or other weird stuff
                 nodes_set = set(chain.list_chain())
                 self.write_graph(set_of_nodes=nodes_set, append=True,
-                                 output_file="circular_and_other_problematic_chains.gfa")
+                                     output_file="circular_and_other_problematic_chains.gfa", optional_info=False)
+
             else:
                 # self.b_chains[chain._BubbleChain__key()] = chain
                 if chain not in self.b_chains:
@@ -134,9 +135,9 @@ class Graph:
         s_in_c = 0
         counter = 0
         for chain in self.b_chains:
-            if chain not in self.child_parent:
-                counter += 1
-                s_in_c += chain.length_seq()
+            # if chain not in self.child_parent:
+            counter += 1
+            s_in_c += chain.length_seq()
         return s_in_c
 
     def chain_cov_node(self):
@@ -248,10 +249,11 @@ class Graph:
         #                     " the compacting might not be correct, as overlaps"
         #                     " needs to be removed")
         compact_graph(self)
+        self.compacted = True
 
     def write_graph(self, set_of_nodes=None,
                     output_file="output_graph.gfa",
-                    append=False):
+                    append=False, optional_info=False):
         """writes a graph file as GFA
 
         list_of_nodes can be a list of node ids to write
@@ -264,7 +266,7 @@ class Graph:
             output_file += ".gfa"
 
         write_gfa(self, set_of_nodes=set_of_nodes, output_file=output_file,
-                  append=append)
+                  append=append, optional_info=optional_info)
 
     def write_b_chains(self, output="bubble_chains.gfa"):
         """writes bubble gains to a GFA file
@@ -274,7 +276,10 @@ class Graph:
         if not output.endswith(".gfa"):
             output += ".gfa"
 
-        write_chains(self, output_file=output)
+        if self.compacted:
+            write_chains(self, output_file=output, optional_info=False)
+        else:
+            write_chains(self, output_file=output, optional_info=True)
 
     def biggest_comp(self):
         """

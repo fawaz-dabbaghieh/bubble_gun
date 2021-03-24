@@ -6,11 +6,12 @@ from BubbleGun.bfs import bfs
 from BubbleGun.Graph import Graph
 from BubbleGun.bubbles_fasta import write_bubbles
 from BubbleGun.digest_gam import digest_gam
-from BubbleGun.find_bubbles import find_bubble_chains
+from BubbleGun.find_bubbles import find_bubbles
 from BubbleGun.fasta_chains import output_chains_fasta
 from BubbleGun.json_out import json_out
-from BubbleGun.find_child_chains import find_children
 from BubbleGun.output_certain_chains import write_certain_chains
+from BubbleGun.connect_bubbles import connect_bubbles
+from BubbleGun.find_parents import find_parents
 
 parser = argparse.ArgumentParser(description='Find Bubble Chains.', add_help=True)
 subparsers = parser.add_subparsers(help='Available subcommands', dest="subcommands")
@@ -24,9 +25,6 @@ parser.add_argument("-e", "--examples", dest="examples", action="store_true",
 
 parser.add_argument("-g", "--in_graph", metavar="GRAPH_PATH", dest="in_graph",
                     default=None, type=str, help="graph file path (GFA or VG)")
-
-parser.add_argument("-k", "--k_mer", dest="k_mer", metavar="K",
-                    default=0, type=int, help="K value of as integer (default is 1)")
 
 
 parser.add_argument("--log", dest="log_level", type=str, default="DEBUG",
@@ -148,9 +146,6 @@ def main():
             parser.print_help()
             sys.exit(0)
 
-    if args.k_mer == 0:
-        args.k_mer = 1
-
     ####################### chainout
     if args.subcommands == "chainout":
         if args.json_file is not None:
@@ -158,10 +153,7 @@ def main():
                 if args.output_chain is not None:
 
                     logging.info("Reading Graph...")
-                    if args.k_mer == 0:
-                        graph = Graph(args.in_graph)
-                    else:
-                        graph = Graph(args.in_graph)
+                    graph = Graph(args.in_graph)
 
                     logging.info("Outputting chains chosen...")
                     write_certain_chains(args.json_file, graph, args.chain_ids, args.output_chain)
@@ -199,15 +191,12 @@ def main():
     if args.subcommands == "compact":
         if args.compacted is not None:
             logging.info("Reading Graph...")
+            graph = Graph(args.in_graph)
 
-            if args.k_mer == 0:
-                graph = Graph(args.in_graph)
-            else:
-                graph = Graph(args.in_graph)
             logging.info("Compacting Graph...")
             graph.compact()
             logging.info("Writing Compacted Graph...")
-            graph.write_graph(output_file=args.compacted)
+            graph.write_graph(output_file=args.compacted, optional_info=False)
             logging.info("Done...")
         else:
             print("Please provide the path for the output compacted graph")
@@ -218,10 +207,8 @@ def main():
         if args.biggest_comp is not None:
             logging.info("Reading Graph...")
 
-            if args.k_mer == 0:
-                graph = Graph(args.in_graph)
-            else:
-                graph = Graph(args.in_graph)
+            graph = Graph(args.in_graph)
+
             logging.info("Finding Biggest Component...")
             biggest_comp = graph.biggest_comp()
             logging.info("Writing Biggset Component...")
@@ -234,27 +221,36 @@ def main():
     ####################### Bubbles
     if args.subcommands == "bchains":
         # output_file = args.out_bubbles
-        if args.low_memory and (args.out_fasta is not None) or args.low_memory and (args.chains_gfa is not None):
+        if (args.low_memory and (args.out_fasta is not None)) or (args.low_memory and (args.chains_gfa is not None)):
             print("You cannot combine memory saving with --fasta or --chains_gfa")
             sys.exit(0)
 
+        if args.out_haplos:
+            if args.low_memory:
+                print("You cannot have save memory and output haplos")
+                sys.exit()
+            if not args.only_simple:
+                print("If you want 2 haplotyhpes out, then you need to choose --only_simple")
+                sys.exit()
+            if args.only_super:
+                print("You cannot have out haplotypes and both only_simple and only_super, only works with only_simple")
+                sys.exit()
+
         logging.info("Reading Graph...")
-        if args.k_mer == 0:
-            graph = Graph(args.in_graph)
-        else:
-            graph = Graph(args.in_graph, low_memory=args.low_memory)
+        graph = Graph(args.in_graph, low_memory=args.low_memory)
 
-        # print("[{}] Compacting graph...".format(current_time()))
-        # graph.compact()
-        # tracemalloc.start()
-        logging.info("Finding chains...")
+        logging.info("Finding bubbles...")
 
-        find_bubble_chains(graph, only_simple=args.only_simple)
-        # graph.find_chains(only_simple=args.only_simple)
-        # I don't think I need to fill info here
-        # I can do that if I am outputting a json
-        find_children(graph)
-        # graph.fill_bubble_info()
+        find_bubbles(graph, only_simple=args.only_simple, only_super=args.only_super)
+
+        logging.info("Connecting bubbles...")
+        # connecting individual bubbles into chains
+        connect_bubbles(graph)
+
+        # add information related to nested bubbles
+        logging.info("Finding nested information...")
+        find_parents(graph)
+
         logging.info("Done finding chains...")
         b_numbers = graph.bubble_number()
         print("The number of Simple Bubbles is {}\n"
@@ -267,17 +263,23 @@ def main():
             print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq()))
             print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
-        # snapshot = tracemalloc.take_snapshot()
-        # BubbleGun.memory_profile.display_top(snapshot, limit=10)
         if args.out_json is not None:
             logging.info("Outputting bubble chains gfa...")
             json_out(graph, args.out_json)
 
         if args.chains_gfa is not None:
+            if args.low_memory:
+                print("You cannot have low memory and output GFA file of chains")
+                sys.exit()
+
             logging.info("Outputting bubble chains gfa...")
             graph.write_b_chains(output=args.chains_gfa)
 
         if args.out_fasta is not None:
+            if args.low_memory:
+                print("You cannot have low memory and output fasta")
+                sys.exit()
+
             logging.info("Outputting each bubble branch...")
             write_bubbles(graph, args.out_fasta)
 
@@ -285,8 +287,6 @@ def main():
             logging.info("Outputting two random haplotypes of each bubble chain...")
             output_chains_fasta(graph)
 
-        # h = guppy.hpy()
-        # print(h.heap())
     ####################### BFS
     if args.subcommands == "bfs":
         if args.starting_nodes is not None:
@@ -294,16 +294,17 @@ def main():
                 if args.output_neighborhood is not None:
 
                     logging.info("Reading Graph...")
-                    if args.k_mer == 0:
-                        graph = Graph(args.in_graph)
-                    else:
-                        graph = Graph(args.in_graph)
+                    graph = Graph(args.in_graph)
 
                     for n in args.starting_nodes:
                         logging.info("extracting neighborhood around node {}".format(n))
                         set_of_nodes = bfs(graph, n, args.bfs_len)
-                        graph.write_graph(set_of_nodes=set_of_nodes,
-                                          output_file=args.output_neighborhood, append=True, modified=False)
+                        if not graph.compacted:
+                            graph.write_graph(set_of_nodes=set_of_nodes,
+                                              output_file=args.output_neighborhood, append=True, optional_info=True)
+                        else:
+                            graph.write_graph(set_of_nodes=set_of_nodes,
+                                              output_file=args.output_neighborhood, append=True, optional_info=False)
                         logging.info("finished successfully...")
                 else:
                     print("You need to give an output file name --output_neighborhood")
