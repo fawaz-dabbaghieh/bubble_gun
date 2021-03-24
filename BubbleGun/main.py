@@ -5,7 +5,6 @@ import logging
 from BubbleGun.bfs import bfs
 from BubbleGun.Graph import Graph
 from BubbleGun.bubbles_fasta import write_bubbles
-from BubbleGun.digest_gam import digest_gam
 from BubbleGun.find_bubbles import find_bubbles
 from BubbleGun.fasta_chains import output_chains_fasta
 from BubbleGun.json_out import json_out
@@ -79,21 +78,21 @@ bfs_parser.add_argument("--neighborhood_size", dest="bfs_len", metavar="SIZE", d
 bfs_parser.add_argument("--output_neighborhood", dest="output_neighborhood", metavar="OUTPUT",
                         type=str, default=None, help="Output neighborhood file")
 
-########################## Digest gam ###############################
-gam_parser = subparsers.add_parser('gamdigest', help='Command for digesting a gam file')
-
-gam_parser.add_argument("--json_file", dest="json_file", metavar="JSON_FILE",
-                        type=str, default=None, help="The JSON file wtih bubble chains information")
-
-gam_parser.add_argument("--alignment_file", dest="gam_file", metavar="GAM",
-                        type=str, default=None, help="Take GAM file and output pickled dict")
-
-gam_parser.add_argument("--min_cutoff", dest="min_cutoff", type=int, default=None,
-                        help="The minimum cutoff of a mapping length.")
-
-gam_parser.add_argument("--out_dict", dest="pickle_out",
-                        type=str, default=None,
-                        help="A pickled dictionary output path. contains read_id:[nodes]")
+# ########################## Digest gam ###############################
+# gam_parser = subparsers.add_parser('gamdigest', help='Command for digesting a gam file')
+#
+# gam_parser.add_argument("--json_file", dest="json_file", metavar="JSON_FILE",
+#                         type=str, default=None, help="The JSON file wtih bubble chains information")
+#
+# gam_parser.add_argument("--alignment_file", dest="gam_file", metavar="GAM",
+#                         type=str, default=None, help="Take GAM file and output pickled dict")
+#
+# gam_parser.add_argument("--min_cutoff", dest="min_cutoff", type=int, default=None,
+#                         help="The minimum cutoff of a mapping length.")
+#
+# gam_parser.add_argument("--out_dict", dest="pickle_out",
+#                         type=str, default=None,
+#                         help="A pickled dictionary output path. contains read_id:[nodes]")
 
 ########################## output chain ###############################
 output_chain = subparsers.add_parser('chainout', help='Outputs certain chain(s) given by their id as a GFA file')
@@ -140,11 +139,11 @@ def main():
         print("Please provide a subcommand after the global commands")
         sys.exit(1)
 
-    if args.in_graph is None:
-        if args.subcommands != "gamdigest":
-            print("you didn't give an input graph file")
-            parser.print_help()
-            sys.exit(0)
+    # if args.in_graph is None:
+    #     if args.subcommands != "gamdigest":
+    #         print("you didn't give an input graph file")
+    #         parser.print_help()
+    #         sys.exit(0)
 
     ####################### chainout
     if args.subcommands == "chainout":
@@ -168,24 +167,24 @@ def main():
             print("You did not provide the JSON file with the chain information")
             sys.exit(1)
 
-    ####################### gamdigest
-    if args.subcommands == "gamdigest":
-        if args.gam_file is not None:
-            if args.pickle_out is not None:
-                if args.min_cutoff is not None:
-                    logging.info("reading gam file and building dict")
-                    all_reads = digest_gam(args.in_graph, args.gam_file, args.min_cutoff, args.pickle_out)
-                    logging.info("finished successfully")
-                    # sys.exit()
-                else:
-                    print("You did not provide the minimum cutoff. Maybe something like 3 times the k-mer length")
-                    sys.exit(1)
-            else:
-                print("You did not provide a path for the pickled dictionary output")
-                sys.exit(1)
-        else:
-            print("Please provide the path to the gam file")
-            sys.exit(1)
+    # ####################### gamdigest
+    # if args.subcommands == "gamdigest":
+    #     if args.gam_file is not None:
+    #         if args.pickle_out is not None:
+    #             if args.min_cutoff is not None:
+    #                 logging.info("reading gam file and building dict")
+    #                 all_reads = digest_gam(args.in_graph, args.gam_file, args.min_cutoff, args.pickle_out)
+    #                 logging.info("finished successfully")
+    #                 # sys.exit()
+    #             else:
+    #                 print("You did not provide the minimum cutoff. Maybe something like 3 times the k-mer length")
+    #                 sys.exit(1)
+    #         else:
+    #             print("You did not provide a path for the pickled dictionary output")
+    #             sys.exit(1)
+    #     else:
+    #         print("Please provide the path to the gam file")
+    #         sys.exit(1)
 
     ####################### compact graph
     if args.subcommands == "compact":

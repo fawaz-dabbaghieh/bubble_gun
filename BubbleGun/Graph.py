@@ -1,7 +1,7 @@
-from .graph_io import read_gfa, write_gfa, write_chains
-from .new_compact import compact_graph
-from .connected_components import all_components
-from .bfs import bfs
+from BubbleGun.graph_io import read_gfa, write_gfa, write_chains
+from BubbleGun.compact_graph import compact_graph
+from BubbleGun.connected_components import all_components
+from BubbleGun.bfs import bfs
 import sys
 import logging
 import os

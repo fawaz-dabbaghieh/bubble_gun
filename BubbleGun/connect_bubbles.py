@@ -1,6 +1,6 @@
 import logging
 import pdb
-from .BubbleChain import BubbleChain
+from BubbleGun.BubbleChain import BubbleChain
 
 
 def connect_bubbles(graph):

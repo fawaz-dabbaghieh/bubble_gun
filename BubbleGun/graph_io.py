@@ -1,6 +1,6 @@
 import os
 import sys
-from .Node import Node
+from BubbleGun.Node import Node
 import logging
 import pdb
 

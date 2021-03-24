@@ -22,8 +22,8 @@ setup(name='BubbleGun',
       # scripts=['bin/main.py'],
       license="LICENSE.TXT",
       long_description=open("README.md").read(),
-      install_requires=["protobuf == 3.11.3",
-                        "pystream-protobuf == 1.5.1"],
+#      install_requires=["protobuf == 3.11.3",
+#                        "pystream-protobuf == 1.5.1"],
       # other arguments here...
       entry_points={
           "console_scripts": [

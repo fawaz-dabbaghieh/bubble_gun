@@ -1,5 +1,5 @@
-from .find_bubbles import find_sb_alg
-from .BubbleChain import BubbleChain
+from BubbleGun.find_bubbles import find_sb_alg
+from BubbleGun.BubbleChain import BubbleChain
 import pdb
 
 

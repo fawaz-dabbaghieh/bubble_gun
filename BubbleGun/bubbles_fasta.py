@@ -1,4 +1,4 @@
-from .path_extractor import sequence_extractor
+from BubbleGun.path_extractor import sequence_extractor
 
 
 def write_bubbles(graph, output_path):

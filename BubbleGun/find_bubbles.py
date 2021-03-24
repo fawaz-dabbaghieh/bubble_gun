@@ -1,7 +1,6 @@
-from .Bubble import Bubble
-from .BubbleChain import BubbleChain
-from .connect_bubbles import connect_bubbles
 import sys
+from BubbleGun.Bubble import Bubble
+
 
 """
 Pseudo code for finding Super- and Simple-Bubbles

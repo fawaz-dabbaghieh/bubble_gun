@@ -1,5 +1,5 @@
 import logging
-from .find_bubbles import find_sb_alg
+from BubbleGun.find_bubbles import find_sb_alg
 import pdb
 
 """
