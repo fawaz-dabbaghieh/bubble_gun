@@ -7,7 +7,8 @@
     + [compact](#compact)
     + [biggestcomp](#biggestcomp)
     + [bfs](#bfs)
-    + [gamdigest](#gamdigest)
+
+[comment]: <> (    + [gamdigest]&#40;#gamdigest&#41;)
 
 # BubbleGun
 Preprint can be found on Bioarxiv [here](https://www.biorxiv.org/content/10.1101/2021.03.23.436631v1)
@@ -200,29 +201,46 @@ Examples:
 
   `./main.py -g test_graph.gfa -k 51 bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
 
-### gamdigest
-This subcommand filters an alignemnt GAM file.
-The following help is available for this subcommand:
-```
-usage: main.py gamdigest [-h] [--json_file JSON_FILE] [--alignment_file GAM]
-                         [--min_cutoff MIN_CUTOFF] [--out_dict PICKLE_OUT]
+[comment]: <> (### gamdigest)
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --json_file JSON_FILE
-                        The JSON file wtih bubble chains information
-  --alignment_file GAM  Take GAM file and output pickled dict
-  --min_cutoff MIN_CUTOFF
-                        The minimum cutoff of a mapping length.
-  --out_dict PICKLE_OUT
-                        A pickled dictionary output path. contains
-                        read_id:[nodes]
-```
-This command is used to "filter" a GAM file which is an alignment file of reads aligned to the graph. This mainly works on the output from [GraphAligner](https://github.com/maickrau/GraphAligner) after aligning long reads to the graph.
+[comment]: <> (This subcommand filters an alignemnt GAM file.)
 
-GraphAligner outputs a GAM files which this commands takes along with the bubble chain graph aligned to and a minimum length cutoff for mappings. Each read would have several mappings, first, all mappings that are smaller than the cutoff are dicarded, then if the same read mapped to the same chain more than once, the longest mapping is kept.
-The output is a pickled dictionary with keys as read names and values as a list of nodes the read have mapped to. This pickled dictionary along with the graph can be given then to Whatshap phaseb command to output phased bubbles according to how the long reads mapped to these bubbles, but this is still under construction.
+[comment]: <> (The following help is available for this subcommand:)
 
-Example command:
+[comment]: <> (```)
 
-`./main.py gamdigest --json_file test_graph_chains.json --alignment_file test_alignment.gam --min_cutoff 200 --out_dict alignment_dictionary.pickle`
+[comment]: <> (usage: main.py gamdigest [-h] [--json_file JSON_FILE] [--alignment_file GAM])
+
+[comment]: <> (                         [--min_cutoff MIN_CUTOFF] [--out_dict PICKLE_OUT])
+
+[comment]: <> (optional arguments:)
+
+[comment]: <> (  -h, --help            show this help message and exit)
+
+[comment]: <> (  --json_file JSON_FILE)
+
+[comment]: <> (                        The JSON file wtih bubble chains information)
+
+[comment]: <> (  --alignment_file GAM  Take GAM file and output pickled dict)
+
+[comment]: <> (  --min_cutoff MIN_CUTOFF)
+
+[comment]: <> (                        The minimum cutoff of a mapping length.)
+
+[comment]: <> (  --out_dict PICKLE_OUT)
+
+[comment]: <> (                        A pickled dictionary output path. contains)
+
+[comment]: <> (                        read_id:[nodes])
+
+[comment]: <> (```)
+
+[comment]: <> (This command is used to "filter" a GAM file which is an alignment file of reads aligned to the graph. This mainly works on the output from [GraphAligner]&#40;https://github.com/maickrau/GraphAligner&#41; after aligning long reads to the graph.)
+
+[comment]: <> (GraphAligner outputs a GAM files which this commands takes along with the bubble chain graph aligned to and a minimum length cutoff for mappings. Each read would have several mappings, first, all mappings that are smaller than the cutoff are dicarded, then if the same read mapped to the same chain more than once, the longest mapping is kept.)
+
+[comment]: <> (The output is a pickled dictionary with keys as read names and values as a list of nodes the read have mapped to. This pickled dictionary along with the graph can be given then to Whatshap phaseb command to output phased bubbles according to how the long reads mapped to these bubbles, but this is still under construction.)
+
+[comment]: <> (Example command:)
+
+[comment]: <> (`./main.py gamdigest --json_file test_graph_chains.json --alignment_file test_alignment.gam --min_cutoff 200 --out_dict alignment_dictionary.pickle`)
