@@ -10,6 +10,8 @@
     + [gamdigest](#gamdigest)
 
 # BubbleGun
+Preprint can be found on Bioarxiv [here](https://www.biorxiv.org/content/10.1101/2021.03.23.436631v1)
+
 A tool for detecting Bubbles and Superbubble in De-bruijn graphs. BubbleGun outputs runs of bubbles and superbubbles we call bubble chains.
 Several graph-related functions are also implemented in BubbleGun:
 - Graph compacting (mergin linear stretches of single nodes),
@@ -19,7 +21,6 @@ Several graph-related functions are also implemented in BubbleGun:
 - Extracting two randome paths from each bubble chain for haplotyping
 - Extracting information from long reads aligned to bubble chains
 
-Preprint can be found on Bioarxiv [here](https://www.biorxiv.org/content/10.1101/2021.03.23.436631v1)
 ## Installation
 
 BubbleGun can be installed using the setup script simply with this command:
