@@ -22,6 +22,7 @@ Several graph-related functions are also implemented in BubbleGun:
 - Extracting two randome paths from each bubble chain for haplotyping
 - Extracting information from long reads aligned to bubble chains
 
+BubbleGun keeps all optional information in the S (Segment) lines and re-writes them in th output GFA. However, if the graph is compacted then output GFA file doesn't have these optional information, the problem is that when compacting some nodes will be merged and it's not always clear how these optional information can be updated for merged noded. 
 ## Installation
 
 BubbleGun can be installed using the setup script simply with this command:
@@ -44,35 +45,28 @@ The following sections will demonstrate some examples of using this tool.
 ## Usage and Subcommands
 The tool has several subcommands and `-h` or `--help` can be used to print the help message.
 ```
-usage: main.py [-h] [-e] [-g GRAPH_PATH] [-k K] [--with_coverage]
-               [--log LOG_LEVEL]
-               {bchains,compact,biggestcomp,bfs,gamdigest,chainout} ...
+usage: BubbleGun [-h] [-e] [-g GRAPH_PATH] [--log LOG_LEVEL]
+                 {bchains,compact,biggestcomp,bfs,chainout} ...
 
 Find Bubble Chains.
 
 Subcommands:
-  {bchains,compact,biggestcomp,bfs,gamdigest,chainout}
+  {bchains,compact,biggestcomp,bfs,chainout}
                         Available subcommands
     bchains             Command for detecting bubble chains
     compact             Command for compacting graphs
     biggestcomp         Command for separating biggest component
     bfs                 Command for separating neighborhood
-    gamdigest           Command for digesting a gam file
-    chainout            Outputs certain chain(s) given by their id as a GFA
-                        file
+    chainout            Outputs certain chain(s) given by their id as a GFA file
 
 Global Arguments:
   -h, --help            show this help message and exit
   -e, --examples        prints out example commands to use the tool
   -g GRAPH_PATH, --in_graph GRAPH_PATH
                         graph file path (GFA or VG)
-  -k K, --k_mer K       K value of as integer
-  --with_coverage       If this option given, mean coverage is taken from the
-                        GFA file
-  --log LOG_LEVEL       The logging level [DEBUG, INFO, WARNING, ERROR,
-                        CRITICAL]
+  --log LOG_LEVEL       The logging level [DEBUG, INFO, WARNING, ERROR, CRITICAL]
 ```
-As shown, it takes some Global arguments then specific subcommands. The global arguments `-g` and `-k` are required, for an input graph and input *k*-mer size respectively.
+As shown, it takes some Global arguments then specific subcommands. The global arguments `-g` is required, for an input graph and input *k*-mer size respectively.
 Individual help messages for the subcommands can be called by using the subcommand then followed by `-h` or `--help`
 
 
@@ -105,15 +99,15 @@ Examples:
 . With saving memory, only the graph topology will be stored in memory, and the sequences will not be read from the file.
 Command:
 
-  `BubbleGun -g test_graph.gfa -k 9 bchains --bubble_json test_graph_chains.json`
+  `BubbleGun -g test_graph.gfa bchains --bubble_json test_graph_chains.json`
 * A user wants to detect chains and output a new GFA graph with only the bubble chains.
 Command:
 
-  `BubbleGun -g test_graph.gfa -k 9 bchains --chains_gfa chains_output.gfa`
+  `BubbleGun -g test_graph.gfa bchains --chains_gfa chains_output.gfa`
 * A user wants to detect chains and output a FASTA file with only bubble branches sequences (currently only works for simple bubbles), 
 where the sequence name indicate from which chains and which bubble they come from. Command:
 
-  `BubbleGun -g test_graph.gfa -k 9 bchains --only_simple --fasta test_output.fasta`
+  `BubbleGun -g test_graph.gfa bchains --only_simple --fasta test_output.fasta`
  
 For the previous example, the JSON and FASTA output can be seen in [example](example)
 * Of course, all the previous commands can be combined in one to output a JSON, a GFA and a FASTA.
@@ -139,7 +133,7 @@ optional arguments:
 
 Example command:
 
-`./main.py -g test_graph.gfa -k 41 chainout --json_file test_graph_chains.json --chain_ids 10 13 30 --output_chain test_output.gfa`
+`./main.py -g test_graph.gfa chainout --json_file test_graph_chains.json --chain_ids 10 13 30 --output_chain test_output.gfa`
 
 The ids given should be present in the JSON file and the graph given should be the same graph used to generate the JSON file.
 
@@ -157,7 +151,7 @@ optional arguments:
 
 ```
 Example:
-`./main.py -g test_graph.gfa -k 41 compact compacted_test.gfa`
+`./main.py -g test_graph.gfa compact compacted_test.gfa`
 
 
 ### biggestcomp
@@ -174,7 +168,7 @@ optional arguments:
 
 ```
 Example:
-`./main.py -g test_graph.gfa -k 41 biggestcomp biggest_comp.gfa`
+`./main.py -g test_graph.gfa biggestcomp biggest_comp.gfa`
 
 
 ### bfs
@@ -196,10 +190,10 @@ optional arguments:
 Examples:
 * Extracting a neighborhood of size 100 nodes around the node with id 540
 
-  `./main.py -g test_graph.gfa -k 51 bfs --start 540 --neighborhood_size 100 --output_neighborhood output.gfa`
+  `./main.py -g test_graph.gfa bfs --start 540 --neighborhood_size 100 --output_neighborhood output.gfa`
 * Extracting the neighborhoods of size 100 nodes around nodes 500, 540, and 1509. Regardless if these neighborhood are connected or not, they all will be in the same output file.
 
-  `./main.py -g test_graph.gfa -k 51 bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
+  `./main.py -g test_graph.gfa bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
 
 [comment]: <> (### gamdigest)
 
