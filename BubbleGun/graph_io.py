@@ -200,10 +200,19 @@ def read_gfa(gfa_file_path, low_memory=False):
     for e in edges:
         line = e.split()
 
-        k = str(line[1])
+        first_node = str(line[1])
+        second_node = str(line[3])
+        if first_node not in nodes:
+            logging.warning(f"an edge between {first_node} and {second_node} exists but a "
+                            f"node record for {first_node} does not exist in the file. Skipping")
+            continue
+        if second_node not in nodes:
+            logging.warning(f"an edge between {first_node} and {second_node} exists but a "
+                            f"node record for {second_node} does not exist in the file. Skipping")
+            continue
+
         overlap = int(line[5][:-1])
 
-        neighbor = str(line[3])
         if line[2] == "-":
             from_start = True
         else:
@@ -215,32 +224,32 @@ def read_gfa(gfa_file_path, low_memory=False):
             to_end = False
 
         if from_start and to_end :  # from start to end L x - y -
-            if (neighbor, 1, overlap) not in nodes[k].start:
-                nodes[k].start.append((neighbor, 1, overlap))
-            if (k, 0, overlap) not in nodes[neighbor].end:
-                nodes[neighbor].end.append((k, 0, overlap))
+            if (second_node, 1, overlap) not in nodes[first_node].start:
+                nodes[first_node].start.append((second_node, 1, overlap))
+            if (first_node, 0, overlap) not in nodes[second_node].end:
+                nodes[second_node].end.append((first_node, 0, overlap))
 
         elif from_start and not to_end:  # from start to start L x - y +
 
-            if (neighbor, 0, overlap) not in nodes[k].start:
-                nodes[k].start.append((neighbor, 0, overlap))
+            if (second_node, 0, overlap) not in nodes[first_node].start:
+                nodes[first_node].start.append((second_node, 0, overlap))
 
-            if (k, 0, overlap) not in nodes[neighbor].start:
-                nodes[neighbor].start.append((k, 0, overlap))
+            if (first_node, 0, overlap) not in nodes[second_node].start:
+                nodes[second_node].start.append((first_node, 0, overlap))
 
         elif not from_start and not to_end:  # from end to start L x + y +
-            if (neighbor, 0, overlap) not in nodes[k].end:
-                nodes[k].end.append((neighbor, 0, overlap))
+            if (second_node, 0, overlap) not in nodes[first_node].end:
+                nodes[first_node].end.append((second_node, 0, overlap))
 
-            if (k, 1, overlap) not in nodes[neighbor].start:
-                nodes[neighbor].start.append((k, 1, overlap))
+            if (first_node, 1, overlap) not in nodes[second_node].start:
+                nodes[second_node].start.append((first_node, 1, overlap))
 
         elif not from_start and to_end:  # from end to end L x + y -
-            if (neighbor, 1, overlap) not in nodes[k].end:
-                nodes[k].end.append((neighbor, 1, overlap))
+            if (second_node, 1, overlap) not in nodes[first_node].end:
+                nodes[first_node].end.append((second_node, 1, overlap))
 
-            if (k, 1, overlap) not in nodes[neighbor].end:
-                nodes[neighbor].end.append((k, 1, overlap))
+            if (first_node, 1, overlap) not in nodes[second_node].end:
+                nodes[second_node].end.append((first_node, 1, overlap))
 
     return nodes
 

@@ -19,8 +19,6 @@ parser._positionals.title = 'Subcommands'
 parser._optionals.title = 'Global Arguments'
 
 ########################## general commands ###############################
-parser.add_argument("-e", "--examples", dest="examples", action="store_true",
-                    help="prints out example commands to use the tool")
 
 parser.add_argument("-g", "--in_graph", metavar="GRAPH_PATH", dest="in_graph",
                     default=None, type=str, help="graph file path (GFA or VG)")
@@ -120,19 +118,7 @@ logging.info(" ".join(["argument given:"] + sys.argv))
 def main():
     if len(sys.argv) == 1:
         print("You did not provide any arguments\n"
-              "Try to use -h or --help for help\n"
-              "Or -e --examples for examples to use the tool")
-        sys.exit()
-
-    if args.examples:
-        # todo
-        print("Some example for using this tool\n\n"
-              "You have a GFA graph and want to check some bubble statistics:\n"
-              "bubblegun -g some_graph_file.gfa -k 61 > stats.log\n\n"
-              "You want to output the bubble chains of only simple bubbles in a separate file:\n"
-              "bubblegun -g graph_file.gfa -k 31 --bubbles --only_simple -o b_chains.gfa > stats.log\n\n"
-              "You want to output bubble chains with both bubbles and Superbubbles:\n"
-              "bubblegun -g graph_file.gfa -k 41 --bubbles -o b_sb_chains.gfa > stats.log")
+              "Try to use -h or --help for help\n")
         sys.exit()
 
     if args.subcommands is None:

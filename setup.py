@@ -13,15 +13,16 @@ if CURRENT_PYTHON < REQUIRED_PYTHON:
     sys.exit(1)
 
 setup(name='BubbleGun',
-      version='1.1.1',
+      version='1.1.2',
       description='Detection of Bubble and Superbubble chains in genome graphs',
       author='Fawaz Dabbaghie',
       author_email='fawaz.dabbaghie@helmholtz-hips.de',
-      url='https://fawaz-dabbaghieh.github.io/',
+      url='https://github.com/fawaz-dabbaghieh/bubble_gun',
       packages=find_packages(),
       # scripts=['bin/main.py'],
       license="LICENSE.TXT",
       long_description=open("README.md").read(),
+      long_description_content_type='text/markdown',
 #      install_requires=["protobuf == 3.11.3",
 #                        "pystream-protobuf == 1.5.1"],
       # other arguments here...
