@@ -1,5 +1,4 @@
 from collections import deque
-import pdb
 
 
 def main_while_loop(graph, start_node, queue, direction, visited, size):
@@ -45,6 +44,9 @@ def bfs(graph, start_node, size):
     queue = deque()
     visited = set()
 
+    # I will in both direction, and search for half the neighborhood in one
+    # and the other half in the other direction
+    # if the nieghborhood is 100, I will traverse 50 to the right and 50 to the left and return that
     queue.append(start_node)
     visited.add(start_node)
     first_direction = graph.nodes[start_node].children(0)

@@ -15,11 +15,11 @@ Preprint can be found on Bioarxiv [here](https://www.biorxiv.org/content/10.1101
 
 A tool for detecting Bubbles and Superbubble in De-bruijn graphs. BubbleGun outputs runs of bubbles and superbubbles we call bubble chains.
 Several graph-related functions are also implemented in BubbleGun:
-- Graph compacting (mergin linear stretches of single nodes),
-- Extracing biggest component in the graph
+- Graph compacting (merging linear stretches of single nodes),
+- Extracting the biggest connected component in the graph
 - Separating certain chains by their id for further examination
 - Extracting a user-specified neighborhood size around a node to extract as a separate graph for examination
-- Extracting two randome paths from each bubble chain for haplotyping
+- Extracting two random paths from each bubble chain for haplotyping
 - Extracting information from long reads aligned to bubble chains
 
 BubbleGun keeps all optional information in the S (Segment) lines and re-writes them in th output GFA. However, if the graph is compacted then output GFA file doesn't have these optional information, the problem is that when compacting some nodes will be merged and it's not always clear how these optional information can be updated for merged noded. 
@@ -30,8 +30,8 @@ BubbleGun can be installed using the setup script simply with this command:
 python3 setup.py install
 ```
 
-In case you do not have admin access or want to install BubbleGun locally for the user, then `--user` can be added after `install`. And the binary will be added usually to `~/.local/bin` on Linux systems. 
-This will also download the needed dependencies and creat a callable entry point for the tool and it should be added to the path, so `BubbleGun` can be called anywhere to get the CLI and then be used.
+In case you do not have admin access or want to install BubbleGun locally for the user, then `--user` can be added after `install`. And the binaries will usually be added to `~/.local/bin` on Linux systems. 
+This will also download the needed dependencies and creat a callable entry point for the tool, and it should be added to the path, so `BubbleGun` can be called anywhere to get the CLI and then be used.
 
 ## Example graph
 ![alt text](images/drawing_new.png)
@@ -45,7 +45,7 @@ The following sections will demonstrate some examples of using this tool.
 ## Usage and Subcommands
 The tool has several subcommands and `-h` or `--help` can be used to print the help message.
 ```
-usage: BubbleGun [-h] [-e] [-g GRAPH_PATH] [--log LOG_LEVEL]
+usage: BubbleGun [-h] [-g GRAPH_PATH] [--log LOG_LEVEL]
                  {bchains,compact,biggestcomp,bfs,chainout} ...
 
 Find Bubble Chains.
@@ -57,14 +57,16 @@ Subcommands:
     compact             Command for compacting graphs
     biggestcomp         Command for separating biggest component
     bfs                 Command for separating neighborhood
-    chainout            Outputs certain chain(s) given by their id as a GFA file
+    chainout            Outputs certain chain(s) given by their id as a GFA
+                        file
 
 Global Arguments:
   -h, --help            show this help message and exit
-  -e, --examples        prints out example commands to use the tool
   -g GRAPH_PATH, --in_graph GRAPH_PATH
                         graph file path (GFA or VG)
-  --log LOG_LEVEL       The logging level [DEBUG, INFO, WARNING, ERROR, CRITICAL]
+  --log LOG_LEVEL       The logging level [DEBUG, INFO, WARNING, ERROR,
+                        CRITICAL]
+
 ```
 As shown, it takes some Global arguments then specific subcommands. The global arguments `-g` is required, for an input graph and input *k*-mer size respectively.
 Individual help messages for the subcommands can be called by using the subcommand then followed by `-h` or `--help`
@@ -75,9 +77,10 @@ Individual help messages for the subcommands can be called by using the subcomma
 This subcommand is for detecting bubble and superbubble chains.
 The following help page is available for bchains
 ```
-usage: main.py bchains [-h] [--bubble_json OUT_JSON] [--only_simple]
-                       [--save_memory] [--chains_gfa CHAINS_GFA]
-                       [--fasta FASTA] [--out_haplos]
+usage: BubbleGun bchains [-h] [--bubble_json OUT_JSON] [--only_simple]
+                         [--only_super] [--save_memory]
+                         [--chains_gfa CHAINS_GFA] [--fasta FASTA]
+                         [--out_haplos]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -85,6 +88,7 @@ optional arguments:
                         Outputs Bubbles, Superbubbles, and Chains as a JSON
                         file
   --only_simple         If used then only simple bubbles are detected
+  --only_super          If used then only simple bubbles are detected
   --save_memory         Identifies bubble chain with less memory. No
                         statistics outputted
   --chains_gfa CHAINS_GFA
@@ -117,9 +121,9 @@ For the previous example, the JSON and FASTA output can be seen in [example](exa
 This subcommand separates a chain or several chains by their ids according to the JSON file.
 The following help page is available for the chainout subcommand:
 ```
-usage: main.py chainout [-h] [--json_file JSON_FILE]
-                        [--chain_ids CHAIN_IDS [CHAIN_IDS ...]]
-                        [--output_chain OUTPUT]
+usage: BubbleGun chainout [-h] [--json_file JSON_FILE]
+                          [--chain_ids CHAIN_IDS [CHAIN_IDS ...]]
+                          [--output_chain OUTPUT]
 
 optional arguments:
   -h, --help            show this help message and exit
