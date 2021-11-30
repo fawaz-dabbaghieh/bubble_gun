@@ -137,7 +137,7 @@ optional arguments:
 
 Example command:
 
-`./main.py -g test_graph.gfa chainout --json_file test_graph_chains.json --chain_ids 10 13 30 --output_chain test_output.gfa`
+`BubbleGun -g test_graph.gfa chainout --json_file test_graph_chains.json --chain_ids 10 13 30 --output_chain test_output.gfa`
 
 The ids given should be present in the JSON file and the graph given should be the same graph used to generate the JSON file.
 
@@ -155,7 +155,7 @@ optional arguments:
 
 ```
 Example:
-`./main.py -g test_graph.gfa compact compacted_test.gfa`
+`BubbleGun -g test_graph.gfa compact compacted_test.gfa`
 
 
 ### biggestcomp
@@ -172,7 +172,7 @@ optional arguments:
 
 ```
 Example:
-`./main.py -g test_graph.gfa biggestcomp biggest_comp.gfa`
+`BubbleGun -g test_graph.gfa biggestcomp biggest_comp.gfa`
 
 
 ### bfs
@@ -194,10 +194,10 @@ optional arguments:
 Examples:
 * Extracting a neighborhood of size 100 nodes around the node with id 540
 
-  `./main.py -g test_graph.gfa bfs --start 540 --neighborhood_size 100 --output_neighborhood output.gfa`
+  `BubbleGun -g test_graph.gfa bfs --start 540 --neighborhood_size 100 --output_neighborhood output.gfa`
 * Extracting the neighborhoods of size 100 nodes around nodes 500, 540, and 1509. Regardless if these neighborhood are connected or not, they all will be in the same output file.
 
-  `./main.py -g test_graph.gfa bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
+  `BubbleGun -g test_graph.gfa bfs --start 500 540 1509 --neighborhood_size 100 --output_neighborhood output.gfa`
 
 [comment]: <> (### gamdigest)
 
