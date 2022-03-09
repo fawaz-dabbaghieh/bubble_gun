@@ -29,7 +29,7 @@ To extract the chains into a separate GFA file, the following command can be use
 $ BubbleGun -g m_xanthus_10_assemblies.unitigs.gfa bchains --chains_gfa m_xanthus_10_assemblies.unitigs.bchains.gfa
 ```
 
-To show that the new subgraph is actually only made of bubble chains. If we run BubbleGun again, we will get 100% coveraged now and the same number of simple and super bubbles:
+To show that the new subgraph is actually only made of bubble chains. If we run BubbleGun again, we will get 100% coverage now and the same number of simple and super bubbles:
 ```
 $ BubbleGun -g m_xanthus_10_assemblies.unitigs.bchains.gfa bchains
 
@@ -59,7 +59,7 @@ The JSON file has the following structure:
         "type": "type",
         "id": "int_bubble_id",
         "ends": ["str_start_node_id", "str_end_node_id"],
-        "inside": ["str_node_id",...]
+        "inside": ["str_node_id","..."]
       },
       {
         "..."
