@@ -74,23 +74,26 @@ class Graph:
         """
         returns total sequence length
         """
-
         total = 0
-        counted_overlap = set()
         for n in self.nodes.values():
-
             total += n.seq_len
-            if n.id not in counted_overlap:
-                counted_overlap.add(n.id)
-
-                for nn in n.end:
-                    counted_overlap.add(nn[0])
-                    total -= nn[2]
-                for nn in n.start:
-                    counted_overlap.add(nn[0])
-                    total -= nn[2]
-
         return total
+        # total = 0
+        # counted_overlap = set()
+        # for n in self.nodes.values():
+        #
+        #     total += n.seq_len
+        #     if n.id not in counted_overlap:
+        #         counted_overlap.add(n.id)
+        #
+        #         for nn in n.end:
+        #             counted_overlap.add(nn[0])
+        #             total -= nn[2]
+        #         for nn in n.start:
+        #             counted_overlap.add(nn[0])
+        #             total -= nn[2]
+        #
+        # return total
 
     def longest_chain_bubble(self):
         """
@@ -132,11 +135,28 @@ class Graph:
         returns how much sequence their are in the bubble chains
         """
 
+        # total_length = 0
+        # for chain in self.b_chains:
+        #     chain_length = 0
+        #     counted_overlap = set()
+        #     chain_nodes = set(chain.list_chain(ids=False))
+        #     for n in chain_nodes:
+        #         chain_length += n.seq_len
+        #         if n.id not in counted_overlap:
+        #             counted_overlap.add(n.id)
+        #             for nn in n.end:
+        #                 if nn in chain_nodes:
+        #                     counted_overlap.add(nn[0])
+        #                     chain_length -= nn[2]
+        #             for nn in n.start:
+        #                 if nn in chain_nodes:
+        #                     counted_overlap.add(nn[0])
+        #                     chain_length -= nn[2]
+        #     total_length += chain_length
+        # return total_length
         s_in_c = 0
-        counter = 0
         for chain in self.b_chains:
             # if chain not in self.child_parent:
-            counter += 1
             s_in_c += chain.length_seq()
         return s_in_c
 
@@ -152,14 +172,14 @@ class Graph:
         """
         returns the percentage the sequences in chains covered
         """
-
-        s_in_c = self.seq_in_chains()
-        # n_in_c = self.nodes_in_chains()
-        # chains_length = 0
-        # for n in n_in_c:
-        #     chains_length += self.nodes[n].seq_len - self.k - 1
-        # return float((chains_length * 100) / self.total_seq_length())
-        return float((s_in_c * 100) / self.total_seq_length())
+        chains_nodes = set()
+        for chain in self.b_chains:
+            for n in chain.list_chain():
+                chains_nodes.add(n)
+        total_seq = 0
+        for n in chains_nodes:
+            total_seq += self.nodes[n].seq_len
+        return (total_seq*100) / float(self.total_seq_length())
 
     def num_single_bubbles(self):
         """
