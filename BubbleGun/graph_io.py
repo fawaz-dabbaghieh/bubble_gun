@@ -2,7 +2,6 @@ import os
 import sys
 from BubbleGun.Node import Node
 import logging
-import pdb
 
 
 def write_gfa(graph, set_of_nodes=None,
@@ -10,7 +9,7 @@ def write_gfa(graph, set_of_nodes=None,
     """
     Write a gfa out
 
-    :param nodes: Dictionary of nodes object.
+    :param graph: the graph object
     :param set_of_nodes: A list of node ids of the path or nodes we want to generate a GFA file for.
     :param output_file: path to output file
     :param append: if I want to append to a file instead of rewriting it
@@ -28,7 +27,7 @@ def write_gfa(graph, set_of_nodes=None,
         if os.path.exists(output_file):
             f = open(output_file, "a")
         else:
-            logging.warning("Trying to append to a non-existant file\n"
+            logging.warning("Trying to append to a non-existent file\n"
                             "creating an output file")
             f = open(output_file, "w+")
 
@@ -40,7 +39,7 @@ def write_gfa(graph, set_of_nodes=None,
         # writing nodes in gfa file
         # if modified:
         #     node = nodes[n1]
-        #     # todo for now I don't care to which sb the node belongs
+        #     # for now I don't care to which sb the node belongs
         #     # I just care about simple bubbles for phasing
         #     specification = str(":".join((str(node.which_chain), str(0),
         #                                   str(node.which_b), str(node.which_allele))))
@@ -68,7 +67,7 @@ def write_gfa(graph, set_of_nodes=None,
             overlap = str(n[2]) + "M\n"
             # I am checking if the are nodes I want to write
             # I think I can remove this later as I implemented the .remove_node
-            # to the Graph class that safely removes a node and all its edgse
+            # to the Graph class that safely removes a node and all its edges
             # So there shouldn't be any edges to removed
             if n[0] in set_of_nodes:
                 if n[1] == 0:
@@ -100,54 +99,58 @@ def write_chains(graph, output_file="output_bubble_chains.gfa", optional_info=Fa
     Write bubble chains as gfa file
 
     :param graph: graph object with bubble chains already detected
-    :param output_file: otput file path
+    :param output_file: output file path
+    :param optional_info: If save memory was used then there are no sequence and this is set to False
     """
     nodes = graph.nodes
     f = open(output_file, "w+")
-
-    # overlap = str(graph.k - 1) + "M\n"
+    set_of_nodes = set()
+    # using a set so I do not write the same chains more once
+    # in case this chains was a child of another chain
+    # I probably can also check the chain's parent sb and parent chains id
+    # if it's not 0 then I do not write it, if it is 0 then I write it
     for chain in graph.b_chains:
         set_of_nodes = chain.list_chain()
 
-        for n1 in set_of_nodes:
-            # writing nodes in gfa file
-            node = nodes[n1]
+    for n1 in set_of_nodes:
+        # writing nodes in gfa file
+        node = nodes[n1]
 
-            if "LN" in nodes[n1].optional_info:
-                line = str("\t".join(("S", str(n1), nodes[n1].seq)))
-            else:
-                line = str("\t".join(("S", str(n1), nodes[n1].seq,  "LN:i:" + str(nodes[n1].seq_len))))
-            if optional_info:
-                line += "\t" + nodes[n1].optional_info
+        if "LN" in nodes[n1].optional_info:
+            line = str("\t".join(("S", str(n1), nodes[n1].seq)))
+        else:
+            line = str("\t".join(("S", str(n1), nodes[n1].seq,  "LN:i:" + str(nodes[n1].seq_len))))
+        if optional_info:
+            line += "\t" + nodes[n1].optional_info
 
-            f.write(line + "\n")
-            # writing edges
-            edges = []
+        f.write(line + "\n")
+        # writing edges
+        edges = []
 
-            for n in node.start:
-                # I check if the neighbor belongs to the same chain
-                # otherwise I don't write that edge 
-                if n[0] in set_of_nodes:
-                    overlap = str(n[2]) + "M\n"
-                    if n[1] == 0:
-                        edge = str("\t".join(("L", str(n1), "-", str(n[0]), "+", overlap)))
-                        edges.append(edge)
-                    else:
-                        edge = str("\t".join(("L", str(n1), "-", str(n[0]), "-", overlap)))
-                        edges.append(edge)
-
-            for n in nodes[n1].end:
+        for n in node.start:
+            # I check if the neighbor belongs to the same chain
+            # otherwise I don't write that edge
+            if n[0] in set_of_nodes:
                 overlap = str(n[2]) + "M\n"
-                if n[0] in set_of_nodes:
-                    if n[1] == 0:
-                        edge = str("\t".join(("L", str(n1), "+", str(n[0]), "+", overlap)))
-                        edges.append(edge)
-                    else:
-                        edge = str("\t".join(("L", str(n1), "+", str(n[0]), "-", overlap)))
-                        edges.append(edge)
+                if n[1] == 0:
+                    edge = str("\t".join(("L", str(n1), "-", str(n[0]), "+", overlap)))
+                    edges.append(edge)
+                else:
+                    edge = str("\t".join(("L", str(n1), "-", str(n[0]), "-", overlap)))
+                    edges.append(edge)
 
-            for e in edges:
-                f.write(e)
+        for n in nodes[n1].end:
+            overlap = str(n[2]) + "M\n"
+            if n[0] in set_of_nodes:
+                if n[1] == 0:
+                    edge = str("\t".join(("L", str(n1), "+", str(n[0]), "+", overlap)))
+                    edges.append(edge)
+                else:
+                    edge = str("\t".join(("L", str(n1), "+", str(n[0]), "-", overlap)))
+                    edges.append(edge)
+
+        for e in edges:
+            f.write(e)
 
     f.close()
 
@@ -158,7 +161,6 @@ def read_gfa(gfa_file_path, low_memory=False):
 
     :param gfa_file_path: gfa graph file.
     :param low_memory: don't read the sequences to save memory
-    :param optional_info: if set true, all optional columns in S lines will be stored
     :return: Dictionary of node ids and Node objects.
     """
     if not os.path.exists(gfa_file_path):
@@ -183,7 +185,7 @@ def read_gfa(gfa_file_path, low_memory=False):
                     nodes[n_id].seq_len = n_len
                     nodes[n_id].seq = str(line[2]).strip()
 
-                    # reading extra informationa about nodes
+                    # reading extra information about nodes
                     # nodes[n_id].kc = int([x for x in line if x.startswith("KC")][0].split(":")[-1])
                     # nodes[n_id].km = float([x for x in line if x.startswith("km")][0].split(":")[-1])
 
@@ -223,7 +225,7 @@ def read_gfa(gfa_file_path, low_memory=False):
         else:
             to_end = False
 
-        if from_start and to_end :  # from start to end L x - y -
+        if from_start and to_end:  # from start to end L x - y -
             if (second_node, 1, overlap) not in nodes[first_node].start:
                 nodes[first_node].start.append((second_node, 1, overlap))
             if (first_node, 0, overlap) not in nodes[second_node].end:

@@ -1,5 +1,4 @@
 from collections import Counter
-import pdb
 
 
 class BubbleChain:
@@ -25,8 +24,8 @@ class BubbleChain:
         calculated the key of the bubble chain
         """
         if self.ends[0] > self.ends[1]:
-            return (self.ends[0], self.ends[1])
-        return (self.ends[1], self.ends[0])
+            return self.ends[0], self.ends[1]
+        return self.ends[1], self.ends[0]
 
     def __hash__(self):
         return hash(self.__key())

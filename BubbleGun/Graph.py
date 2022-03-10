@@ -3,7 +3,6 @@ from BubbleGun.compact_graph import compact_graph
 from BubbleGun.connected_components import all_components
 from BubbleGun.bfs import bfs
 import sys
-import logging
 import os
 
 
@@ -63,7 +62,7 @@ class Graph:
             if len(chain.ends) != 2:  # circular chains or other weird stuff
                 nodes_set = set(chain.list_chain())
                 self.write_graph(set_of_nodes=nodes_set, append=True,
-                                     output_file="circular_and_other_problematic_chains.gfa", optional_info=False)
+                                 output_file="circular_and_other_problematic_chains.gfa", optional_info=False)
 
             else:
                 # self.b_chains[chain._BubbleChain__key()] = chain
@@ -134,7 +133,6 @@ class Graph:
         """
         returns how much sequence their are in the bubble chains
         """
-
         # total_length = 0
         # for chain in self.b_chains:
         #     chain_length = 0
