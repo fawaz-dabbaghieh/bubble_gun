@@ -271,7 +271,7 @@ class Graph:
 
     def write_graph(self, set_of_nodes=None,
                     output_file="output_graph.gfa",
-                    append=False, optional_info=False):
+                    append=False, optional_info=True):
         """writes a graph file as GFA
 
         list_of_nodes can be a list of node ids to write

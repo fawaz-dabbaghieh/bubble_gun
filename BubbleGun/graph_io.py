@@ -110,7 +110,8 @@ def write_chains(graph, output_file="output_bubble_chains.gfa", optional_info=Fa
     # I probably can also check the chain's parent sb and parent chains id
     # if it's not 0 then I do not write it, if it is 0 then I write it
     for chain in graph.b_chains:
-        set_of_nodes = chain.list_chain()
+        for n in chain.list_chain():
+            set_of_nodes.add(n)
 
     for n1 in set_of_nodes:
         # writing nodes in gfa file
