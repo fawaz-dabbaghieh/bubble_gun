@@ -1,5 +1,6 @@
 - [BubbleGun](#bubblegun)
   * [Installation](#installation)
+  * [Use Cases](#use-cases)
   * [Example graph](#example-graph)
   * [Usage and Subcommands](#usage-and-subcommands)
     + [bchains](#bchains)
@@ -32,6 +33,13 @@ python3 setup.py install
 
 In case you do not have admin access or want to install BubbleGun locally for the user, then `--user` can be added after `install`. And the binaries will usually be added to `~/.local/bin` on Linux systems. 
 This will also download the needed dependencies and creat a callable entry point for the tool, and it should be added to the path, so `BubbleGun` can be called anywhere to get the CLI and then be used.
+
+## Use cases
+Some use cases are listed [here](use_cases), there are 3 different use cases explained:
+
+* Myxococcus xanthus de Bruijn Graph
+* Myxococcus xanthus bluntified pangenome using minigraph
+* HG002 de Bruijn Graph from short reads and how to produce haplotypes from simple bubble chains.
 
 ## Example graph
 ![alt text](images/drawing_new.png)
