@@ -35,6 +35,7 @@ def find_component(graph, start_node):
 
     return cc
 
+
 def all_components(graph):
     """
     find all connected components in the graph
@@ -42,9 +43,12 @@ def all_components(graph):
     :params graph: is a graph object from class Graph
     :return: list of list of components
     """
+
+    graph.reset_visited()  # turns all nodes to False
     connected_comp = []
     # visited = set()
     for n in graph.nodes:
+        # if n not in visited:
         if not graph.nodes[n].visited:
             connected_comp.append(find_component(graph, n))
             # visited = visited.union(connected_comp[-1])
