@@ -12,8 +12,8 @@ This doesn't take any extra memory than what's already stored.
 
 
 def merge_end(graph, n):
-    # print("in merge END with n {} and neighbor {}".format(n, nodes[n].end[0]))
-    # print("and n's START are {}".format(nodes[n].start))
+    # print("in merge END with n {} and neighbor {}".format(n, graph.nodes[n].end[0]))
+    # print("and n's START are {}".format(graph.nodes[n].start))
     nodes = graph.nodes
     # k = graph.k
 
@@ -25,8 +25,8 @@ def merge_end(graph, n):
             # the ends of n becomes the ends of neighbor
             # I am copying the connections of neighbors on the opposite side
             # and removing neighbor node
-            new_ends = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
-            nodes[n].end += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
+            new_ends = [x for x in nodes[neighbor[0]].end]
+            nodes[n].end += [x for x in nodes[neighbor[0]].end]
             # the sequence and seq_len gets updated
             nodes[n].seq += nodes[neighbor[0]].seq[neighbor[2]:]
             # nodes[n].seq += nodes[neighbor[0]].seq[k - 1:]
@@ -35,6 +35,7 @@ def merge_end(graph, n):
 
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
+            print(f"Removing node {neighbor[0]}")
             graph.remove_node(neighbor[0])
             # I think I can remove the neighbor node here with
             # Here I need to check the new neighbors at end, 
@@ -72,11 +73,12 @@ def merge_end(graph, n):
             # and the sequence and seq_len get updated
             # nodes[n].end = copy.deepcopy(nodes[neighbor[0]].start)
             # I think I can remove the neighbor node here with
-            new_ends = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
-            nodes[n].end += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
+            new_ends = [x for x in nodes[neighbor[0]].start]
+            nodes[n].end += [x for x in nodes[neighbor[0]].start]
 
             reverse = reverse_complement(nodes[neighbor[0]].seq)
-            nodes[n].seq += reverse[k - 1:]
+            nodes[n].seq += reverse[neighbor[2]:]
+            # nodes[n].seq += reverse[k - 1:]
             # nodes[n].coverage = (nodes[n].coverage + nodes[neighbor[0]].coverage)/2
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
@@ -114,8 +116,8 @@ def merge_end(graph, n):
 
 
 def merge_start(graph, n):
-    # print("in merge START with n {} and neighbor {}".format(n, nodes[n].start[0]))
-    # print("and n's END are {}".format(nodes[n].end))
+    # print("in merge START with n {} and neighbor {}".format(n, graph.nodes[n].start[0]))
+    # print("and n's END are {}".format(graph.nodes[n].end))
 
     nodes = graph.nodes
     # k = graph.k
@@ -127,11 +129,14 @@ def merge_start(graph, n):
             # the start of n becomes the ends of neighbor
             # and the sequence and seq_len get updated
             # nodes[n].start = copy.deepcopy(nodes[neighbor[0]].end)
-            starts = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
-            nodes[n].start += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].end]
+            starts = [x for x in nodes[neighbor[0]].end]
+            print(f"adding these new starts to start")
+            nodes[n].start += [x for x in nodes[neighbor[0]].end]
 
-            # reverse = reverse_complement(nodes[neighbor[0]].seq)
-            nodes[n].seq = nodes[neighbor[0]].seq[:nodes[neighbor[0]].seq_len - (k - 1)] + nodes[n].seq
+            reverse = reverse_complement(nodes[neighbor[0]].seq)
+            # nodes[n].seq = nodes[neighbor[0]].seq[:nodes[neighbor[0]].seq_len - (k - 1)] + nodes[n].seq
+
+            nodes[n].seq = reverse[:len(reverse) - neighbor[2]] + nodes[n].seq
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
             # if neighbor[0] == 3827:
@@ -165,11 +170,12 @@ def merge_start(graph, n):
             # the start of n becomes the ends of neighbor
             # and the sequence and seq_len get updated
             # nodes[n].start = copy.deepcopy(nodes[neighbor[0]].end)
-            starts = [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
-            nodes[n].start += [(x[0], x[1], x[2]) for x in nodes[neighbor[0]].start]
+            starts = [x for x in nodes[neighbor[0]].start]
+            nodes[n].start += [x for x in nodes[neighbor[0]].start]
 
             reverse = reverse_complement(nodes[neighbor[0]].seq)
-            nodes[n].seq = reverse[:len(reverse) - (k - 1)] + nodes[n].seq
+            nodes[n].seq = reverse[:len(reverse) - neighbor[2]] + nodes[n].seq
+            # nodes[n].seq = reverse[:len(reverse) - (k - 1)] + nodes[n].seq
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = Non
             # if neighbor[0] == 3827:
@@ -178,19 +184,20 @@ def merge_start(graph, n):
             # Here I need to check the new neighbors at end, and remove the merged node
             # and n to them
             for nn in starts:
+                overlap = nn[2]
                 # We are connected to new neighbor from start
                 if nn[1] == 0:
                     if nn[0] != neighbor[0]:
-                        nodes[nn[0]].start.append((n, 0))
+                        nodes[nn[0]].start.append((n, 0, overlap))
                     else:
                         try:
-                            nodes[n].start.remove((neighbor[0], 0))
-                            nodes[n].start.append((n, 0))
+                            nodes[n].start.remove((neighbor[0], 0, overlap))
+                            nodes[n].start.append((n, 0, overlap))
                         except:
                             pdb.set_trace()
 
                 elif nn[1] == 1:
-                    nodes[nn[0]].end.append((n, 0))
+                    nodes[nn[0]].end.append((n, 0, overlap))
 
             return True
 
@@ -208,7 +215,7 @@ def compact_graph(graph):
             # # checking it's not a node that already got merged in the while loop
             #     if graph.nodes[n] is not None:
             #         # checking if it has one neighbor and it's not a self loop
-            # print("I am at nodes {}".format(n))
+            # print("I am at node {}".format(n))
             while True:
                 # pdb.set_trace()
                 if len(graph.nodes[n].end) == 1:

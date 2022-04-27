@@ -58,13 +58,13 @@ class Bubble:
         """
         return len(self.inside) + 2  # +2 for source and sink
 
-    def length_seq(self, k):
+    def length_seq(self):
         """
         returns the total sequence in the bubble
         """
-        total_seq = self.source.seq_len + self.sink.seq_len - 2*k
+        total_seq = self.source.seq_len + self.sink.seq_len
         for n in self.inside:
-            total_seq += n.seq_len - k
+            total_seq += n.seq_len
         return total_seq
 
     def is_simple(self):
