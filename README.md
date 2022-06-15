@@ -26,7 +26,12 @@ Several graph-related functions are also implemented in BubbleGun:
 BubbleGun keeps all optional information in the S (Segment) lines and re-writes them in th output GFA. However, if the graph is compacted then output GFA file doesn't have these optional information, the problem is that when compacting some nodes will be merged and it's not always clear how these optional information can be updated for merged noded. 
 ## Installation
 
-BubbleGun can be installed using the setup script simply with this command:
+BubbleGun can be installed with pip:
+```
+pip install BubbleGun
+```
+
+Or can be installed using the setup script simply with this command:
 ```
 python3 setup.py install
 ```

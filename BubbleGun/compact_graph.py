@@ -35,7 +35,7 @@ def merge_end(graph, n):
 
             nodes[n].seq_len = len(nodes[n].seq)
             # nodes[neighbor[0]] = None
-            print(f"Removing node {neighbor[0]}")
+            # print(f"Removing node {neighbor[0]}")
             graph.remove_node(neighbor[0])
             # I think I can remove the neighbor node here with
             # Here I need to check the new neighbors at end, 
@@ -100,7 +100,7 @@ def merge_end(graph, n):
                     else:
                         try:
                             nodes[n].end.remove((neighbor[0], 0, overlap))
-                            nodes[n].end.append((n, 1))
+                            nodes[n].end.append((n, 1, overlap))
                         except:
                             pdb.set_trace()
 
@@ -130,7 +130,7 @@ def merge_start(graph, n):
             # and the sequence and seq_len get updated
             # nodes[n].start = copy.deepcopy(nodes[neighbor[0]].end)
             starts = [x for x in nodes[neighbor[0]].end]
-            print(f"adding these new starts to start")
+            # print(f"adding these new starts to start")
             nodes[n].start += [x for x in nodes[neighbor[0]].end]
 
             reverse = reverse_complement(nodes[neighbor[0]].seq)
@@ -195,12 +195,9 @@ def merge_start(graph, n):
                             nodes[n].start.append((n, 0, overlap))
                         except:
                             pdb.set_trace()
-
                 elif nn[1] == 1:
                     nodes[nn[0]].end.append((n, 0, overlap))
-
             return True
-
     return False
 
 

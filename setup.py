@@ -13,7 +13,7 @@ if CURRENT_PYTHON < REQUIRED_PYTHON:
     sys.exit(1)
 
 setup(name='BubbleGun',
-      version='1.1.2',
+      version='1.1.4',
       description='Detection of Bubble and Superbubble chains in genome graphs',
       author='Fawaz Dabbaghie',
       author_email='fawaz.dabbaghie@helmholtz-hips.de',

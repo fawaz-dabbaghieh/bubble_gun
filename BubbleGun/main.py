@@ -23,6 +23,8 @@ parser._optionals.title = 'Global Arguments'
 parser.add_argument("-g", "--in_graph", metavar="GRAPH_PATH", dest="in_graph",
                     default=None, type=str, help="graph file path (GFA or VG)")
 
+parser.add_argument("--log_file", dest="log_file", type=str, default="log.log",
+                        help="The name/path of the log file. Default: log.log")
 
 parser.add_argument("--log", dest="log_level", type=str, default="DEBUG",
                     help="The logging level [DEBUG, INFO, WARNING, ERROR, CRITICAL]")
@@ -106,7 +108,7 @@ output_chain.add_argument("--output_chain", dest="output_chain", metavar="OUTPUT
 args = parser.parse_args()
 
 # log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
-log_file = "log.log"
+log_file = args.log_file
 
 logging.basicConfig(filename=log_file, filemode='w',
                     format='[%(asctime)s] %(message)s',
@@ -125,6 +127,9 @@ def main():
         print("Please provide a subcommand after the global commands")
         sys.exit(1)
 
+    if args.in_graph is None:
+        print("You need to provide an input graph with -g")
+        sys.exit(1)
     # if args.in_graph is None:
     #     if args.subcommands != "gamdigest":
     #         print("you didn't give an input graph file")
@@ -299,7 +304,7 @@ def main():
                 sys.exit(1)
         else:
             print("You did not give the starting node(s)")
-
+        logging.info("Done...")
 
 if __name__ == "__main__":
     main()

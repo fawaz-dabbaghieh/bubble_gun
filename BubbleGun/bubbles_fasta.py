@@ -10,9 +10,9 @@ def write_bubbles(graph, output_path):
                 continue
 
             first_path = [bubble.source.id, bubble.inside[0].id, bubble.sink.id]
-            seq1 = sequence_extractor(graph, first_path, graph.k)
+            seq1 = sequence_extractor(graph, first_path)
             second_path = [bubble.source.id, bubble.inside[1].id, bubble.sink.id]
-            seq2 = sequence_extractor(graph, second_path, graph.k)
+            seq2 = sequence_extractor(graph, second_path)
 
             read_name1 = ">bubble_" + str(bubble.id) + "_allele_1" + "_chain_" + str(chain.id)
             read_name2 = ">bubble_" + str(bubble.id) + "_allele_2" + "_chain_" + str(chain.id)
