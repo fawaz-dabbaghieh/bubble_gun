@@ -247,35 +247,38 @@ def main():
               "The number of Superbubbles is {}\n"
               "The number of insertions is {}".format(b_numbers[0], b_numbers[1],
                                                       b_numbers[2]))
-        if not args.low_memory:
-            print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
-            print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
-            print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq()))
-            print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
-        if args.out_json is not None:
-            logging.info("Outputting bubble chains gfa...")
-            json_out(graph, args.out_json)
+        if (0,0,0) != (b_numbers[0], b_numbers[1],b_numbers[2]):
 
-        if args.chains_gfa is not None:
-            if args.low_memory:
-                print("You cannot have low memory and output GFA file of chains")
-                sys.exit()
+            if not args.low_memory:
+                print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
+                print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
+                print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq()))
+                print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
 
-            logging.info("Outputting bubble chains gfa...")
-            graph.write_b_chains(output=args.chains_gfa)
+            if args.out_json is not None:
+                logging.info("Outputting bubble chains gfa...")
+                json_out(graph, args.out_json)
 
-        if args.out_fasta is not None:
-            if args.low_memory:
-                print("You cannot have low memory and output fasta")
-                sys.exit()
+            if args.chains_gfa is not None:
+                if args.low_memory:
+                    print("You cannot have low memory and output GFA file of chains")
+                    sys.exit()
 
-            logging.info("Outputting each bubble branch...")
-            write_bubbles(graph, args.out_fasta)
+                logging.info("Outputting bubble chains gfa...")
+                graph.write_b_chains(output=args.chains_gfa)
 
-        if args.out_haplos:
-            logging.info("Outputting two random haplotypes of each bubble chain...")
-            output_chains_fasta(graph)
+            if args.out_fasta is not None:
+                if args.low_memory:
+                    print("You cannot have low memory and output fasta")
+                    sys.exit()
+
+                logging.info("Outputting each bubble branch...")
+                write_bubbles(graph, args.out_fasta)
+
+            if args.out_haplos:
+                logging.info("Outputting two random haplotypes of each bubble chain...")
+                output_chains_fasta(graph)
 
     ####################### BFS
     if args.subcommands == "bfs":
