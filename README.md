@@ -9,10 +9,10 @@
     + [biggestcomp](#biggestcomp)
     + [bfs](#bfs)
 
-[comment]: <> (    + [gamdigest]&#40;#gamdigest&#41;)
 
+![alt text](images/bubble_gun_logo.png)
 # BubbleGun
-Preprint can be found on Bioarxiv [here](https://www.biorxiv.org/content/10.1101/2021.03.23.436631v1)
+This work is published [here](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btac448/6633304?login=true) 
 
 A tool for detecting Bubbles and Superbubble in De-bruijn graphs. BubbleGun outputs runs of bubbles and superbubbles we call bubble chains.
 Several graph-related functions are also implemented in BubbleGun:
