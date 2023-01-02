@@ -9,8 +9,9 @@ REQUIRED_PYTHON = (3, 3)
 # This check and everything above must remain compatible with Python 2.7.
 if CURRENT_PYTHON < REQUIRED_PYTHON:
     sys.stderr.write("BubbleGun requires Python 3.3 or higher and "
-                     "you current verions is {}".format(CURRENT_PYTHON))
+                     "you current version is {}".format(CURRENT_PYTHON))
     sys.exit(1)
+
 
 setup(name='BubbleGun',
       version='1.1.5',
