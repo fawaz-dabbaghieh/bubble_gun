@@ -108,8 +108,11 @@ def find_sb_alg(graph, s, direction, only_simple=False, only_super=False):
                 if bubble.is_simple():
                     return bubble
             elif only_super:
-                if bubble.is_super():
-                    return bubble
+                # If it's a bubble and it's not simple or an insertion
+                # then it's marked as super
+                if not bubble.is_simple():
+                    if not bubble.is_insertion():
+                        return bubble
             else:
                 return bubble
 
