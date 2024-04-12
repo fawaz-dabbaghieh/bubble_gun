@@ -255,7 +255,6 @@ def main():
                 print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
                 print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq()))
                 print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
-
             if args.out_json is not None:
                 logging.info("Outputting bubble chains gfa...")
                 json_out(graph, args.out_json)

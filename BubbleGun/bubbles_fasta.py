@@ -5,7 +5,7 @@ def write_bubbles(graph, output_path):
     out_file = open(output_path, "w")
 
     for chain in graph.b_chains:
-        for bubble in chain.bubbles:
+        for bubble in chain.sorted:
             if not bubble.is_simple():
                 continue
 

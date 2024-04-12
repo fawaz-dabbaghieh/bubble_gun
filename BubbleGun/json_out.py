@@ -1,5 +1,4 @@
 import json
-import pdb
 
 
 def json_out(graph, output):
@@ -45,6 +44,7 @@ def json_out(graph, output):
     #     json_out[child_chain_key.id] = chain_line
     #     # output_f.write(json.dumps(chain_line) + ",\n")
     # not nested chains
+
     for chain in graph.b_chains:
         # The chains that are not nested
         chain_line = dict()
