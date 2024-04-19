@@ -36,23 +36,6 @@ def write_gfa(graph, set_of_nodes=None,
             logging.warning("Node {} does not exist in the graph, skipped in output".format(n1))
             continue
 
-        # writing nodes in gfa file
-        # if modified:
-        #     node = nodes[n1]
-        #     # for now I don't care to which sb the node belongs
-        #     # I just care about simple bubbles for phasing
-        #     specification = str(":".join((str(node.which_chain), str(0),
-        #                                   str(node.which_b), str(node.which_allele))))
-        #     if nodes[n1].seq == "":
-        #         line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), specification)))
-        #     else:
-        #         line = str("\t".join(("S", str(n1), nodes[n1].seq, specification)))
-        #
-        #     f.write(line + "\n")
-        # else:
-        # if nodes[n1].seq == "":
-        #     line = str("\t".join(("S", str(n1), str("A" * nodes[n1].seq_len), "LN:i:" + len())))
-        # else:
         line = str("\t".join(("S", str(n1), nodes[n1].seq, "LN:i:" + str(nodes[n1].seq_len))))
         if optional_info:
             line += "\t" + nodes[n1].optional_info
@@ -120,7 +103,7 @@ def write_chains(graph, output_file="output_bubble_chains.gfa", optional_info=Fa
         if "LN" in nodes[n1].optional_info:
             line = str("\t".join(("S", str(n1), nodes[n1].seq)))
         else:
-            line = str("\t".join(("S", str(n1), nodes[n1].seq,  "LN:i:" + str(nodes[n1].seq_len))))
+            line = str("\t".join(("S", str(n1), nodes[n1].seq, "LN:i:" + str(nodes[n1].seq_len))))
         if optional_info:
             line += "\t" + nodes[n1].optional_info
 
@@ -186,17 +169,6 @@ def read_gfa(gfa_file_path, low_memory=False):
                     nodes[n_id].seq_len = n_len
                     nodes[n_id].seq = str(line[2]).strip()
 
-                    # reading extra information about nodes
-                    # nodes[n_id].kc = int([x for x in line if x.startswith("KC")][0].split(":")[-1])
-                    # nodes[n_id].km = float([x for x in line if x.startswith("km")][0].split(":")[-1])
-
-                    # if min_node_length > nodes[n_id].seq_len:
-                    #     logging.error("Node {} has a sequence of length {}"
-                    #                   " which is smaller than the provided k\n"
-                    #                   "Not allowed.".format(nodes[n_id].id,
-                    #                                         nodes[n_id].seq_len))
-                    #     sys.exit()
-
             elif line.startswith("L"):
                 edges.append(line)
 
@@ -228,34 +200,37 @@ def read_gfa(gfa_file_path, low_memory=False):
 
         if from_start and to_end:  # from start to end L x - y -
             if (second_node, 1, overlap) not in nodes[first_node].start:
-                nodes[first_node].start.append((second_node, 1, overlap))
+                nodes[first_node].start.add((second_node, 1, overlap))
             if (first_node, 0, overlap) not in nodes[second_node].end:
-                nodes[second_node].end.append((first_node, 0, overlap))
+                nodes[second_node].end.add((first_node, 0, overlap))
 
         elif from_start and not to_end:  # from start to start L x - y +
 
             if (second_node, 0, overlap) not in nodes[first_node].start:
-                nodes[first_node].start.append((second_node, 0, overlap))
+                nodes[first_node].start.add((second_node, 0, overlap))
 
             if (first_node, 0, overlap) not in nodes[second_node].start:
-                nodes[second_node].start.append((first_node, 0, overlap))
+                nodes[second_node].start.add((first_node, 0, overlap))
 
         elif not from_start and not to_end:  # from end to start L x + y +
             if (second_node, 0, overlap) not in nodes[first_node].end:
-                nodes[first_node].end.append((second_node, 0, overlap))
+                nodes[first_node].end.add((second_node, 0, overlap))
 
             if (first_node, 1, overlap) not in nodes[second_node].start:
-                nodes[second_node].start.append((first_node, 1, overlap))
+                nodes[second_node].start.add((first_node, 1, overlap))
 
         elif not from_start and to_end:  # from end to end L x + y -
             if (second_node, 1, overlap) not in nodes[first_node].end:
-                nodes[first_node].end.append((second_node, 1, overlap))
+                nodes[first_node].end.add((second_node, 1, overlap))
 
             if (first_node, 1, overlap) not in nodes[second_node].end:
-                nodes[second_node].end.append((first_node, 1, overlap))
+                nodes[second_node].end.add((first_node, 1, overlap))
 
+    # hacky fix for now
+    for n in nodes.values():
+        n.start = list(n.start)
+        n.end = list(n.end)
     return nodes
-
 
 # def read_vg(vg_file_path, k):
 #     """

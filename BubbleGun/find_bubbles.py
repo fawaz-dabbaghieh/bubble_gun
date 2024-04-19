@@ -26,7 +26,6 @@ for node s in nodes:
                     break
 """
 
-
 def find_sb_alg(graph, s, direction, only_simple=False, only_super=False):
     """
     takes the graph and a start node s and add a bubble to the chain 
@@ -116,30 +115,6 @@ def find_sb_alg(graph, s, direction, only_simple=False, only_super=False):
             else:
                 return bubble
 
-            # if we already found the same bubble from another direction
-            # I don't think I need to check because I'm finding bubbles sequentially
-            # but I will investigate this later
-
-            # if bubble not in chain:
-            #     if only_simple:
-            #         if bubble.is_simple():
-            #             chain.add_bubble(bubble)
-            #         else:
-            #             # todo add end of chain here and test
-            #             break
-            #     elif only_super:
-            #         if bubble.is_super():
-            #             chain.add_bubble(bubble)
-            #
-            #     else:
-            #         chain.add_bubble(bubble)
-            #     # calling the function again on sink
-            #     # and continuing the search to chain bubbles
-            #     find_sb_alg(graph, t[0], t[1], chain, only_simple)
-            #
-            # else:
-            #     # todo add end of chain here and test
-            #     break
     return None
 
 
@@ -204,13 +179,6 @@ def find_bubbles(graph, only_simple=False, only_super=False, list_of_nodes=None)
     main function for finding bubbles
     Takes a graph and fills in the bubble chains
     """
-    # counter = 0
-
-    # print("[{}] Sorting nodes\n".format(current_time()))
-    # sorting nodes by length
-    # sorted_nodes = sorted(graph.nodes, key=lambda x: graph.nodes[x].seq_len, reverse=True)
-    # find_b_alg(graph, graph.nodes[167], 0, chains)
-    # pdb.set_trace()
 
     if only_simple and only_super:
         print("You can't mix both only_super and only_simple, choose one or not add these arguments to detect both")
@@ -219,12 +187,14 @@ def find_bubbles(graph, only_simple=False, only_super=False, list_of_nodes=None)
     if list_of_nodes is None:
         list_of_nodes = graph.nodes.values()
 
+    # print("we are here and going into the loop")
+    # counter = 0
     for n in list_of_nodes:
         # print(n.id)
         # chain = BubbleChain()
         # counter += 1
-        # if (counter % 1000000) == 0:
-        #     print("[{}] {} nodes have been processed".format(current_time(), counter))
+        # if (counter % 10000) == 0:
+            # print(f"Process {counter} nodes for finding bubbles already")
         if not n.visited:
 
             for d in [0, 1]:  # looking in both direction for each node
@@ -233,10 +203,3 @@ def find_bubbles(graph, only_simple=False, only_super=False, list_of_nodes=None)
 
                 if bubble is not None:
                     graph.bubbles[bubble.key] = bubble
-                    # graph.bubbles.add(bubble)
-            # if len(chain) != 0:
-            #     # chain.find_ends()
-            #     graph.add_chain(chain)
-
-                # for n in chain.list_chain(ids=False):
-                #     n.visited = True

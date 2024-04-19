@@ -8,16 +8,10 @@ class Node:
         self.id = identifier  # size is between 28 and 32 bytes
         self.seq = ""
         self.seq_len = 0  # mostly 28 bytes
-        self.start = []  # 96 bytes for 4 neighbors
-        self.end = []  # 96 bytes
+        self.start = set()  # 96 bytes for 4 neighbors
+        self.end = set()  # 96 bytes
         self.visited = False  # 28 bytes (used for bubble and superbubble detection)
         self.optional_info = ""
-        # bubble related information
-        # self.which_chain = 0
-        # self.which_sb = 0
-        # self.which_b = 0
-        # self.which_allele = -1
-        # self.coverage = 0
 
     def __sizeof__(self):
         size = self.id.__sizeof__() + self.seq_len.__sizeof__() + self.visited.__sizeof__()
@@ -25,14 +19,14 @@ class Node:
         if len(self.start) == 0:
             size += self.start.__sizeof__()
         else:
-            for i in range(len(self.start)):
-                size += sys.getsizeof(self.start[i])
+            for i in self.start:
+                size += sys.getsizeof(i)
 
         if len(self.end) == 0:
             size += self.end.__sizeof__()
         else:
-            for i in range(len(self.end)):
-                size += sys.getsizeof(self.end[i])
+            for i in self.end:
+                size += sys.getsizeof(i)
 
         return size
 
