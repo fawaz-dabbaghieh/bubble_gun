@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import sys
 import argparse
 import logging
@@ -22,6 +21,9 @@ parser._optionals.title = 'Global Arguments'
 
 parser.add_argument("-g", "--in_graph", metavar="GRAPH_PATH", dest="in_graph",
                     default=None, type=str, help="graph file path (GFA or VG)")
+
+parser.add_argument("-v", "--version", action="store_true",
+                    help="outputs version")
 
 parser.add_argument("--log_file", dest="log_file", type=str, default="log.log",
                         help="The name/path of the log file. Default: log.log")
@@ -106,6 +108,10 @@ output_chain.add_argument("--output_chain", dest="output_chain", metavar="OUTPUT
                           type=str, default=None, help="Output path for the chains chosen")
 
 args = parser.parse_args()
+if args.version:
+    from BubbleGun.__version__ import version
+    print(f"the current version is {version}")
+    sys.exit(0)
 
 # log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
 log_file = args.log_file
@@ -115,6 +121,7 @@ logging.basicConfig(filename=log_file, filemode='w',
                     level=getattr(logging, args.log_level.upper()))
 
 logging.info(" ".join(["argument given:"] + sys.argv))
+
 
 
 def main():

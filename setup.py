@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 from distutils.core import setup
+from BubbleGun.__version__ import version
 from setuptools import setup, find_packages
 
 CURRENT_PYTHON = sys.version_info[:2]
@@ -14,7 +15,7 @@ if CURRENT_PYTHON < REQUIRED_PYTHON:
 
 
 setup(name='BubbleGun',
-      version='1.1.8',
+      version=version,
       description='Detection of Bubble and Superbubble chains in genome graphs',
       author='Fawaz Dabbaghie',
       author_email='fawaz.dabbaghie@helmholtz-hips.de',
