@@ -1,4 +1,4 @@
-![PyPI Downloads](https://static.pepy.tech/badge/bubblegun)
+![PyPI Downloads](https://static.pepy.tech/badge/bubblegun)
 
 - [BubbleGun](#bubblegun)
   * [Installation](#installation)
