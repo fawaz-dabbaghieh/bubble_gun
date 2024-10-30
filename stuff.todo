@@ -66,3 +66,12 @@ BubbleGun TODO list:
 Bugs:
  ✔ compacting didn't work on the graph, need to debug @done (19-12-20 17:15) 
  ✔ I can't read VG files for some reason, getting google.protobuff error @done (20-01-10 16:20)
+
+
+
+Improvements:
+  - remove upper case from binary name
+  - Fix typos in README and other documentation (including help)
+  - limit the statistics to 2 numbers after decimal point
+  - Maybe output stats more like a TSV
+  - remove global graph input argument and make it as required last input

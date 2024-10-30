@@ -110,7 +110,7 @@ output_chain.add_argument("--output_chain", dest="output_chain", metavar="OUTPUT
 args = parser.parse_args()
 if args.version:
     from BubbleGun.__version__ import version
-    print(f"the current version is {version}")
+    print(f"bubblegun version {version}")
     sys.exit(0)
 
 # log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"

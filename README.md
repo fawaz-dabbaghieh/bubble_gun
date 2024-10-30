@@ -1,3 +1,5 @@
+![PyPI Downloads](https://static.pepy.tech/badge/bubblegun)
+
 - [BubbleGun](#bubblegun)
   * [Installation](#installation)
   * [Use Cases](#use-cases)
