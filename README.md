@@ -1,4 +1,6 @@
 ![PyPI Downloads](https://static.pepy.tech/badge/bubblegun)
+![anaconda](https://anaconda.org/bioconda/bubblegun/badges/version.svg)
+![license](https://anaconda.org/bioconda/bubblegun/badges/license.svg)
 
 - [BubbleGun](#bubblegun)
   * [Installation](#installation)
