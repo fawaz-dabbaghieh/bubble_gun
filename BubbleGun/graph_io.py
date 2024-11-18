@@ -185,8 +185,13 @@ def read_gfa(gfa_file_path, low_memory=False):
             logging.warning(f"an edge between {first_node} and {second_node} exists but a "
                             f"node record for {second_node} does not exist in the file. Skipping")
             continue
+            
+        if line[5] == "*":
+            overlap = 0
+        else:
+            overlap = int(line[5][:-1])
 
-        overlap = int(line[5][:-1])
+        # overlap = int(line[5][:-1])
 
         if line[2] == "-":
             from_start = True
