@@ -1,4 +1,5 @@
 from BubbleGun.path_extractor import sequence_extractor
+import pdb
 
 
 def write_bubbles(graph, output_path):
@@ -10,8 +11,10 @@ def write_bubbles(graph, output_path):
                 continue
 
             first_path = [bubble.source.id, bubble.inside[0].id, bubble.sink.id]
+            first_path = [str(y) for y in sorted([int(x) for x in first_path])]
             seq1 = sequence_extractor(graph, first_path)
             second_path = [bubble.source.id, bubble.inside[1].id, bubble.sink.id]
+            second_path = [str(y) for y in sorted([int(x) for x in second_path])]
             seq2 = sequence_extractor(graph, second_path)
 
             read_name1 = ">bubble_" + str(bubble.id) + "_allele_1" + "_chain_" + str(chain.id)
