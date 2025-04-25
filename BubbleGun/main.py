@@ -107,28 +107,27 @@ output_chain.add_argument("--chain_ids", dest="chain_ids", metavar="CHAIN_IDS", 
 output_chain.add_argument("--output_chain", dest="output_chain", metavar="OUTPUT",
                           type=str, default=None, help="Output path for the chains chosen")
 
-args = parser.parse_args()
-if args.version:
-    from BubbleGun.__version__ import version
-    print(f"bubblegun version {version}")
-    sys.exit(0)
-
-# log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
-log_file = args.log_file
-
-logging.basicConfig(filename=log_file, filemode='w',
-                    format='[%(asctime)s] %(message)s',
-                    level=getattr(logging, args.log_level.upper()))
-
-logging.info(" ".join(["argument given:"] + sys.argv))
-
-
 
 def main():
     if len(sys.argv) == 1:
         print("You did not provide any arguments\n"
               "Try to use -h or --help for help\n")
         sys.exit()
+
+    args = parser.parse_args()
+    if args.version:
+        from BubbleGun.__version__ import version
+        print(f"bubblegun version {version}")
+        sys.exit(0)
+
+    # log_file = "log_" + str(time.clock_gettime(1)).split(".")[0] + ".log"
+    log_file = args.log_file
+
+    logging.basicConfig(filename=log_file, filemode='w',
+                        format='[%(asctime)s] %(message)s',
+                        level=getattr(logging, args.log_level.upper()))
+
+    logging.info(" ".join(["argument given:"] + sys.argv))
 
     if args.subcommands is None:
         print("Please provide a subcommand after the global commands")
