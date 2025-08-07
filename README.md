@@ -12,6 +12,7 @@
     + [compact](#compact)
     + [biggestcomp](#biggestcomp)
     + [bfs](#bfs)
+  * [Citation](#citation)
 
 
 ![alt text](images/bubble_gun_logo.png)
@@ -259,3 +260,8 @@ Examples:
 [comment]: <> (Example command:)
 
 [comment]: <> (`./main.py gamdigest --json_file test_graph_chains.json --alignment_file test_alignment.gam --min_cutoff 200 --out_dict alignment_dictionary.pickle`)
+
+## Citation
+This work has been published in Bioinformatics and can cited with:
+
+Fawaz Dabbaghie, Jana Ebler, Tobias Marschall, BubbleGun: enumerating bubbles and superbubbles in genome graphs, Bioinformatics, Volume 38, Issue 17, September 2022, Pages 4217–4219, https://doi.org/10.1093/bioinformatics/btac448
