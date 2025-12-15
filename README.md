@@ -29,6 +29,7 @@ Several graph-related functions are also implemented in BubbleGun:
 - Extracting information from long reads aligned to bubble chains
 
 BubbleGun keeps all optional information in the S (Segment) lines and re-writes them in th output GFA. However, if the graph is compacted then output GFA file doesn't have these optional information, the problem is that when compacting some nodes will be merged and it's not always clear how these optional information can be updated for merged noded. 
+
 ## Installation
 
 BubbleGun can be installed with pip:
@@ -261,7 +262,8 @@ Examples:
 
 [comment]: <> (`./main.py gamdigest --json_file test_graph_chains.json --alignment_file test_alignment.gam --min_cutoff 200 --out_dict alignment_dictionary.pickle`)
 
+
 ## Citation
-This work has been published in Bioinformatics and can cited with:
+Please cite the following when using `BubbleGun`.
 
 Fawaz Dabbaghie, Jana Ebler, Tobias Marschall, BubbleGun: enumerating bubbles and superbubbles in genome graphs, Bioinformatics, Volume 38, Issue 17, September 2022, Pages 4217–4219, https://doi.org/10.1093/bioinformatics/btac448
