@@ -45,6 +45,16 @@ python3 setup.py install
 In case you do not have admin access or want to install BubbleGun locally for the user, then `--user` can be added after `install`. And the binaries will usually be added to `~/.local/bin` on Linux systems. 
 This will also download the needed dependencies and creat a callable entry point for the tool, and it should be added to the path, so `BubbleGun` can be called anywhere to get the CLI and then be used.
 
+Note: If you build the C++ extension and test imports from the repository root, Python may import the source tree instead of the installed package. To confirm the compiled module is used, run imports from outside the repo or build in place with:
+```
+python setup.py build_ext --inplace
+```
+
+### Troubleshooting (C++ Extension)
+- If `ModuleNotFoundError: No module named 'BubbleGun._graph_cpp'`, ensure the extension was built for your active Python (`python -m pip install . -v` should show `build_ext` output).
+- If the extension builds but imports the Python class, verify you are not shadowing the install by running imports outside the repo.
+- In conda, the compiler toolchain must be available. If builds fail, try `python -m pip install . --no-build-isolation -v` and check for missing compiler errors.
+
 ## Use cases
 Some use cases are listed [here](use_cases), there are 3 different use cases explained:
 

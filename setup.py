@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import sys
-from distutils.core import setup
 from BubbleGun.__version__ import version
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 CURRENT_PYTHON = sys.version_info[:2]
 REQUIRED_PYTHON = (3, 3)
@@ -13,6 +12,10 @@ if CURRENT_PYTHON < REQUIRED_PYTHON:
                      "you current version is {}".format(CURRENT_PYTHON))
     sys.exit(1)
 
+
+extra_compile_args = []
+if sys.platform != "win32":
+    extra_compile_args.append("-std=c++11")
 
 setup(name='BubbleGun',
       version=version,
@@ -25,6 +28,14 @@ setup(name='BubbleGun',
       license="LICENSE.TXT",
       long_description=open("README.md").read(),
       long_description_content_type='text/markdown',
+      ext_modules=[
+          Extension(
+              "BubbleGun._graph_cpp",
+              sources=["BubbleGun/_graph_cpp.cpp"],
+              language="c++",
+              extra_compile_args=extra_compile_args,
+          )
+      ],
 #      install_requires=["protobuf == 3.11.3",
 #                        "pystream-protobuf == 1.5.1"],
       # other arguments here...
