@@ -22,6 +22,7 @@ typedef struct {
 } NodeObject;
 
 static void Node_dealloc(NodeObject *self) {
+    // Mirror BubbleGun.Node cleanup (decref Python-owned fields).
     Py_XDECREF(self->id);
     Py_XDECREF(self->seq);
     Py_XDECREF(self->start);
@@ -31,6 +32,7 @@ static void Node_dealloc(NodeObject *self) {
 }
 
 static int Node_init(NodeObject *self, PyObject *args, PyObject *kwds) {
+    // Equivalent to BubbleGun.Node.__init__: initialize fields and defaults.
     PyObject *identifier = nullptr;
     static char *kwlist[] = {const_cast<char *>("identifier"), nullptr};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &identifier)) {
@@ -46,6 +48,7 @@ static int Node_init(NodeObject *self, PyObject *args, PyObject *kwds) {
         return -1;
     }
     self->seq_len = 0;
+    // Use list to match Python Node.start/end mutations across the codebase.
     self->start = PyList_New(0);
     self->end = PyList_New(0);
     if (!self->start || !self->end) {
@@ -64,6 +67,7 @@ static int Node_init(NodeObject *self, PyObject *args, PyObject *kwds) {
 }
 
 static PyObject *Node_neighbors(NodeObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Node.neighbors: return sorted neighbor ids from start/end.
     PyObject *neighbors = PyList_New(0);
     if (!neighbors) {
         return nullptr;
@@ -95,6 +99,7 @@ static PyObject *Node_neighbors(NodeObject *self, PyObject *Py_UNUSED(ignored)) 
 }
 
 static PyObject *Node_in_direction(NodeObject *self, PyObject *args) {
+    // Match BubbleGun.Node.in_direction: check neighbor in a given direction.
     PyObject *node = nullptr;
     int direction = 0;
     if (!PyArg_ParseTuple(args, "Oi", &node, &direction)) {
@@ -122,6 +127,7 @@ static PyObject *Node_in_direction(NodeObject *self, PyObject *args) {
 }
 
 static PyObject *Node_children(NodeObject *self, PyObject *args) {
+    // Match BubbleGun.Node.children: list neighbors in a direction.
     int direction = 0;
     if (!PyArg_ParseTuple(args, "i", &direction)) {
         return nullptr;
@@ -199,6 +205,7 @@ static void Graph_dealloc(GraphObject *self) {
 }
 
 static std::vector<std::string> split_tabs(const std::string &line) {
+    // Helper for read_gfa parity: split tab-delimited GFA fields.
     std::vector<std::string> parts;
     size_t start = 0;
     while (start <= line.size()) {
@@ -214,6 +221,7 @@ static std::vector<std::string> split_tabs(const std::string &line) {
 }
 
 static int add_edge_unique(PyObject *list_obj, PyObject *tuple_obj) {
+    // Keep GFA edge inserts unique, matching graph_io.read_gfa behavior.
     int contains = PySequence_Contains(list_obj, tuple_obj);
     if (contains < 0) {
         return -1;
@@ -227,6 +235,7 @@ static int add_edge_unique(PyObject *list_obj, PyObject *tuple_obj) {
 }
 
 static PyObject *make_edge_tuple(PyObject *node_id, long direction, long overlap) {
+    // Build the (neighbor_id, direction, overlap) tuple used in Node.start/end.
     PyObject *dir_obj = PyLong_FromLong(direction);
     PyObject *ov_obj = PyLong_FromLong(overlap);
     if (!dir_obj || !ov_obj) {
@@ -241,6 +250,8 @@ static PyObject *make_edge_tuple(PyObject *node_id, long direction, long overlap
 }
 
 static int remove_edge_from_list(PyObject *list_obj, PyObject *edge_tuple) {
+    // Remove the first matching edge tuple (graph_io uses lists, not sets).
+    // Linear scan keeps semantics consistent even if duplicates slip in.
     Py_ssize_t size = PyList_Size(list_obj);
     if (size < 0) {
         return -1;
@@ -265,6 +276,7 @@ static int remove_edge_from_list(PyObject *list_obj, PyObject *edge_tuple) {
 }
 
 static int Graph_parse_gfa(GraphObject *self, const char *path, int low_memory) {
+    // C++ equivalent of graph_io.read_gfa: parse S/L lines into Node objects.
     std::ifstream infile(path);
     if (!infile) {
         PyErr_Format(PyExc_SystemExit, "graph file %s does not exist", path);
@@ -301,6 +313,7 @@ static int Graph_parse_gfa(GraphObject *self, const char *path, int low_memory) 
             }
 
             NodeObject *node = (NodeObject *)node_obj;
+            // When low_memory is on, omit sequences to reduce RAM (Python parity).
             if (!low_memory) {
                 PyObject *seq_obj = PyUnicode_FromString(seq.c_str());
                 if (!seq_obj) {
@@ -388,6 +401,7 @@ static int Graph_parse_gfa(GraphObject *self, const char *path, int low_memory) 
             return -1;
         }
 
+        // Edge direction mapping mirrors graph_io.read_gfa cases.
         if (edge.from_start && edge.to_end) {
             PyObject *t1 = make_edge_tuple(to_id, 1, edge.overlap);
             PyObject *t2 = make_edge_tuple(from_id, 0, edge.overlap);
@@ -472,6 +486,7 @@ static int Graph_parse_gfa(GraphObject *self, const char *path, int low_memory) 
 }
 
 static int Graph_init(GraphObject *self, PyObject *args, PyObject *kwds) {
+    // Match BubbleGun.Graph.__init__: load nodes + initialize chain/bubble state.
     PyObject *graph_file = Py_None;
     int low_memory = 0;
     static char *kwlist[] = {const_cast<char *>("graph_file"), const_cast<char *>("low_memory"), nullptr};
@@ -507,11 +522,13 @@ static int Graph_init(GraphObject *self, PyObject *args, PyObject *kwds) {
 }
 
 static Py_ssize_t Graph_length(PyObject *self) {
+    // Match BubbleGun.Graph.__len__.
     GraphObject *graph = (GraphObject *)self;
     return PyDict_Size(graph->nodes);
 }
 
 static PyObject *Graph_str(PyObject *self) {
+    // Match BubbleGun.Graph.__str__.
     GraphObject *graph = (GraphObject *)self;
     Py_ssize_t nodes_count = PyDict_Size(graph->nodes);
     Py_ssize_t chains_count = PySet_Size(graph->b_chains);
@@ -519,6 +536,7 @@ static PyObject *Graph_str(PyObject *self) {
 }
 
 static PyObject *Graph_add_chain(GraphObject *self, PyObject *args) {
+    // Match BubbleGun.Graph.add_chain: normalize and track bubble chains.
     PyObject *chain = nullptr;
     if (!PyArg_ParseTuple(args, "O", &chain)) {
         return nullptr;
@@ -583,6 +601,7 @@ static PyObject *Graph_add_chain(GraphObject *self, PyObject *args) {
 }
 
 static PyObject *Graph_total_seq_length(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.total_seq_length.
     long long total = 0;
     PyObject *key = nullptr;
     PyObject *value = nullptr;
@@ -603,6 +622,7 @@ static PyObject *Graph_total_seq_length(GraphObject *self, PyObject *Py_UNUSED(i
 }
 
 static PyObject *Graph_longest_chain_bubble(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.longest_chain_bubble.
     Py_ssize_t count = PySet_Size(self->b_chains);
     if (count == 0) {
         PyErr_SetString(PyExc_ValueError, "max() arg is an empty sequence");
@@ -634,6 +654,7 @@ static PyObject *Graph_longest_chain_bubble(GraphObject *self, PyObject *Py_UNUS
 }
 
 static PyObject *Graph_longest_chain_seq(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.longest_chain_seq.
     Py_ssize_t count = PySet_Size(self->b_chains);
     if (count == 0) {
         PyErr_SetString(PyExc_ValueError, "max() arg is an empty sequence");
@@ -673,6 +694,7 @@ static PyObject *Graph_longest_chain_seq(GraphObject *self, PyObject *Py_UNUSED(
 }
 
 static PyObject *Graph_nodes_in_chains(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.nodes_in_chains.
     PyObject *all_nodes = PySet_New(nullptr);
     if (!all_nodes) {
         return nullptr;
@@ -705,6 +727,7 @@ static PyObject *Graph_nodes_in_chains(GraphObject *self, PyObject *Py_UNUSED(ig
 }
 
 static PyObject *Graph_seq_in_chains(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.seq_in_chains.
     long long total = 0;
     PyObject *iter = PyObject_GetIter(self->b_chains);
     if (!iter) {
@@ -726,6 +749,7 @@ static PyObject *Graph_seq_in_chains(GraphObject *self, PyObject *Py_UNUSED(igno
 }
 
 static PyObject *Graph_chain_cov_node(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.chain_cov_node.
     PyObject *nodes_set = Graph_nodes_in_chains(self, nullptr);
     if (!nodes_set) {
         return nullptr;
@@ -740,6 +764,7 @@ static PyObject *Graph_chain_cov_node(GraphObject *self, PyObject *Py_UNUSED(ign
 }
 
 static PyObject *Graph_chain_cov_seq(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.chain_cov_seq.
     PyObject *chain_nodes = PySet_New(nullptr);
     if (!chain_nodes) {
         return nullptr;
@@ -812,6 +837,7 @@ static PyObject *Graph_chain_cov_seq(GraphObject *self, PyObject *Py_UNUSED(igno
 }
 
 static PyObject *Graph_num_single_bubbles(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.num_single_bubbles.
     long long count = 0;
     PyObject *iter = PyObject_GetIter(self->b_chains);
     if (!iter) {
@@ -830,6 +856,7 @@ static PyObject *Graph_num_single_bubbles(GraphObject *self, PyObject *Py_UNUSED
 }
 
 static PyObject *Graph_reset_visited(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.reset_visited.
     PyObject *key = nullptr;
     PyObject *value = nullptr;
     Py_ssize_t pos = 0;
@@ -846,6 +873,7 @@ static PyObject *Graph_reset_visited(GraphObject *self, PyObject *Py_UNUSED(igno
 }
 
 static PyObject *Graph_bubble_number(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.bubble_number.
     long long simple = 0;
     long long super = 0;
     long long insertion = 0;
@@ -925,6 +953,7 @@ static PyObject *Graph_bubble_number(GraphObject *self, PyObject *Py_UNUSED(igno
 }
 
 static PyObject *Graph_remove_node(GraphObject *self, PyObject *args) {
+    // Match BubbleGun.Graph.remove_node: remove node and its edges.
     PyObject *n_id = nullptr;
     if (!PyArg_ParseTuple(args, "O", &n_id)) {
         return nullptr;
@@ -1025,6 +1054,7 @@ static PyObject *Graph_remove_node(GraphObject *self, PyObject *args) {
 }
 
 static PyObject *Graph_remove_lonely_nodes(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.remove_lonely_nodes.
     PyObject *to_remove = PyList_New(0);
     if (!to_remove) {
         return nullptr;
@@ -1065,6 +1095,8 @@ static PyObject *Graph_remove_lonely_nodes(GraphObject *self, PyObject *Py_UNUSE
 }
 
 static PyObject *Graph_compact(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Delegate to BubbleGun.compact_graph.compact_graph for shared logic.
+    // Keeps graph mutation semantics identical to the Python implementation.
     PyObject *module = PyImport_ImportModule("BubbleGun.compact_graph");
     if (!module) {
         return nullptr;
@@ -1085,6 +1117,8 @@ static PyObject *Graph_compact(GraphObject *self, PyObject *Py_UNUSED(ignored)) 
 }
 
 static PyObject *Graph_write_graph(GraphObject *self, PyObject *args, PyObject *kwds) {
+    // Delegate to BubbleGun.graph_io.write_gfa to keep output consistent.
+    // The Python writer understands optional GFA fields and compacted graphs.
     PyObject *set_of_nodes = Py_None;
     PyObject *output_file = nullptr;
     int append = 0;
@@ -1151,6 +1185,7 @@ static PyObject *Graph_write_graph(GraphObject *self, PyObject *args, PyObject *
 }
 
 static PyObject *Graph_write_b_chains(GraphObject *self, PyObject *args, PyObject *kwds) {
+    // Delegate to BubbleGun.graph_io.write_chains to match Python output.
     PyObject *output_file = nullptr;
     static char *kwlist[] = {const_cast<char *>("output"), nullptr};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O", kwlist, &output_file)) {
@@ -1208,6 +1243,7 @@ static PyObject *Graph_write_b_chains(GraphObject *self, PyObject *args, PyObjec
 }
 
 static PyObject *Graph_biggest_comp(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Delegate to BubbleGun.connected_components.all_components.
     PyObject *module = PyImport_ImportModule("BubbleGun.connected_components");
     if (!module) {
         return nullptr;
@@ -1250,6 +1286,8 @@ static PyObject *Graph_biggest_comp(GraphObject *self, PyObject *Py_UNUSED(ignor
 }
 
 static PyObject *Graph_bfs(GraphObject *self, PyObject *args) {
+    // Delegate to BubbleGun.bfs.bfs for neighborhood extraction.
+    // Avoids re-implementing traversal logic and keeps CLI behavior stable.
     PyObject *start = nullptr;
     long size = 0;
     if (!PyArg_ParseTuple(args, "Ol", &start, &size)) {
@@ -1279,6 +1317,7 @@ static PyObject *Graph_bfs(GraphObject *self, PyObject *args) {
 }
 
 static PyObject *Graph_fill_bubble_info(GraphObject *self, PyObject *Py_UNUSED(ignored)) {
+    // Match BubbleGun.Graph.fill_bubble_info; updates which_* tags on nodes.
     long long b_counter = 0;
     long long chain_num = 0;
     PyObject *iter = PyObject_GetIter(self->b_chains);
