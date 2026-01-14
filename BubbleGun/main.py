@@ -44,7 +44,9 @@ bubble_parser.add_argument("--only_super", action="store_true",
                            help="If used then only simple bubbles are detected")
 
 bubble_parser.add_argument("--save_memory", action="store_true", dest="low_memory",
-                           help="Identifies bubble chain with less memory. No statistics outputted")
+                           help="Skip loading node sequences to reduce memory usage")
+bubble_parser.add_argument("--load_sequences", action="store_true",
+                           help="Force loading node sequences even when not required for outputs")
 
 bubble_parser.add_argument("--chains_gfa", dest="chains_gfa", default=None, type=str,
                            help="Output only bubble chains as a GFA file")
@@ -217,9 +219,19 @@ def main():
     ####################### Bubbles
     if args.subcommands == "bchains":
         # output_file = args.out_bubbles
-        if (args.low_memory and (args.out_fasta is not None)) or (args.low_memory and (args.chains_gfa is not None)):
-            print("You cannot combine memory saving with --fasta or --chains_gfa")
+        needs_seq = args.out_fasta is not None or args.chains_gfa is not None or args.out_haplos
+        if args.low_memory and needs_seq:
+            print("You cannot combine memory saving with --fasta, --chains_gfa, or --out_haplos")
             sys.exit(0)
+
+        if args.low_memory and args.load_sequences:
+            print("You cannot combine --save_memory with --load_sequences")
+            sys.exit(0)
+
+        if args.load_sequences:
+            args.low_memory = False
+        elif not args.low_memory and not needs_seq:
+            args.low_memory = True
 
         if args.out_haplos:
             if args.low_memory:
@@ -256,11 +268,10 @@ def main():
 
         if (0,0,0) != (b_numbers[0], b_numbers[1],b_numbers[2]):
 
-            if not args.low_memory:
-                print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
-                print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
-                print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq()))
-                print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
+            print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
+            print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
+            print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq()))
+            print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
             if args.out_json is not None:
                 logging.info("Outputting bubble chains gfa...")
                 json_out(graph, args.out_json)

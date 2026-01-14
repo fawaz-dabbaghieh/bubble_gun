@@ -197,6 +197,20 @@ struct Edge {
     long overlap;
 };
 
+static long parse_ln_length(const std::vector<std::string> &parts) {
+    for (size_t i = 3; i < parts.size(); ++i) {
+        const std::string &field = parts[i];
+        if (field.rfind("LN:i:", 0) == 0) {
+            try {
+                return std::stol(field.substr(5));
+            } catch (...) {
+                return -1;
+            }
+        }
+    }
+    return -1;
+}
+
 static void Graph_dealloc(GraphObject *self) {
     Py_XDECREF(self->nodes);
     Py_XDECREF(self->b_chains);
@@ -301,6 +315,7 @@ static int Graph_parse_gfa(GraphObject *self, const char *path, int low_memory) 
             }
             const std::string &node_id = parts[1];
             const std::string &seq = parts[2];
+            long ln_len = parse_ln_length(parts);
 
             PyObject *id_obj = PyUnicode_FromString(node_id.c_str());
             if (!id_obj) {
@@ -314,6 +329,12 @@ static int Graph_parse_gfa(GraphObject *self, const char *path, int low_memory) 
 
             NodeObject *node = (NodeObject *)node_obj;
             // When low_memory is on, omit sequences to reduce RAM (Python parity).
+            if (ln_len >= 0) {
+                node->seq_len = ln_len;
+            } else {
+                node->seq_len = static_cast<long>(seq.size());
+            }
+            // When low_memory is on, omit sequences to reduce RAM (Python parity).
             if (!low_memory) {
                 PyObject *seq_obj = PyUnicode_FromString(seq.c_str());
                 if (!seq_obj) {
@@ -323,7 +344,6 @@ static int Graph_parse_gfa(GraphObject *self, const char *path, int low_memory) 
                 }
                 Py_DECREF(node->seq);
                 node->seq = seq_obj;
-                node->seq_len = static_cast<long>(seq.size());
             }
             if (parts.size() > 3) {
                 std::string optional;

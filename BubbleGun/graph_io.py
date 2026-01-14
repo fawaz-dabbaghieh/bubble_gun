@@ -139,6 +139,16 @@ def write_chains(graph, output_file="output_bubble_chains.gfa", optional_info=Fa
     f.close()
 
 
+def _parse_ln(optional_info):
+    for field in optional_info.split("\t"):
+        if field.startswith("LN:i:"):
+            try:
+                return int(field.split(":", 2)[2])
+            except (ValueError, IndexError):
+                return None
+    return None
+
+
 def read_gfa(gfa_file_path, low_memory=False):
     """
     Read a gfa file
@@ -159,15 +169,22 @@ def read_gfa(gfa_file_path, low_memory=False):
             if line.startswith("S"):
                 line = line.strip().split("\t")
                 n_id = str(line[1])
-                n_len = len(line[2])
+                seq = str(line[2]).strip()
                 nodes[n_id] = Node(n_id)
 
                 if len(line) > 3:  # save optional info
                     nodes[n_id].optional_info = "\t".join(line[3:])
+                    ln_len = _parse_ln(nodes[n_id].optional_info)
+                else:
+                    ln_len = None
+
+                if ln_len is not None:
+                    nodes[n_id].seq_len = ln_len
+                else:
+                    nodes[n_id].seq_len = len(seq)
 
                 if not low_memory:
-                    nodes[n_id].seq_len = n_len
-                    nodes[n_id].seq = str(line[2]).strip()
+                    nodes[n_id].seq = seq
 
             elif line.startswith("L"):
                 edges.append(line)

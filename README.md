@@ -107,7 +107,7 @@ This subcommand is for detecting bubble and superbubble chains.
 The following help page is available for bchains
 ```
 usage: BubbleGun bchains [-h] [--bubble_json OUT_JSON] [--only_simple]
-                         [--only_super] [--save_memory]
+                         [--only_super] [--save_memory] [--load_sequences]
                          [--chains_gfa CHAINS_GFA] [--fasta FASTA]
                          [--out_haplos]
 
@@ -118,8 +118,8 @@ optional arguments:
                         file
   --only_simple         If used then only simple bubbles are detected
   --only_super          If used then only simple bubbles are detected
-  --save_memory         Identifies bubble chain with less memory. No
-                        statistics outputted
+  --save_memory         Skip loading node sequences to reduce memory usage
+  --load_sequences      Force loading node sequences even when not required
   --chains_gfa CHAINS_GFA
                         Output only bubble chains as a GFA file
   --fasta FASTA         Outputs the bubble branches as fasta file (doesn't
@@ -128,6 +128,8 @@ optional arguments:
                         work with memory saving)
 ```
 Examples:
+* By default, bchains skips loading sequences unless needed for output (GFA/FASTA/haplotypes).
+  Use `--load_sequences` to force sequence loading.
 * A user wants to detect chains and output JSON file with information about the bubbles and low memory usage.
 . With saving memory, only the graph topology will be stored in memory, and the sequences will not be read from the file.
 Command:
