@@ -14,12 +14,16 @@ def run_once(graph_cls, path, run_detection):
     gc.collect()
     tracemalloc.start()
     start = time.perf_counter()
+    print("loading graph")
+    print(graph_cls)
     graph = graph_cls(path)
+    print("finished loading graph")
     load_elapsed = time.perf_counter() - start
     detect_elapsed = 0.0
     bubble_counts = (0, 0, 0)
     chain_count = 0
     if run_detection:
+        print("bubble detection")
         start_detect = time.perf_counter()
         find_bubbles(graph, only_simple=False, only_super=False)
         connect_bubbles(graph)
@@ -30,6 +34,7 @@ def run_once(graph_cls, path, run_detection):
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     del graph
+    print("finished detecting bubbles")
     return load_elapsed, detect_elapsed, peak, bubble_counts, chain_count
 
 
@@ -64,6 +69,11 @@ def main():
         action="store_true",
         help="Only measure graph loading (skip bubble detection).",
     )
+    parser.add_argument(
+        "--load_sequences",
+        action="store_true",
+        help="Force loading node sequences (disable low-memory mode).",
+    )
     args = parser.parse_args()
 
     py_graph_cls = getattr(GraphModule, "PythonGraph", GraphModule.Graph)
@@ -75,13 +85,21 @@ def main():
     print("Note: memory uses tracemalloc (Python allocations only).")
 
     py_results = [
-        run_once(py_graph_cls, args.gfa_path, not args.skip_detection)
+        run_once(
+            lambda path, cls=py_graph_cls: cls(path, low_memory=not args.load_sequences),
+            args.gfa_path,
+            not args.skip_detection,
+        )
         for _ in range(args.iterations)
     ]
     summarize("PythonGraph", py_results)
 
     cpp_results = [
-        run_once(cpp_graph_cls, args.gfa_path, not args.skip_detection)
+        run_once(
+            lambda path, cls=cpp_graph_cls: cls(path, low_memory=not args.load_sequences),
+            args.gfa_path,
+            not args.skip_detection,
+        )
         for _ in range(args.iterations)
     ]
     summarize("CppGraph", cpp_results)
