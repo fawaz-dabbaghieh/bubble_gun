@@ -17,29 +17,38 @@ def run_once(graph_cls, path, run_detection):
     graph = graph_cls(path)
     load_elapsed = time.perf_counter() - start
     detect_elapsed = 0.0
+    bubble_counts = (0, 0, 0)
+    chain_count = 0
     if run_detection:
         start_detect = time.perf_counter()
         find_bubbles(graph, only_simple=False, only_super=False)
         connect_bubbles(graph)
         find_parents(graph)
         detect_elapsed = time.perf_counter() - start_detect
+        bubble_counts = tuple(graph.bubble_number())
+        chain_count = len(graph.b_chains)
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     del graph
-    return load_elapsed, detect_elapsed, peak
+    return load_elapsed, detect_elapsed, peak, bubble_counts, chain_count
 
 
 def summarize(label, results):
-    load_times = [t for t, _, _ in results]
-    detect_times = [t for _, t, _ in results]
-    peaks = [p for _, _, p in results]
+    load_times = [t for t, _, _, _, _ in results]
+    detect_times = [t for _, t, _, _, _ in results]
+    peaks = [p for _, _, p, _, _ in results]
+    bubbles = [b for _, _, _, b, _ in results]
+    chains = [c for _, _, _, _, c in results]
     avg_load = sum(load_times) / len(load_times)
     avg_detect = sum(detect_times) / len(detect_times)
     avg_peak = sum(peaks) / len(peaks)
+    unique_bubbles = sorted(set(bubbles))
+    unique_chains = sorted(set(chains))
     print(
         f"{label}: avg_load={avg_load:.4f}s avg_detect={avg_detect:.4f}s "
         f"avg_peak_python_mem={avg_peak / (1024 * 1024):.2f}MB"
     )
+    print(f"{label}: bubbles={unique_bubbles} chains={unique_chains}")
 
 
 def main():
