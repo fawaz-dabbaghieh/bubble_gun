@@ -15,7 +15,6 @@ def run_once(graph_cls, path, run_detection):
     tracemalloc.start()
     start = time.perf_counter()
     print("loading graph")
-    print(graph_cls)
     graph = graph_cls(path)
     print("finished loading graph")
     load_elapsed = time.perf_counter() - start
@@ -31,10 +30,10 @@ def run_once(graph_cls, path, run_detection):
         detect_elapsed = time.perf_counter() - start_detect
         bubble_counts = tuple(graph.bubble_number())
         chain_count = len(graph.b_chains)
+        print("finished detecting bubbles")
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     del graph
-    print("finished detecting bubbles")
     return load_elapsed, detect_elapsed, peak, bubble_counts, chain_count
 
 
