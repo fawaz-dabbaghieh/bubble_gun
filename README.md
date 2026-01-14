@@ -120,6 +120,7 @@ optional arguments:
   --only_super          If used then only simple bubbles are detected
   --save_memory         Skip loading node sequences to reduce memory usage
   --load_sequences      Force loading node sequences even when not required
+                        for outputs
   --chains_gfa CHAINS_GFA
                         Output only bubble chains as a GFA file
   --fasta FASTA         Outputs the bubble branches as fasta file (doesn't
