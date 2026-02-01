@@ -56,18 +56,19 @@ class Graph:
         """
         adds a bubble chain to the graph
         """
+
         if len(chain.sorted) == 0:
             chain.find_ends()
-            chain.sort()
             if len(chain.ends) != 2:  # circular chains or other weird stuff
                 nodes_set = set(chain.list_chain())
                 self.write_graph(set_of_nodes=nodes_set, append=True,
                                  output_file="circular_and_other_problematic_chains.gfa", optional_info=False)
+                return
 
-            else:
-                # self.b_chains[chain._BubbleChain__key()] = chain
-                if chain not in self.b_chains:
-                    self.b_chains.add(chain)
+            chain.sort()
+            # self.b_chains[chain._BubbleChain__key()] = chain
+            if chain not in self.b_chains:
+                self.b_chains.add(chain)
 
     def total_seq_length(self):
         """
