@@ -106,27 +106,37 @@ class BubbleChain:
     def sort(self):
         """
         sorts the bubbles in the chain
-        """
-        # finding ends
-        all_ends = dict()
-        for b in self.bubbles:
-            source = str(b.source.id)
-            sink = str(b.sink.id)
-            if source > sink:
-                all_ends[(source, sink)] = b
-            else:
-                all_ends[(sink, source)] = b
 
-        start = self.ends[0]  # randomly choosing one end of the chain as start
-        all_keys = list(all_ends.keys())
+        This solution is inspired by the solution in Issue #8 by ScottMastro
+        """
+        # Linear walk using bubble adjacency; avoids quadratic scans on long chains.
+        node_to_bubbles = dict()
+        for b in self.bubbles:
+            for node_id in (b.source.id, b.sink.id):
+                node_to_bubbles.setdefault(node_id, set()).add(b)
+
+        current_node = self.ends[0]  # choose one end of the chain as start
+        visited_bubbles = set()
+
         while len(self.sorted) < len(self.bubbles):
-            for idx, key in enumerate(all_keys):
-                if start in key:
-                    rm_key = idx
-                    start = key[1 - key.index(start)]
-                    self.sorted.append(all_ends[key])
+            candidates = node_to_bubbles.get(current_node, set())
+            next_bubble = None
+            for b in candidates:
+                if b not in visited_bubbles:
+                    next_bubble = b
                     break
-            del all_keys[rm_key]
+
+            if next_bubble is None:
+                logging.error("No unvisited bubble found: break in bubble chain. Stopping traversal.")
+                break
+
+            self.sorted.append(next_bubble)
+            visited_bubbles.add(next_bubble)
+
+            if next_bubble.source.id == current_node:
+                current_node = next_bubble.sink.id
+            else:
+                current_node = next_bubble.source.id
 
     # def sort(self):
     #     """

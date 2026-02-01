@@ -239,6 +239,7 @@ def main():
 
         find_bubbles(graph, only_simple=args.only_simple, only_super=args.only_super)
 
+        logging.info(f"Found {len(graph.bubbles)} Bubbles in the graph...")
         logging.info("Connecting bubbles...")
         # connecting individual bubbles into chains
         connect_bubbles(graph)
