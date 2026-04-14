@@ -120,6 +120,15 @@ class PackedGraph:
         neighbor_indices.update(self.iter_children(node_idx, 1))
         return sorted(neighbor_indices)
 
+    def neighbor_pair(self, node_idx):
+        first = []
+        for direction in (0, 1):
+            start, end = self._side_range(node_idx, direction)
+            for offset in range(start, end):
+                first.append(self.handle_to_idx(self.adjacent_handles[offset]))
+        first.sort()
+        return tuple(first)
+
     def has_neighbor(self, node_idx, other_idx):
         for direction in (0, 1):
             for neighbor_idx in self.iter_children(node_idx, direction):

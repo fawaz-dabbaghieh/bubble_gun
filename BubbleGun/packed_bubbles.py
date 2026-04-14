@@ -44,23 +44,24 @@ class PackedBubble:
         if len(self.inside) == 2:
             first = self.inside[0]
             second = self.inside[1]
-            if {1} == {
-                graph.side_degree(first, 0),
-                graph.side_degree(first, 1),
-                graph.side_degree(second, 0),
-                graph.side_degree(second, 1),
-            }:
-                if graph.neighbors(first) == graph.neighbors(second):
-                    if not graph.has_neighbor(self.source, self.sink) and not graph.has_neighbor(
-                        self.sink, self.source
-                    ):
-                        return "simple"
+            if (
+                graph.side_degree(first, 0) == 1
+                and graph.side_degree(first, 1) == 1
+                and graph.side_degree(second, 0) == 1
+                and graph.side_degree(second, 1) == 1
+                and graph.neighbor_pair(first) == graph.neighbor_pair(second)
+                and not graph.has_neighbor(self.source, self.sink)
+            ):
+                return "simple"
 
         if len(self.inside) == 1:
             middle = self.inside[0]
-            if {1} == {graph.side_degree(middle, 0), graph.side_degree(middle, 1)}:
-                if sorted([self.source, self.sink]) == graph.neighbors(middle):
-                    return "insertion"
+            if (
+                graph.side_degree(middle, 0) == 1
+                and graph.side_degree(middle, 1) == 1
+                and tuple(sorted((self.source, self.sink))) == graph.neighbor_pair(middle)
+            ):
+                return "insertion"
 
         return "super"
 
@@ -148,50 +149,85 @@ class PackedBubbleChain:
                 current_node = next_bubble.source
 
 
-def find_sb_alg_packed(graph, source_idx, direction, only_simple=False, only_super=False):
-    seen = {(source_idx, direction)}
+def _find_bubble_data_packed(graph, source_idx, direction):
+    side_offsets = graph.side_offsets
+    adjacent_handles = graph.adjacent_handles
+    source_handle = (source_idx << 1) | direction
+    seen_handles = {source_handle}
     visited = set()
     nodes_inside = []
-    stack = {(source_idx, direction)}
+    stack = [source_handle]
+    stack_members = {source_handle}
 
     while stack:
-        node_idx, node_direction = stack.pop()
+        handle = stack.pop()
+        stack_members.remove(handle)
+        node_idx = handle >> 1
+        node_direction = handle & 1
         visited.add(node_idx)
         nodes_inside.append(node_idx)
-        seen.remove((node_idx, node_direction))
+        seen_handles.discard(handle)
 
-        children = list(graph.iter_edges(node_idx, node_direction))
-        if len(children) == 0:
+        start = side_offsets[handle]
+        end = side_offsets[handle + 1]
+        if start == end:
             break
 
-        for child_idx, child_side, _ in children:
+        for offset in range(start, end):
+            target_handle = adjacent_handles[offset]
+            child_idx = target_handle >> 1
+            child_side = target_handle & 1
             child_direction = 1 - child_side
             if child_idx == source_idx:
-                stack = set()
+                stack.clear()
+                stack_members.clear()
                 break
 
-            seen.add((child_idx, child_direction))
-            if all(parent_idx in visited for parent_idx in graph.iter_children(child_idx, child_side)):
-                stack.add((child_idx, child_direction))
+            child_handle = (child_idx << 1) | child_direction
+            seen_handles.add(child_handle)
 
-        if (len(stack) == 1) and (len(seen) == 1):
-            sink_idx, _ = stack.pop()
+            parent_handle = (child_idx << 1) | child_side
+            parent_start = side_offsets[parent_handle]
+            parent_end = side_offsets[parent_handle + 1]
+            all_parents_visited = True
+            for parent_offset in range(parent_start, parent_end):
+                parent_idx = adjacent_handles[parent_offset] >> 1
+                if parent_idx not in visited:
+                    all_parents_visited = False
+                    break
+
+            if all_parents_visited and child_handle not in stack_members:
+                stack.append(child_handle)
+                stack_members.add(child_handle)
+
+        if (len(stack_members) == 1) and (len(seen_handles) == 1):
+            sink_handle = next(iter(stack_members))
+            sink_idx = sink_handle >> 1
             nodes_inside.append(sink_idx)
             if len(nodes_inside) == 2:
                 break
 
-            nodes_inside.remove(source_idx)
-            nodes_inside.remove(sink_idx)
-            bubble = PackedBubble(graph, source=source_idx, sink=sink_idx, inside=nodes_inside)
+            return sink_idx, nodes_inside[1:-1]
 
-            if only_simple:
-                if bubble.is_simple():
-                    return bubble
-            elif only_super:
-                if bubble.is_super():
-                    return bubble
-            else:
-                return bubble
+    return None
+
+
+def find_sb_alg_packed(graph, source_idx, direction, only_simple=False, only_super=False):
+    bubble_data = _find_bubble_data_packed(graph, source_idx, direction)
+    if bubble_data is None:
+        return None
+
+    sink_idx, inside = bubble_data
+    bubble = PackedBubble(graph, source=source_idx, sink=sink_idx, inside=inside)
+
+    if only_simple:
+        if bubble.is_simple():
+            return bubble
+    elif only_super:
+        if bubble.is_super():
+            return bubble
+    else:
+        return bubble
 
     return None
 
@@ -272,10 +308,14 @@ def find_parents_packed(graph):
     for sb in all_sbs:
         for node_idx in sb.inside:
             for direction in (0, 1):
-                bubble = find_sb_alg_packed(graph, node_idx, direction)
-                if bubble is not None and bubble.key in graph.bubbles:
-                    graph.bubbles[bubble.key].parent_sb = sb.id
-                    graph.bubbles[bubble.key].parent_chain = sb.chain_id
+                bubble_data = _find_bubble_data_packed(graph, node_idx, direction)
+                if bubble_data is None:
+                    continue
+                sink_idx, _ = bubble_data
+                bubble_key = (sink_idx, node_idx) if sink_idx > node_idx else (node_idx, sink_idx)
+                if bubble_key in graph.bubbles:
+                    graph.bubbles[bubble_key].parent_sb = sb.id
+                    graph.bubbles[bubble_key].parent_chain = sb.chain_id
 
     for chain in graph.b_chains:
         for bubble in chain.bubbles:
