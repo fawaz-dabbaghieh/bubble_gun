@@ -22,6 +22,9 @@ class PackedGraph:
         "adjacent_handles",
         "overlaps",
         "edge_count",
+        "b_chains",
+        "bubbles",
+        "compacted",
     ]
 
     def __init__(self, graph_file=None, store_sequences=True, store_optional_info=True):
@@ -34,6 +37,9 @@ class PackedGraph:
         self.adjacent_handles = array("I")
         self.overlaps = array("I")
         self.edge_count = 0
+        self.b_chains = set()
+        self.bubbles = {}
+        self.compacted = False
 
         if graph_file is not None:
             if not os.path.exists(graph_file):
@@ -82,6 +88,16 @@ class PackedGraph:
     def total_seq_length(self):
         return sum(self.seq_lens)
 
+    def side_degree(self, node_idx, direction):
+        start, end = self._side_range(node_idx, direction)
+        return end - start
+
+    def iter_edges(self, node_idx, direction):
+        start, end = self._side_range(node_idx, direction)
+        for offset in range(start, end):
+            handle = self.adjacent_handles[offset]
+            yield self.handle_to_idx(handle), self.handle_to_side(handle), self.overlaps[offset]
+
     def iter_children_handles(self, node_idx, direction):
         start, end = self._side_range(node_idx, direction)
         for offset in range(start, end):
@@ -104,9 +120,59 @@ class PackedGraph:
         neighbor_indices.update(self.iter_children(node_idx, 1))
         return sorted(neighbor_indices)
 
+    def has_neighbor(self, node_idx, other_idx):
+        for direction in (0, 1):
+            for neighbor_idx in self.iter_children(node_idx, direction):
+                if neighbor_idx == other_idx:
+                    return True
+        return False
+
     def neighbors_ids(self, node_id):
         node_idx = self.get_idx(node_id)
         return sorted(self.get_id(idx) for idx in self.neighbors(node_idx))
+
+    def add_chain(self, chain):
+        if len(chain.sorted) == 0:
+            chain.find_ends()
+            if len(chain.ends) != 2:
+                return
+            chain.sort()
+            if chain not in self.b_chains:
+                self.b_chains.add(chain)
+
+    def longest_chain_bubble(self):
+        return max(self.b_chains, key=len)
+
+    def longest_chain_seq(self):
+        return max(self.b_chains, key=lambda chain: chain.length_seq(self))
+
+    def nodes_in_chains(self):
+        all_nodes = set()
+        for chain in self.b_chains:
+            all_nodes.update(chain.list_chain())
+        return all_nodes
+
+    def chain_cov_node(self):
+        return float((len(self.nodes_in_chains()) * 100) / len(self))
+
+    def chain_cov_seq(self):
+        chains_nodes = self.nodes_in_chains()
+        total_seq = 0
+        for node_idx in chains_nodes:
+            total_seq += self.seq_lens[node_idx]
+        return (total_seq * 100) / float(self.total_seq_length())
+
+    def bubble_number(self):
+        counter = [0, 0, 0]
+        for chain in self.b_chains:
+            for bubble in chain.bubbles:
+                if bubble.is_simple():
+                    counter[0] += 1
+                elif bubble.is_super():
+                    counter[1] += 1
+                elif bubble.is_insertion():
+                    counter[2] += 1
+        return counter
 
     def _side_range(self, node_idx, direction):
         handle = self.make_handle(node_idx, direction)

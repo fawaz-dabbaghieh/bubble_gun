@@ -10,6 +10,8 @@ from BubbleGun.json_out import json_out
 from BubbleGun.output_certain_chains import write_certain_chains
 from BubbleGun.connect_bubbles import connect_bubbles
 from BubbleGun.find_parents import find_parents
+from BubbleGun.PackedGraph import PackedGraph
+from BubbleGun.packed_bubbles import find_bubbles_packed, connect_bubbles_packed, find_parents_packed
 
 parser = argparse.ArgumentParser(description='Find Bubble Chains.', add_help=True)
 subparsers = parser.add_subparsers(help='Available subcommands', dest="subcommands")
@@ -232,21 +234,43 @@ def main():
                 print("You cannot have out haplotypes and both only_simple and only_super, only works with only_simple")
                 sys.exit()
 
+        use_packed_graph = (
+            args.out_json is None
+            and args.chains_gfa is None
+            and args.out_fasta is None
+            and not args.out_haplos
+        )
+
         logging.info("Reading Graph...")
-        graph = Graph(args.in_graph, low_memory=args.low_memory)
+        if use_packed_graph:
+            graph = PackedGraph(
+                args.in_graph,
+                store_sequences=not args.low_memory,
+                store_optional_info=False,
+            )
+        else:
+            graph = Graph(args.in_graph, low_memory=args.low_memory)
 
         logging.info("Finding bubbles...")
-
-        find_bubbles(graph, only_simple=args.only_simple, only_super=args.only_super)
+        if use_packed_graph:
+            find_bubbles_packed(graph, only_simple=args.only_simple, only_super=args.only_super)
+        else:
+            find_bubbles(graph, only_simple=args.only_simple, only_super=args.only_super)
 
         logging.info(f"Found {len(graph.bubbles)} Bubbles in the graph...")
         logging.info("Connecting bubbles...")
         # connecting individual bubbles into chains
-        connect_bubbles(graph)
+        if use_packed_graph:
+            connect_bubbles_packed(graph)
+        else:
+            connect_bubbles(graph)
 
         # add information related to nested bubbles
         logging.info("Finding nested information...")
-        find_parents(graph)
+        if use_packed_graph:
+            find_parents_packed(graph)
+        else:
+            find_parents(graph)
 
         logging.info("Done finding chains...")
         b_numbers = graph.bubble_number()
@@ -260,7 +284,11 @@ def main():
             if not args.low_memory:
                 print("Sequence coverage of the bubble chains is {}%".format(graph.chain_cov_seq()))
                 print("Node coverage of the bubble chains is {}%".format(graph.chain_cov_node()))
-                print("The longest chain seq-wise has {} bp".format(graph.longest_chain_seq().length_seq()))
+                if use_packed_graph:
+                    longest_seq = graph.longest_chain_seq().length_seq(graph)
+                else:
+                    longest_seq = graph.longest_chain_seq().length_seq()
+                print("The longest chain seq-wise has {} bp".format(longest_seq))
                 print("The longest chain bubble_wise has {} bubbles".format(len(graph.longest_chain_bubble())))
             if args.out_json is not None:
                 logging.info("Outputting bubble chains gfa...")
