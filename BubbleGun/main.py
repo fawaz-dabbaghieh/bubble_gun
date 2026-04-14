@@ -235,8 +235,7 @@ def main():
                 sys.exit()
 
         use_packed_graph = (
-            args.out_json is None
-            and args.chains_gfa is None
+            args.chains_gfa is None
             and args.out_fasta is None
             and not args.out_haplos
         )

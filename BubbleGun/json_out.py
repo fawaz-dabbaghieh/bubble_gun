@@ -1,6 +1,24 @@
 import json
 
 
+def _node_id(graph, node_ref):
+    if hasattr(node_ref, "id"):
+        return node_ref.id
+    return graph.get_id(node_ref)
+
+
+def _bubble_inside_ids(graph, bubble):
+    if bubble.inside and hasattr(bubble.inside[0], "id"):
+        return [node.id for node in bubble.inside]
+    return [graph.get_id(node_idx) for node_idx in bubble.inside]
+
+
+def _chain_end_ids(graph, chain):
+    if chain.ends and isinstance(chain.ends[0], str):
+        return chain.ends
+    return [graph.get_id(node_idx) for node_idx in chain.ends]
+
+
 def json_out(graph, output):
     # For each chain I output each bubble's ends and insides
     # First I'll give each bubble an id so the children chain can have a parent id
@@ -45,11 +63,11 @@ def json_out(graph, output):
     #     # output_f.write(json.dumps(chain_line) + ",\n")
     # not nested chains
 
-    for chain in graph.b_chains:
+    for chain in sorted(graph.b_chains, key=lambda item: item.id):
         # The chains that are not nested
         chain_line = dict()
         chain_line['chain_id'] = chain.id
-        chain_line['ends'] = chain.ends
+        chain_line['ends'] = _chain_end_ids(graph, chain)
         chain_line['bubbles'] = []
 
         for bubble in chain.sorted:
@@ -68,8 +86,8 @@ def json_out(graph, output):
                 # line['id'] = bubble.inside[0].which_s
 
             line['id'] = bubble.id
-            line["ends"] = [bubble.source.id, bubble.sink.id]
-            line['inside'] = [x.id for x in bubble.inside]
+            line["ends"] = [_node_id(graph, bubble.source), _node_id(graph, bubble.sink)]
+            line['inside'] = _bubble_inside_ids(graph, bubble)
 
             chain_line['bubbles'].append(line)
 
