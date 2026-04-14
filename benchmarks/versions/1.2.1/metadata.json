@@ -1,0 +1,17 @@
+{
+  "command": [
+    "gtime",
+    "-v",
+    "BubbleGun",
+    "-g",
+    "/Users/fawaz/tools/bubble_gun/test/bubble_finder_graph/chr22_graph.gfa",
+    "bchains"
+  ],
+  "exit_code": 0,
+  "git_commit": "8394d044813074755dd90f5102782d4254f2a0fe",
+  "graph": "/Users/fawaz/tools/bubble_gun/test/bubble_finder_graph/chr22_graph.gfa",
+  "package_version": "1.2.1",
+  "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "python": "3.13.11 | packaged by conda-forge | (main, Dec  6 2025, 11:28:54) [Clang 19.1.7 ]",
+  "version": "1.2.1"
+}

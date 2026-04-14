@@ -356,3 +356,6 @@ class Graph:
                         self.nodes[node].which_allele = -1
                         self.nodes[node].which_sb = b_counter
                         self.nodes[node].which_chain = chain_num
+
+
+PythonGraph = Graph

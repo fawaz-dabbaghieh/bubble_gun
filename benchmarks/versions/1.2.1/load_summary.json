@@ -1,0 +1,8 @@
+{
+  "graph_elapsed_s": 13.38,
+  "graph_max_rss_kb": 3120224,
+  "packed_graph_elapsed_s": 13.31,
+  "packed_graph_max_rss_kb": 765344,
+  "rss_reduction_kb": 2354880,
+  "rss_reduction_pct": 75.47
+}
