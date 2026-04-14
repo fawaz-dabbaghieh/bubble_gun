@@ -12,6 +12,7 @@ from BubbleGun.connect_bubbles import connect_bubbles
 from BubbleGun.find_parents import find_parents
 from BubbleGun.PackedGraph import PackedGraph
 from BubbleGun.packed_bubbles import find_bubbles_packed, connect_bubbles_packed, find_parents_packed
+from BubbleGun.graph_io import write_chains_packed
 
 parser = argparse.ArgumentParser(description='Find Bubble Chains.', add_help=True)
 subparsers = parser.add_subparsers(help='Available subcommands', dest="subcommands")
@@ -235,8 +236,7 @@ def main():
                 sys.exit()
 
         use_packed_graph = (
-            args.chains_gfa is None
-            and args.out_fasta is None
+            args.out_fasta is None
             and not args.out_haplos
         )
 
@@ -245,7 +245,7 @@ def main():
             graph = PackedGraph(
                 args.in_graph,
                 store_sequences=not args.low_memory,
-                store_optional_info=False,
+                store_optional_info=args.chains_gfa is not None,
             )
         else:
             graph = Graph(args.in_graph, low_memory=args.low_memory)
@@ -270,6 +270,10 @@ def main():
             find_parents_packed(graph)
         else:
             find_parents(graph)
+
+        # Once parent links are propagated to chain and bubble objects, the
+        # top-level bubble index is redundant and just retains duplicate refs.
+        graph.bubbles = {}
 
         logging.info("Done finding chains...")
         b_numbers = graph.bubble_number()
@@ -299,7 +303,10 @@ def main():
                     sys.exit()
 
                 logging.info("Outputting bubble chains gfa...")
-                graph.write_b_chains(output=args.chains_gfa)
+                if use_packed_graph:
+                    write_chains_packed(graph, output_file=args.chains_gfa, optional_info=True)
+                else:
+                    graph.write_b_chains(output=args.chains_gfa)
 
             if args.out_fasta is not None:
                 if args.low_memory:

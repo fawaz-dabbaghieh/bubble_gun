@@ -139,6 +139,60 @@ def write_chains(graph, output_file="output_bubble_chains.gfa", optional_info=Fa
     f.close()
 
 
+def write_chains_packed(graph, output_file="output_bubble_chains.gfa", optional_info=False):
+    """
+    Write bubble chains from PackedGraph as GFA.
+
+    :param graph: PackedGraph object with bubble chains already detected
+    :param output_file: output file path
+    :param optional_info: If True, append stored optional segment columns
+    """
+    set_of_nodes = set()
+    for chain in graph.b_chains:
+        for node_idx in chain.list_chain():
+            set_of_nodes.add(node_idx)
+
+    with open(output_file, "w+") as handle:
+        for node_idx in set_of_nodes:
+            node_id = graph.get_id(node_idx)
+            sequence = graph.sequence(node_idx)
+            if sequence is None:
+                raise ValueError("PackedGraph sequences are required to write chain GFA output")
+
+            tags = graph.tags(node_idx) or ""
+            if "LN" in tags:
+                line = str("\t".join(("S", str(node_id), sequence)))
+            else:
+                line = str("\t".join(("S", str(node_id), sequence, "LN:i:" + str(graph.seq_len(node_idx)))))
+            if optional_info:
+                line += "\t" + tags
+
+            handle.write(line + "\n")
+
+            edges = []
+            for direction, from_sign in ((0, "-"), (1, "+")):
+                for neighbor_idx, neighbor_side, overlap in graph.iter_edges(node_idx, direction):
+                    if neighbor_idx not in set_of_nodes:
+                        continue
+                    to_sign = "-" if neighbor_side == 1 else "+"
+                    edge = str(
+                        "\t".join(
+                            (
+                                "L",
+                                str(node_id),
+                                from_sign,
+                                str(graph.get_id(neighbor_idx)),
+                                to_sign,
+                                str(overlap) + "M\n",
+                            )
+                        )
+                    )
+                    edges.append(edge)
+
+            for edge in edges:
+                handle.write(edge)
+
+
 def read_gfa(gfa_file_path, low_memory=False):
     """
     Read a gfa file
