@@ -104,6 +104,13 @@ class PackedGraph:
         start, end = self._side_range(node_idx, direction)
         return end - start
 
+    def unique_side_neighbors(self, node_idx, direction):
+        neighbors = set()
+        start, end = self._side_range(node_idx, direction)
+        for offset in range(start, end):
+            neighbors.add(self.handle_to_idx(self.adjacent_handles[offset]))
+        return neighbors
+
     def iter_edges(self, node_idx, direction):
         start, end = self._side_range(node_idx, direction)
         for offset in range(start, end):

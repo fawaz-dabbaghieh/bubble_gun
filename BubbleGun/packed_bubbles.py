@@ -44,11 +44,15 @@ class PackedBubble:
         if len(self.inside) == 2:
             first = self.inside[0]
             second = self.inside[1]
+            first_start = graph.unique_side_neighbors(first, 0)
+            first_end = graph.unique_side_neighbors(first, 1)
+            second_start = graph.unique_side_neighbors(second, 0)
+            second_end = graph.unique_side_neighbors(second, 1)
             if (
-                graph.side_degree(first, 0) == 1
-                and graph.side_degree(first, 1) == 1
-                and graph.side_degree(second, 0) == 1
-                and graph.side_degree(second, 1) == 1
+                len(first_start) == 1
+                and len(first_end) == 1
+                and len(second_start) == 1
+                and len(second_end) == 1
                 and graph.neighbor_pair(first) == graph.neighbor_pair(second)
                 and not graph.has_neighbor(self.source, self.sink)
             ):
@@ -56,9 +60,11 @@ class PackedBubble:
 
         if len(self.inside) == 1:
             middle = self.inside[0]
+            middle_start = graph.unique_side_neighbors(middle, 0)
+            middle_end = graph.unique_side_neighbors(middle, 1)
             if (
-                graph.side_degree(middle, 0) == 1
-                and graph.side_degree(middle, 1) == 1
+                len(middle_start) == 1
+                and len(middle_end) == 1
                 and tuple(sorted((self.source, self.sink))) == graph.neighbor_pair(middle)
             ):
                 return "insertion"
