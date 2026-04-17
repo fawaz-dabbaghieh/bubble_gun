@@ -25,6 +25,12 @@ class PackedGraph:
         "b_chains",
         "bubbles",
         "compacted",
+        "node_visit_marks",
+        "handle_seen_marks",
+        "handle_stack_marks",
+        "node_visit_epoch",
+        "handle_seen_epoch",
+        "handle_stack_epoch",
     ]
 
     def __init__(self, graph_file=None, store_sequences=True, store_optional_info=True):
@@ -40,6 +46,12 @@ class PackedGraph:
         self.b_chains = set()
         self.bubbles = {}
         self.compacted = False
+        self.node_visit_marks = array("I")
+        self.handle_seen_marks = array("I")
+        self.handle_stack_marks = array("I")
+        self.node_visit_epoch = 0
+        self.handle_seen_epoch = 0
+        self.handle_stack_epoch = 0
 
         if graph_file is not None:
             if not os.path.exists(graph_file):
@@ -183,6 +195,12 @@ class PackedGraph:
                     counter[2] += 1
         return counter
 
+    def next_search_epochs(self):
+        self.node_visit_epoch += 1
+        self.handle_seen_epoch += 1
+        self.handle_stack_epoch += 1
+        return self.node_visit_epoch, self.handle_seen_epoch, self.handle_stack_epoch
+
     def _side_range(self, node_idx, direction):
         handle = self.make_handle(node_idx, direction)
         return self.side_offsets[handle], self.side_offsets[handle + 1]
@@ -223,6 +241,9 @@ class PackedGraph:
         self.overlaps = array("I", [0]) * running_total
         cursor = array("I", self.side_offsets[:-1])
         self._fill_adjacencies(gfa_file_path, cursor)
+        self.node_visit_marks = array("I", [0]) * len(self.idx_to_id)
+        self.handle_seen_marks = array("I", [0]) * len(side_counts)
+        self.handle_stack_marks = array("I", [0]) * len(side_counts)
 
     def _count_adjacencies(self, gfa_file_path, side_counts):
         edge_count = 0

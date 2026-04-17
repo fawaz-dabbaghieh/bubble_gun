@@ -152,21 +152,29 @@ class PackedBubbleChain:
 def _find_bubble_data_packed(graph, source_idx, direction):
     side_offsets = graph.side_offsets
     adjacent_handles = graph.adjacent_handles
+    node_visit_marks = graph.node_visit_marks
+    handle_seen_marks = graph.handle_seen_marks
+    handle_stack_marks = graph.handle_stack_marks
+    visit_epoch, seen_epoch, stack_epoch = graph.next_search_epochs()
     source_handle = (source_idx << 1) | direction
-    seen_handles = {source_handle}
-    visited = set()
     nodes_inside = []
     stack = [source_handle]
-    stack_members = {source_handle}
+    stack_count = 1
+    seen_count = 1
+    handle_seen_marks[source_handle] = seen_epoch
+    handle_stack_marks[source_handle] = stack_epoch
 
     while stack:
         handle = stack.pop()
-        stack_members.remove(handle)
+        handle_stack_marks[handle] = 0
+        stack_count -= 1
         node_idx = handle >> 1
         node_direction = handle & 1
-        visited.add(node_idx)
+        node_visit_marks[node_idx] = visit_epoch
         nodes_inside.append(node_idx)
-        seen_handles.discard(handle)
+        if handle_seen_marks[handle] == seen_epoch:
+            handle_seen_marks[handle] = 0
+            seen_count -= 1
 
         start = side_offsets[handle]
         end = side_offsets[handle + 1]
@@ -180,11 +188,13 @@ def _find_bubble_data_packed(graph, source_idx, direction):
             child_direction = 1 - child_side
             if child_idx == source_idx:
                 stack.clear()
-                stack_members.clear()
+                stack_count = 0
                 break
 
             child_handle = (child_idx << 1) | child_direction
-            seen_handles.add(child_handle)
+            if handle_seen_marks[child_handle] != seen_epoch:
+                handle_seen_marks[child_handle] = seen_epoch
+                seen_count += 1
 
             parent_handle = (child_idx << 1) | child_side
             parent_start = side_offsets[parent_handle]
@@ -192,16 +202,17 @@ def _find_bubble_data_packed(graph, source_idx, direction):
             all_parents_visited = True
             for parent_offset in range(parent_start, parent_end):
                 parent_idx = adjacent_handles[parent_offset] >> 1
-                if parent_idx not in visited:
+                if node_visit_marks[parent_idx] != visit_epoch:
                     all_parents_visited = False
                     break
 
-            if all_parents_visited and child_handle not in stack_members:
+            if all_parents_visited and handle_stack_marks[child_handle] != stack_epoch:
                 stack.append(child_handle)
-                stack_members.add(child_handle)
+                handle_stack_marks[child_handle] = stack_epoch
+                stack_count += 1
 
-        if (len(stack_members) == 1) and (len(seen_handles) == 1):
-            sink_handle = next(iter(stack_members))
+        if (stack_count == 1) and (seen_count == 1):
+            sink_handle = stack[-1]
             sink_idx = sink_handle >> 1
             nodes_inside.append(sink_idx)
             if len(nodes_inside) == 2:
