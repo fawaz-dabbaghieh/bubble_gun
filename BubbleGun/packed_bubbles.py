@@ -314,19 +314,31 @@ def connect_bubbles_packed(graph):
 
 def find_parents_packed(graph):
     all_sbs = [bubble for bubble in graph.bubbles.values() if bubble.is_super()]
-    all_sbs = sorted(all_sbs, key=lambda bubble: len(bubble.inside), reverse=True)
-
+    node_to_superbubbles = {}
     for sb in all_sbs:
         for node_idx in sb.inside:
-            for direction in (0, 1):
-                bubble_data = _find_bubble_data_packed(graph, node_idx, direction)
-                if bubble_data is None:
-                    continue
-                sink_idx, _ = bubble_data
-                bubble_key = (sink_idx, node_idx) if sink_idx > node_idx else (node_idx, sink_idx)
-                if bubble_key in graph.bubbles:
-                    graph.bubbles[bubble_key].parent_sb = sb.id
-                    graph.bubbles[bubble_key].parent_chain = sb.chain_id
+            node_to_superbubbles.setdefault(node_idx, []).append(sb)
+
+    for bubble in graph.bubbles.values():
+        bubble_nodes = list(dict.fromkeys(bubble.list_bubble()))
+        if not bubble_nodes:
+            continue
+
+        candidate_counts = {}
+        for node_idx in bubble_nodes:
+            for sb in node_to_superbubbles.get(node_idx, ()):
+                candidate_counts[sb] = candidate_counts.get(sb, 0) + 1
+
+        parent_candidates = [
+            sb
+            for sb, count in candidate_counts.items()
+            if count == len(bubble_nodes) and sb.key != bubble.key
+        ]
+
+        if parent_candidates:
+            parent_sb = min(parent_candidates, key=lambda sb: (len(sb.inside), sb.id))
+            bubble.parent_sb = parent_sb.id
+            bubble.parent_chain = parent_sb.chain_id
 
     for chain in graph.b_chains:
         for bubble in chain.bubbles:
