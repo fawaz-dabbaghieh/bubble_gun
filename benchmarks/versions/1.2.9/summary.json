@@ -1,0 +1,14 @@
+{
+  "elapsed": "0:53.32",
+  "exit_code": 0,
+  "insertions": 35409,
+  "longest_chain_bubbles": 1026297,
+  "longest_chain_seq_bp": 38234469,
+  "max_rss_kb": 1956368,
+  "node_coverage_pct": 99.9997497672053,
+  "sequence_coverage_pct": 72.92881436586556,
+  "simple_bubbles": 916946,
+  "superbubbles": 75462,
+  "system_time_s": 0.58,
+  "user_time_s": 52.67
+}

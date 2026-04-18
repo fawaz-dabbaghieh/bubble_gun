@@ -128,6 +128,14 @@ def _debug_large_bubble_threshold():
     return int(os.environ.get("BUBBLEGUN_DEBUG_LARGE_BUBBLE", "10000"))
 
 
+def _debug_watchdog_seconds():
+    return float(os.environ.get("BUBBLEGUN_DEBUG_WATCHDOG_SECONDS", "5"))
+
+
+def _debug_watchdog_steps():
+    return int(os.environ.get("BUBBLEGUN_DEBUG_WATCHDOG_STEPS", "100000"))
+
+
 def _debug_log_progress(state, graph, node_idx, force=False):
     if not state.enabled:
         return
@@ -172,6 +180,34 @@ def _debug_log_large_bubble(state, source_idx, sink_idx, inside_len):
         "[DBG-LARGE-BUBBLE] "
         f"source={source_idx} sink={sink_idx} inside={inside_len} "
         f"count={state.large_bubble_count}",
+        flush=True,
+    )
+
+
+def _debug_log_watchdog(
+    state,
+    source_idx,
+    direction,
+    elapsed,
+    expanded_nodes,
+    frontier_size,
+    seen_count,
+    edge_scans,
+    current_node,
+    current_direction,
+):
+    if not state.enabled:
+        return
+    print(
+        "[DBG-WATCHDOG] "
+        f"source={source_idx} direction={direction} "
+        f"elapsed={elapsed:.2f}s "
+        f"expanded={expanded_nodes} "
+        f"frontier={frontier_size} "
+        f"seen={seen_count} "
+        f"edge_scans={edge_scans} "
+        f"current_node={current_node} "
+        f"current_direction={current_direction}",
         flush=True,
     )
 
@@ -250,7 +286,7 @@ class PackedBubbleChain:
                 current_node = next_bubble.source
 
 
-def _find_bubble_data_packed(graph, source_idx, direction):
+def _find_bubble_data_packed(graph, source_idx, direction, debug_state=None):
     side_offsets = graph.side_offsets
     adjacent_handles = graph.adjacent_handles
     node_visit_marks = graph.node_visit_marks
@@ -259,16 +295,27 @@ def _find_bubble_data_packed(graph, source_idx, direction):
     visit_epoch, seen_epoch, stack_epoch = graph.next_search_epochs()
     source_handle = (source_idx << 1) | direction
     nodes_inside = []
-    stack = [source_handle]
-    stack_count = 1
+    frontier = {source_handle}
     seen_count = 1
+    edge_scans = 0
+    watchdog_deadline = None
+    watchdog_step_interval = 0
+    watchdog_next_step = 0
+    search_start = None
     handle_seen_marks[source_handle] = seen_epoch
     handle_stack_marks[source_handle] = stack_epoch
+    if debug_state is not None and debug_state.enabled:
+        search_start = time.time()
+        watchdog_seconds = _debug_watchdog_seconds()
+        if watchdog_seconds > 0:
+            watchdog_deadline = search_start + watchdog_seconds
+        watchdog_step_interval = _debug_watchdog_steps()
+        if watchdog_step_interval > 0:
+            watchdog_next_step = watchdog_step_interval
 
-    while stack:
-        handle = stack.pop()
+    while frontier:
+        handle = frontier.pop()
         handle_stack_marks[handle] = 0
-        stack_count -= 1
         node_idx = handle >> 1
         node_direction = handle & 1
         node_visit_marks[node_idx] = visit_epoch
@@ -283,13 +330,13 @@ def _find_bubble_data_packed(graph, source_idx, direction):
             break
 
         for offset in range(start, end):
+            edge_scans += 1
             target_handle = adjacent_handles[offset]
             child_idx = target_handle >> 1
             child_side = target_handle & 1
             child_direction = 1 - child_side
             if child_idx == source_idx:
-                stack.clear()
-                stack_count = 0
+                frontier.clear()
                 break
 
             child_handle = (child_idx << 1) | child_direction
@@ -308,12 +355,41 @@ def _find_bubble_data_packed(graph, source_idx, direction):
                     break
 
             if all_parents_visited and handle_stack_marks[child_handle] != stack_epoch:
-                stack.append(child_handle)
+                frontier.add(child_handle)
                 handle_stack_marks[child_handle] = stack_epoch
-                stack_count += 1
+            if debug_state is not None and debug_state.enabled:
+                now = None
+                should_log = False
+                if watchdog_deadline is not None and time.time() >= watchdog_deadline:
+                    now = time.time()
+                    should_log = True
+                elif watchdog_step_interval > 0 and edge_scans >= watchdog_next_step:
+                    now = time.time()
+                    should_log = True
 
-        if (stack_count == 1) and (seen_count == 1):
-            sink_handle = stack[-1]
+                if should_log:
+                    if now is None:
+                        now = time.time()
+                    _debug_log_watchdog(
+                        debug_state,
+                        source_idx,
+                        direction,
+                        now - search_start,
+                        len(nodes_inside),
+                        len(frontier),
+                        seen_count,
+                        edge_scans,
+                        node_idx,
+                        node_direction,
+                    )
+                    if watchdog_deadline is not None:
+                        watchdog_deadline = now + _debug_watchdog_seconds()
+                    if watchdog_step_interval > 0:
+                        while edge_scans >= watchdog_next_step:
+                            watchdog_next_step += watchdog_step_interval
+
+        if (len(frontier) == 1) and (seen_count == 1):
+            sink_handle = next(iter(frontier))
             sink_idx = sink_handle >> 1
             nodes_inside.append(sink_idx)
             if len(nodes_inside) == 2:
@@ -351,7 +427,7 @@ def _classify_bubble_data_packed(graph, source_idx, bubble_data, only_simple=Fal
 
 
 def find_sb_alg_packed(graph, source_idx, direction, only_simple=False, only_super=False, debug_state=None):
-    bubble_data = _find_bubble_data_packed(graph, source_idx, direction)
+    bubble_data = _find_bubble_data_packed(graph, source_idx, direction, debug_state=debug_state)
     return _classify_bubble_data_packed(
         graph,
         source_idx,
@@ -375,7 +451,7 @@ def find_bubbles_packed(graph, only_simple=False, only_super=False):
             debug_state.directions_done += 1
 
             t0 = time.time() if debug_state.enabled else None
-            bubble_data = _find_bubble_data_packed(graph, node_idx, direction)
+            bubble_data = _find_bubble_data_packed(graph, node_idx, direction, debug_state=debug_state)
             if debug_state.enabled:
                 debug_state.find_time += time.time() - t0
 
