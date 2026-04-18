@@ -1,5 +1,7 @@
 import logging
+import os
 import sys
+import time
 from collections import Counter
 
 
@@ -79,6 +81,99 @@ class PackedBubble:
 
     def is_super(self):
         return self.bubble_type == "super"
+
+
+class _PackedDebugState:
+    __slots__ = [
+        "enabled",
+        "start_time",
+        "last_log_time",
+        "find_time",
+        "classify_time",
+        "directions_done",
+        "bubbles_found",
+        "bubbles_inserted",
+        "duplicate_bubbles",
+        "max_inside",
+        "max_inside_source",
+        "max_inside_sink",
+        "large_bubble_count",
+    ]
+
+    def __init__(self):
+        self.enabled = os.environ.get("BUBBLEGUN_DEBUG_PACKED", "").lower() not in {"", "0", "false", "no"}
+        self.start_time = time.time()
+        self.last_log_time = self.start_time
+        self.find_time = 0.0
+        self.classify_time = 0.0
+        self.directions_done = 0
+        self.bubbles_found = 0
+        self.bubbles_inserted = 0
+        self.duplicate_bubbles = 0
+        self.max_inside = 0
+        self.max_inside_source = None
+        self.max_inside_sink = None
+        self.large_bubble_count = 0
+
+
+def _debug_progress_every_nodes():
+    return int(os.environ.get("BUBBLEGUN_DEBUG_PROGRESS_NODES", "100000"))
+
+
+def _debug_progress_every_seconds():
+    return float(os.environ.get("BUBBLEGUN_DEBUG_PROGRESS_SECONDS", "30"))
+
+
+def _debug_large_bubble_threshold():
+    return int(os.environ.get("BUBBLEGUN_DEBUG_LARGE_BUBBLE", "10000"))
+
+
+def _debug_log_progress(state, graph, node_idx, force=False):
+    if not state.enabled:
+        return
+
+    now = time.time()
+    if not force:
+        if node_idx != 0 and (node_idx % _debug_progress_every_nodes()) != 0:
+            if (now - state.last_log_time) < _debug_progress_every_seconds():
+                return
+
+    elapsed = now - state.start_time
+    node_count = len(graph)
+    processed_nodes = min(node_idx, node_count)
+    processed_pct = (processed_nodes * 100.0 / node_count) if node_count else 100.0
+    nodes_per_second = (processed_nodes / elapsed) if elapsed > 0 else 0.0
+    print(
+        "[DBG-PACKED] "
+        f"nodes={processed_nodes}/{node_count} ({processed_pct:.2f}%) "
+        f"dirs={state.directions_done} "
+        f"elapsed={elapsed:.2f}s "
+        f"rate={nodes_per_second:.2f} nodes/s "
+        f"find_time={state.find_time:.2f}s "
+        f"classify_time={state.classify_time:.2f}s "
+        f"found={state.bubbles_found} "
+        f"inserted={state.bubbles_inserted} "
+        f"duplicates={state.duplicate_bubbles} "
+        f"large_bubbles={state.large_bubble_count} "
+        f"max_inside={state.max_inside} "
+        f"max_pair=({state.max_inside_source},{state.max_inside_sink})",
+        flush=True,
+    )
+    state.last_log_time = now
+
+
+def _debug_log_large_bubble(state, source_idx, sink_idx, inside_len):
+    if not state.enabled:
+        return
+    if inside_len < _debug_large_bubble_threshold():
+        return
+    state.large_bubble_count += 1
+    print(
+        "[DBG-LARGE-BUBBLE] "
+        f"source={source_idx} sink={sink_idx} inside={inside_len} "
+        f"count={state.large_bubble_count}",
+        flush=True,
+    )
 
 
 class PackedBubbleChain:
@@ -229,12 +324,18 @@ def _find_bubble_data_packed(graph, source_idx, direction):
     return None
 
 
-def find_sb_alg_packed(graph, source_idx, direction, only_simple=False, only_super=False):
-    bubble_data = _find_bubble_data_packed(graph, source_idx, direction)
+def _classify_bubble_data_packed(graph, source_idx, bubble_data, only_simple=False, only_super=False, debug_state=None):
     if bubble_data is None:
         return None
 
     sink_idx, inside = bubble_data
+    if debug_state is not None:
+        inside_len = len(inside)
+        if inside_len > debug_state.max_inside:
+            debug_state.max_inside = inside_len
+            debug_state.max_inside_source = source_idx
+            debug_state.max_inside_sink = sink_idx
+        _debug_log_large_bubble(debug_state, source_idx, sink_idx, inside_len)
     bubble = PackedBubble(graph, source=source_idx, sink=sink_idx, inside=inside)
 
     if only_simple:
@@ -249,17 +350,58 @@ def find_sb_alg_packed(graph, source_idx, direction, only_simple=False, only_sup
     return None
 
 
+def find_sb_alg_packed(graph, source_idx, direction, only_simple=False, only_super=False, debug_state=None):
+    bubble_data = _find_bubble_data_packed(graph, source_idx, direction)
+    return _classify_bubble_data_packed(
+        graph,
+        source_idx,
+        bubble_data,
+        only_simple=only_simple,
+        only_super=only_super,
+        debug_state=debug_state,
+    )
+
+
 def find_bubbles_packed(graph, only_simple=False, only_super=False):
     if only_simple and only_super:
         print("You can't mix both only_super and only_simple, choose one or not add these arguments to detect both")
         sys.exit(1)
 
     graph.bubbles = {}
+    debug_state = _PackedDebugState()
     for node_idx in range(len(graph)):
+        _debug_log_progress(debug_state, graph, node_idx)
         for direction in (0, 1):
-            bubble = find_sb_alg_packed(graph, node_idx, direction, only_simple, only_super)
+            debug_state.directions_done += 1
+
+            t0 = time.time() if debug_state.enabled else None
+            bubble_data = _find_bubble_data_packed(graph, node_idx, direction)
+            if debug_state.enabled:
+                debug_state.find_time += time.time() - t0
+
+            if bubble_data is None:
+                continue
+
+            debug_state.bubbles_found += 1
+
+            t1 = time.time() if debug_state.enabled else None
+            bubble = _classify_bubble_data_packed(
+                graph,
+                node_idx,
+                bubble_data,
+                only_simple=only_simple,
+                only_super=only_super,
+                debug_state=debug_state,
+            )
+            if debug_state.enabled:
+                debug_state.classify_time += time.time() - t1
             if bubble is not None:
+                if bubble.key in graph.bubbles:
+                    debug_state.duplicate_bubbles += 1
+                else:
+                    debug_state.bubbles_inserted += 1
                 graph.bubbles[bubble.key] = bubble
+    _debug_log_progress(debug_state, graph, len(graph), force=True)
 
 
 def connect_bubbles_packed(graph):
